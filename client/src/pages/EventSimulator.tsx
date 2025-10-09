@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,18 +14,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { Event, InsertEvent } from "@shared/schema";
 import {
   Zap,
   Plus,
   Trash2,
-  RefreshCw,
   Database,
   Wand2,
+  Loader2,
 } from "lucide-react";
-import type { EventDetailProps } from "@/components/EventDetailPanel";
 
 const EVENT_SOURCES = [
   { value: "guest_portal", label: "Guest Portal" },
@@ -52,8 +53,8 @@ const PRESET_SCENARIOS = [
     events: [{
       title: "Complete Wi-Fi Failure - Entire Property",
       description: "Total network outage affecting all guest rooms and common areas. No devices can connect.",
-      priority: "critical" as const,
-      status: "new" as const,
+      priority: "critical",
+      status: "new",
       category: "Network Connectivity",
       affectedGuests: 150,
       estimatedResolution: "2 hours",
@@ -66,8 +67,8 @@ const PRESET_SCENARIOS = [
       {
         title: "Bandwidth Congestion - Conference Hall A",
         description: "100+ devices connected for corporate event causing network slowdown",
-        priority: "high" as const,
-        status: "new" as const,
+        priority: "high",
+        status: "new",
         category: "Performance",
         affectedGuests: 85,
         estimatedResolution: "45 minutes",
@@ -76,8 +77,8 @@ const PRESET_SCENARIOS = [
       {
         title: "Streaming Issues - Conference AV System",
         description: "Video conferencing experiencing packet loss and jitter",
-        priority: "high" as const,
-        status: "new" as const,
+        priority: "high",
+        status: "new",
         category: "Advanced Services",
         affectedGuests: 85,
         estimatedResolution: "30 minutes",
@@ -91,8 +92,8 @@ const PRESET_SCENARIOS = [
       {
         title: "Slow Internet - Room 305",
         description: "Guest reports degraded performance, unable to work remotely",
-        priority: "medium" as const,
-        status: "new" as const,
+        priority: "medium",
+        status: "new",
         category: "Performance",
         affectedGuests: 1,
         estimatedResolution: "20 minutes",
@@ -101,8 +102,8 @@ const PRESET_SCENARIOS = [
       {
         title: "Cannot Connect - Room 412",
         description: "Guest unable to find network SSID",
-        priority: "medium" as const,
-        status: "new" as const,
+        priority: "medium",
+        status: "new",
         category: "Configuration",
         affectedGuests: 1,
         estimatedResolution: "15 minutes",
@@ -111,8 +112,8 @@ const PRESET_SCENARIOS = [
       {
         title: "Device Limit Reached - Room 508",
         description: "Guest attempting to connect 5th device",
-        priority: "low" as const,
-        status: "new" as const,
+        priority: "low",
+        status: "new",
         category: "Configuration",
         affectedGuests: 1,
         estimatedResolution: "10 minutes",
@@ -125,8 +126,8 @@ const PRESET_SCENARIOS = [
     events: [{
       title: "Unauthorized Access Attempt Detected",
       description: "Multiple failed authentication attempts from Room 215. Potential security breach.",
-      priority: "critical" as const,
-      status: "new" as const,
+      priority: "critical",
+      status: "new",
       category: "Security",
       affectedGuests: 1,
       estimatedResolution: "Immediate",
@@ -137,13 +138,12 @@ const PRESET_SCENARIOS = [
 
 export default function EventSimulator() {
   const { toast } = useToast();
-  const [simulatedEvents, setSimulatedEvents] = useState<EventDetailProps[]>([]);
   
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    priority: "medium" as const,
-    status: "new" as const,
+    priority: "medium",
+    status: "new",
     location: "",
     category: "",
     affectedGuests: 1,
@@ -152,44 +152,55 @@ export default function EventSimulator() {
     rootCause: "",
   });
 
-  const generateEventId = () => {
-    return `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  };
+  // Fetch all events
+  const { data: events = [], isLoading } = useQuery<Event[]>({
+    queryKey: ["/api/events"],
+  });
 
-  const createEvent = (eventData: Partial<EventDetailProps> & { source?: string }) => {
-    const newEvent: EventDetailProps = {
-      id: generateEventId(),
-      title: eventData.title || "Untitled Event",
-      description: eventData.description || "",
-      priority: eventData.priority || "medium",
-      status: eventData.status || "new",
-      location: eventData.location,
-      category: eventData.category,
-      affectedGuests: eventData.affectedGuests,
-      estimatedResolution: eventData.estimatedResolution,
-      rootCause: eventData.rootCause,
-      timestamp: "Just now",
-      timeline: [
-        {
-          timestamp: "Just now",
-          action: `Event created from ${EVENT_SOURCES.find(s => s.value === eventData.source)?.label || 'Unknown Source'}`,
-          actor: "Event Simulator",
-        }
-      ],
-    };
+  // Create event mutation
+  const createEventMutation = useMutation({
+    mutationFn: async (eventData: Omit<InsertEvent, 'createdAt' | 'updatedAt'>) => {
+      const response = await apiRequest("POST", "/api/events", eventData);
+      return await response.json();
+    },
+    onSuccess: (event: Event) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({
+        title: "Event Created",
+        description: `${event.title} (${event.id})`,
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create event",
+        variant: "destructive",
+      });
+    },
+  });
 
-    setSimulatedEvents(prev => [newEvent, ...prev]);
-    return newEvent;
-  };
+  // Delete all events (for clearing)
+  const clearEventsMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all events one by one
+      const deletePromises = events.map(event =>
+        apiRequest("DELETE", `/api/events/${event.id}`)
+      );
+      await Promise.all(deletePromises);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({
+        title: "Events Cleared",
+        description: "All simulated events have been removed",
+      });
+    },
+  });
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const event = createEvent(formData);
     
-    toast({
-      title: "Event Created",
-      description: `${event.title} (${event.id})`,
-    });
+    createEventMutation.mutate(formData as any);
 
     // Reset form
     setFormData({
@@ -206,21 +217,31 @@ export default function EventSimulator() {
     });
   };
 
-  const handlePresetScenario = (scenario: typeof PRESET_SCENARIOS[0]) => {
-    const createdEvents = scenario.events.map(event => createEvent(event));
+  const handlePresetScenario = async (scenario: typeof PRESET_SCENARIOS[0]) => {
+    // Create all events in the scenario
+    for (const event of scenario.events) {
+      await createEventMutation.mutateAsync(event as any);
+    }
     
     toast({
       title: "Scenario Loaded",
-      description: `Created ${createdEvents.length} event(s) for "${scenario.name}"`,
+      description: `Created ${scenario.events.length} event(s) for "${scenario.name}"`,
     });
   };
 
   const clearAllEvents = () => {
-    setSimulatedEvents([]);
-    toast({
-      title: "Events Cleared",
-      description: "All simulated events have been removed",
-    });
+    clearEventsMutation.mutate();
+  };
+
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
   return (
@@ -250,7 +271,7 @@ export default function EventSimulator() {
               Preset Scenarios
             </TabsTrigger>
             <TabsTrigger value="events" data-testid="tab-events">
-              Simulated Events ({simulatedEvents.length})
+              Simulated Events ({events.length})
             </TabsTrigger>
           </TabsList>
 
@@ -411,9 +432,23 @@ export default function EventSimulator() {
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" data-testid="button-create-event">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Event
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    data-testid="button-create-event"
+                    disabled={createEventMutation.isPending}
+                  >
+                    {createEventMutation.isPending ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Event
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -442,8 +477,13 @@ export default function EventSimulator() {
                         <Button
                           onClick={() => handlePresetScenario(scenario)}
                           data-testid={`button-preset-${index}`}
+                          disabled={createEventMutation.isPending}
                         >
-                          <Wand2 className="h-4 w-4 mr-2" />
+                          {createEventMutation.isPending ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Wand2 className="h-4 w-4 mr-2" />
+                          )}
                           Load Scenario
                         </Button>
                       </div>
@@ -471,23 +511,33 @@ export default function EventSimulator() {
                   <div>
                     <CardTitle>Simulated Events</CardTitle>
                     <CardDescription>
-                      All events created during this session
+                      All events in the system
                     </CardDescription>
                   </div>
-                  {simulatedEvents.length > 0 && (
+                  {events.length > 0 && (
                     <Button
                       variant="outline"
                       onClick={clearAllEvents}
                       data-testid="button-clear-all"
+                      disabled={clearEventsMutation.isPending}
                     >
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      {clearEventsMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
                       Clear All
                     </Button>
                   )}
                 </div>
               </CardHeader>
               <CardContent>
-                {simulatedEvents.length === 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-12">
+                    <Loader2 className="h-12 w-12 mx-auto text-muted-foreground animate-spin mb-4" />
+                    <p className="text-muted-foreground">Loading events...</p>
+                  </div>
+                ) : events.length === 0 ? (
                   <div className="text-center py-12">
                     <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
@@ -496,7 +546,7 @@ export default function EventSimulator() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {simulatedEvents.map((event) => (
+                    {events.map((event) => (
                       <Card key={event.id} className="hover-elevate">
                         <CardContent className="pt-6">
                           <div className="flex items-start justify-between gap-4">
@@ -519,9 +569,10 @@ export default function EventSimulator() {
                               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                                 <span>ID: {event.id}</span>
                                 {event.location && <span>Location: {event.location}</span>}
-                                {event.affectedGuests !== undefined && (
+                                {event.affectedGuests !== null && (
                                   <span>Affected: {event.affectedGuests} guest{event.affectedGuests !== 1 ? 's' : ''}</span>
                                 )}
+                                <span>{formatTimestamp(event.createdAt)}</span>
                               </div>
                             </div>
                           </div>
