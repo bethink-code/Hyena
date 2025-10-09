@@ -35,21 +35,6 @@ export default function ManagerDashboard() {
       label: "Main",
       items: [
         { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/manager/reports", icon: FileText },
-      ],
-    },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
       ],
     },
   ];
