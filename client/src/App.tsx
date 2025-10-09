@@ -10,6 +10,25 @@ import ManagerDashboard from "@/pages/ManagerDashboard";
 import AdminCenter from "@/pages/AdminCenter";
 import TechnicianApp from "@/pages/TechnicianApp";
 import EventSimulator from "@/pages/EventSimulator";
+
+import ManagerIncidents from "@/pages/manager/IncidentQueue";
+import ManagerNetwork from "@/pages/manager/NetworkStatus";
+import ManagerAnalytics from "@/pages/manager/Analytics";
+import ManagerReports from "@/pages/manager/Reports";
+import ManagerMessages from "@/pages/manager/Messages";
+
+import TechnicianCompleted from "@/pages/technician/CompletedJobs";
+import TechnicianSchedule from "@/pages/technician/Schedule";
+import TechnicianEquipment from "@/pages/technician/Equipment";
+
+import AdminProperties from "@/pages/admin/Properties";
+import AdminUsers from "@/pages/admin/Users";
+import AdminConfig from "@/pages/admin/Config";
+import AdminIntegrations from "@/pages/admin/Integrations";
+import AdminAnalytics from "@/pages/admin/Analytics";
+import AdminReports from "@/pages/admin/Reports";
+import AdminAudit from "@/pages/admin/Audit";
+
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -17,9 +36,28 @@ function Router() {
     <Switch>
       <Route path="/" component={LandingPage} />
       <Route path="/guest" component={GuestPortal} />
+      
       <Route path="/manager" component={ManagerDashboard} />
-      <Route path="/admin" component={AdminCenter} />
+      <Route path="/manager/incidents" component={ManagerIncidents} />
+      <Route path="/manager/network" component={ManagerNetwork} />
+      <Route path="/manager/analytics" component={ManagerAnalytics} />
+      <Route path="/manager/reports" component={ManagerReports} />
+      <Route path="/manager/messages" component={ManagerMessages} />
+      
       <Route path="/technician" component={TechnicianApp} />
+      <Route path="/technician/completed" component={TechnicianCompleted} />
+      <Route path="/technician/schedule" component={TechnicianSchedule} />
+      <Route path="/technician/equipment" component={TechnicianEquipment} />
+      
+      <Route path="/admin" component={AdminCenter} />
+      <Route path="/admin/properties" component={AdminProperties} />
+      <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/config" component={AdminConfig} />
+      <Route path="/admin/integrations" component={AdminIntegrations} />
+      <Route path="/admin/analytics" component={AdminAnalytics} />
+      <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/admin/audit" component={AdminAudit} />
+      
       <Route path="/simulator" component={EventSimulator} />
       <Route component={NotFound} />
     </Switch>

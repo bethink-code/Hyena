@@ -81,7 +81,7 @@ export function AppLayout({
                   <SidebarGroupContent>
                     <SidebarMenu>
                       {section.items.map((item) => (
-                        <SidebarMenuItem key={item.href}>
+                        <SidebarMenuItem key={item.title}>
                           <SidebarMenuButton
                             onClick={() => setLocation(item.href)}
                             isActive={location === item.href}

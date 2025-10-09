@@ -26,6 +26,14 @@ export default function TechnicianApp() {
       label: "Work",
       items: [
         { title: "Work Queue", href: "/technician", icon: ClipboardList },
+        { title: "Completed Jobs", href: "/technician/completed", icon: History },
+      ],
+    },
+    {
+      label: "Maintenance",
+      items: [
+        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
+        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
       ],
     },
   ];
