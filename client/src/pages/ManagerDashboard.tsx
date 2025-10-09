@@ -1,10 +1,49 @@
-import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
-import { AppHeader } from "@/components/AppHeader";
+import { AppLayout } from "@/components/AppLayout";
+import { PropertySelector } from "@/components/PropertySelector";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
-import { AlertTriangle, Users, DollarSign, Clock } from "lucide-react";
+import {
+  LayoutDashboard,
+  AlertTriangle,
+  Users,
+  DollarSign,
+  Clock,
+  BarChart3,
+  FileText,
+  MessageSquare,
+  Wifi,
+} from "lucide-react";
 
 export default function ManagerDashboard() {
+  const properties = [
+    { id: "1", name: "Grand Hotel Downtown", location: "New York, NY" },
+    { id: "2", name: "Beachside Resort", location: "Miami, FL" },
+    { id: "3", name: "Mountain Lodge", location: "Denver, CO" },
+  ];
+
+  const navSections = [
+    {
+      label: "Main",
+      items: [
+        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
+        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
+        { title: "Network Status", href: "/manager/network", icon: Wifi },
+      ],
+    },
+    {
+      label: "Analysis",
+      items: [
+        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
+        { title: "Reports", href: "/manager/reports", icon: FileText },
+      ],
+    },
+    {
+      label: "Communication",
+      items: [
+        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
+      ],
+    },
+  ];
 
   const mockEvents = [
     {
@@ -48,11 +87,19 @@ export default function ManagerDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <RoleNavigationHeader />
-      <AppHeader title="Property Management Dashboard" homeRoute="/manager" notificationCount={4} />
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+    <AppLayout
+      title="Property Management Dashboard"
+      homeRoute="/manager"
+      notificationCount={4}
+      navSections={navSections}
+      sidebarHeader={
+        <PropertySelector
+          properties={properties}
+          onPropertyChange={(id) => console.log("Property changed:", id)}
+        />
+      }
+    >
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Performance Overview</h2>
           <p className="text-muted-foreground">Monitor incidents and operational metrics</p>
@@ -96,7 +143,7 @@ export default function ManagerDashboard() {
             onEventClick={(id) => console.log("View event:", id)}
           />
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

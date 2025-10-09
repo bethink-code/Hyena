@@ -1,10 +1,45 @@
-import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
-import { AppHeader } from "@/components/AppHeader";
+import { AppLayout } from "@/components/AppLayout";
 import { PropertyCard } from "@/components/PropertyCard";
 import { KPIWidget } from "@/components/KPIWidget";
-import { Building2, AlertTriangle, TrendingUp, Users } from "lucide-react";
+import {
+  LayoutDashboard,
+  Building2,
+  AlertTriangle,
+  TrendingUp,
+  Users as UsersIcon,
+  Settings,
+  BarChart3,
+  FileText,
+  Puzzle,
+  Shield,
+} from "lucide-react";
 
 export default function AdminCenter() {
+  const navSections = [
+    {
+      label: "Overview",
+      items: [
+        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
+        { title: "All Properties", href: "/admin/properties", icon: Building2 },
+      ],
+    },
+    {
+      label: "Management",
+      items: [
+        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
+        { title: "System Config", href: "/admin/config", icon: Settings },
+        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
+      ],
+    },
+    {
+      label: "Reporting",
+      items: [
+        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
+        { title: "Reports", href: "/admin/reports", icon: FileText },
+        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
+      ],
+    },
+  ];
 
   const properties = [
     {
@@ -46,22 +81,20 @@ export default function AdminCenter() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <RoleNavigationHeader />
-      <AppHeader title="Platform Administration Center" homeRoute="/admin" notificationCount={2} />
-
-      <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+    <AppLayout
+      title="Platform Administration Center"
+      homeRoute="/admin"
+      notificationCount={2}
+      navSections={navSections}
+    >
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Portfolio Overview</h2>
           <p className="text-muted-foreground">Multi-property health and performance metrics</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPIWidget
-            title="Total Properties"
-            value={6}
-            icon={Building2}
-          />
+          <KPIWidget title="Total Properties" value={6} icon={Building2} />
           <KPIWidget
             title="Active Incidents"
             value={16}
@@ -81,7 +114,7 @@ export default function AdminCenter() {
             value="1.2k"
             change={5}
             trend="up"
-            icon={Users}
+            icon={UsersIcon}
           />
         </div>
 
@@ -97,7 +130,7 @@ export default function AdminCenter() {
             ))}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

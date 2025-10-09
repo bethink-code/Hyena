@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
-import { AppHeader } from "@/components/AppHeader";
+import { AppLayout } from "@/components/AppLayout";
 import { EventCard } from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,11 +43,13 @@ export default function TechnicianApp() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <RoleNavigationHeader />
-      <AppHeader title="Technician App" homeRoute="/technician" notificationCount={2} />
-
-      <main className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+    <AppLayout
+      title="Technician App"
+      homeRoute="/technician"
+      notificationCount={2}
+      showSidebar={false}
+    >
+      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
         <Tabs defaultValue="queue" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="queue" data-testid="tab-queue">
@@ -114,7 +115,7 @@ export default function TechnicianApp() {
             ))}
           </TabsContent>
         </Tabs>
-      </main>
-    </div>
+      </div>
+    </AppLayout>
   );
 }

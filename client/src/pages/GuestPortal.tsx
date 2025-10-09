@@ -1,11 +1,10 @@
 import { useState } from "react";
+import { AppLayout } from "@/components/AppLayout";
 import { HeroSection } from "@/components/HeroSection";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { IssueReportForm } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
-import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
-import { AppHeader } from "@/components/AppHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import heroImage from "@assets/stock_images/modern_hotel_lobby_w_9345d9d3.jpg";
 import step1 from "@assets/stock_images/wifi_troubleshooting_00ddfe0a.jpg";
@@ -37,11 +36,13 @@ export default function GuestPortal() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <RoleNavigationHeader />
-      <AppHeader title="Guest Portal" homeRoute="/guest" notificationCount={1} />
-
-      <main className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
+    <AppLayout
+      title="Guest Portal"
+      homeRoute="/guest"
+      notificationCount={1}
+      showSidebar={false}
+    >
+      <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <HeroSection
           title="Welcome to Network Support"
           subtitle="Get help with connectivity issues in seconds"
@@ -76,7 +77,7 @@ export default function GuestPortal() {
             />
           </TabsContent>
         </Tabs>
-      </main>
+      </div>
 
       <FeedbackModal
         open={showFeedback}
@@ -86,6 +87,6 @@ export default function GuestPortal() {
           console.log("Feedback:", { rating, comments })
         }
       />
-    </div>
+    </AppLayout>
   );
 }
