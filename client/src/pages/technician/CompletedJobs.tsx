@@ -35,7 +35,8 @@ export default function CompletedJobs() {
 
   const completedWork = allEvents.filter(e => e.status === 'resolved');
 
-  const formatTimestamp = (date: Date) => {
+  const formatTimestamp = (date: Date | null | undefined) => {
+    if (!date) return "N/A";
     const now = new Date();
     const diffMs = now.getTime() - new Date(date).getTime();
     const diffMins = Math.floor(diffMs / 60000);
@@ -54,7 +55,7 @@ export default function CompletedJobs() {
     status: event.status as any,
     location: event.location || undefined,
     assignedTo: event.assignedTo || undefined,
-    timestamp: formatTimestamp(event.createdAt),
+    timestamp: event.createdAt ? formatTimestamp(event.createdAt) : "N/A",
     category: event.category || undefined,
     affectedGuests: event.affectedGuests || undefined,
     estimatedResolution: event.estimatedResolution || undefined,
