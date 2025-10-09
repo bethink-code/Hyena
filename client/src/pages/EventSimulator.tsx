@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { EventQueue } from "@/components/EventQueue";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -505,84 +506,64 @@ export default function EventSimulator() {
           </TabsContent>
 
           <TabsContent value="events" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>Simulated Events</CardTitle>
-                    <CardDescription>
-                      All events in the system
-                    </CardDescription>
-                  </div>
-                  {events.length > 0 && (
-                    <Button
-                      variant="outline"
-                      onClick={clearAllEvents}
-                      data-testid="button-clear-all"
-                      disabled={clearEventsMutation.isPending}
-                    >
-                      {clearEventsMutation.isPending ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4 mr-2" />
-                      )}
-                      Clear All
-                    </Button>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Simulated Events</h3>
+                <p className="text-sm text-muted-foreground">
+                  All events in the system
+                </p>
+              </div>
+              {events.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={clearAllEvents}
+                  data-testid="button-clear-all"
+                  disabled={clearEventsMutation.isPending}
+                >
+                  {clearEventsMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
                   )}
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoading ? (
+                  Clear All
+                </Button>
+              )}
+            </div>
+            
+            {isLoading ? (
+              <Card>
+                <CardContent className="pt-6">
                   <div className="text-center py-12">
                     <Loader2 className="h-12 w-12 mx-auto text-muted-foreground animate-spin mb-4" />
                     <p className="text-muted-foreground">Loading events...</p>
                   </div>
-                ) : events.length === 0 ? (
+                </CardContent>
+              </Card>
+            ) : events.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6">
                   <div className="text-center py-12">
                     <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
                       No events created yet. Use the Manual Event or Preset Scenarios tabs to create events.
                     </p>
                   </div>
-                ) : (
-                  <div className="space-y-3">
-                    {events.map((event) => (
-                      <Card key={event.id} className="hover-elevate">
-                        <CardContent className="pt-6">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 space-y-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <Badge variant="outline" className="capitalize">
-                                  {event.priority}
-                                </Badge>
-                                <Badge variant="outline" className="capitalize">
-                                  {event.status.replace('_', ' ')}
-                                </Badge>
-                                {event.category && (
-                                  <Badge variant="outline">{event.category}</Badge>
-                                )}
-                              </div>
-                              <h3 className="font-semibold">{event.title}</h3>
-                              <p className="text-sm text-muted-foreground">
-                                {event.description}
-                              </p>
-                              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                                <span>ID: {event.id}</span>
-                                {event.location && <span>Location: {event.location}</span>}
-                                {event.affectedGuests !== null && (
-                                  <span>Affected: {event.affectedGuests} guest{event.affectedGuests !== 1 ? 's' : ''}</span>
-                                )}
-                                <span>{formatTimestamp(event.createdAt)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            ) : (
+              <EventQueue 
+                events={events.map(event => ({
+                  id: event.id,
+                  title: event.title,
+                  description: event.description,
+                  priority: event.priority as any,
+                  status: event.status as any,
+                  location: event.location || undefined,
+                  assignedTo: event.assignedTo || undefined,
+                  timestamp: formatTimestamp(event.createdAt),
+                }))}
+              />
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -25,6 +25,23 @@ export function EventQueue({ events, onEventClick, className }: EventQueueProps)
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [viewMode, setViewMode] = useState<ViewMode>("card");
 
+  // Apply filters
+  const filteredEvents = events.filter(event => {
+    // Search filter
+    const matchesSearch = searchTerm === "" || 
+      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.location?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    // Status filter
+    const matchesStatus = statusFilter === "all" || event.status === statusFilter;
+    
+    // Priority filter
+    const matchesPriority = priorityFilter === "all" || event.priority === priorityFilter;
+    
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+
   return (
     <div className={className}>
       <div className="flex flex-col gap-3 mb-6">
@@ -70,24 +87,32 @@ export function EventQueue({ events, onEventClick, className }: EventQueueProps)
         </div>
       </div>
 
-      {viewMode === "card" && (
-        <div className="space-y-3">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              {...event}
-              onView={() => onEventClick?.(event.id)}
-            />
-          ))}
+      {filteredEvents.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          No events found matching your filters
         </div>
-      )}
+      ) : (
+        <>
+          {viewMode === "card" && (
+            <div className="space-y-3">
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  {...event}
+                  onView={() => onEventClick?.(event.id)}
+                />
+              ))}
+            </div>
+          )}
 
-      {viewMode === "table" && (
-        <EventTable events={events} onEventClick={onEventClick} />
-      )}
+          {viewMode === "table" && (
+            <EventTable events={filteredEvents} onEventClick={onEventClick} />
+          )}
 
-      {viewMode === "grid" && (
-        <EventGrid events={events} onEventClick={onEventClick} />
+          {viewMode === "grid" && (
+            <EventGrid events={filteredEvents} onEventClick={onEventClick} />
+          )}
+        </>
       )}
     </div>
   );

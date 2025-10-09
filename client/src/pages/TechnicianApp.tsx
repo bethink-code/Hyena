@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
-import { EventCard } from "@/components/EventCard";
+import { EventQueue } from "@/components/EventQueue";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -113,6 +113,19 @@ export default function TechnicianApp() {
     return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
+  const convertToEventProps = (events: Event[]) => {
+    return events.map(event => ({
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      priority: event.priority as any,
+      status: event.status as any,
+      location: event.location || undefined,
+      assignedTo: event.assignedTo || undefined,
+      timestamp: formatTimestamp(event.createdAt),
+    }));
+  };
+
   return (
     <AppLayout
       title="Technician App"
@@ -137,98 +150,64 @@ export default function TechnicianApp() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="queue" className="mt-6 space-y-4">
-            {workQueue.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  No events in work queue
+          <TabsContent value="queue" className="mt-6">
+            <EventQueue 
+              events={convertToEventProps(workQueue)}
+              onEventClick={(eventId) => setSelectedEvent(eventId)}
+            />
+            
+            {selectedEvent && (
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Incident Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {workQueue.find(e => e.id === selectedEvent)?.status === 'assigned' && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => startWorkMutation.mutate(selectedEvent)}
+                      data-testid="button-start-work"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Working
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => console.log("Navigate to location")}
+                    data-testid="button-navigate"
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Navigate to Location
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => console.log("Upload photo")}
+                    data-testid="button-upload-photo"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Upload Photo/Documentation
+                  </Button>
+                  <Button
+                    className="w-full"
+                    onClick={() => resolveEventMutation.mutate(selectedEvent)}
+                    data-testid="button-resolve"
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Mark as Resolved
+                  </Button>
                 </CardContent>
               </Card>
-            ) : (
-              workQueue.map((event) => (
-                <div key={event.id}>
-                  <EventCard
-                    id={event.id}
-                    title={event.title}
-                    description={event.description}
-                    priority={event.priority as any}
-                    status={event.status as any}
-                    location={event.location || undefined}
-                    timestamp={formatTimestamp(event.createdAt)}
-                    onView={() => setSelectedEvent(event.id)}
-                  />
-                  {selectedEvent === event.id && (
-                    <Card className="mt-4">
-                      <CardHeader>
-                        <CardTitle>Incident Actions</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
-                        {event.status === 'assigned' && (
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start"
-                            onClick={() => startWorkMutation.mutate(event.id)}
-                            data-testid="button-start-work"
-                          >
-                            <Play className="h-4 w-4 mr-2" />
-                            Start Working
-                          </Button>
-                        )}
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => console.log("Navigate to location")}
-                          data-testid="button-navigate"
-                        >
-                          <MapPin className="h-4 w-4 mr-2" />
-                          Navigate to Location
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => console.log("Upload photo")}
-                          data-testid="button-upload-photo"
-                        >
-                          <Camera className="h-4 w-4 mr-2" />
-                          Upload Photo/Documentation
-                        </Button>
-                        <Button
-                          className="w-full"
-                          onClick={() => resolveEventMutation.mutate(event.id)}
-                          data-testid="button-resolve"
-                        >
-                          <CheckCircle2 className="h-4 w-4 mr-2" />
-                          Mark as Resolved
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
-              ))
             )}
           </TabsContent>
 
-          <TabsContent value="completed" className="mt-6 space-y-4">
-            {completedWork.length === 0 ? (
-              <Card>
-                <CardContent className="pt-6 text-center text-muted-foreground">
-                  No completed work yet
-                </CardContent>
-              </Card>
-            ) : (
-              completedWork.map((event) => (
-                <EventCard 
-                  key={event.id}
-                  id={event.id}
-                  title={event.title}
-                  description={event.description}
-                  priority={event.priority as any}
-                  status={event.status as any}
-                  location={event.location || undefined}
-                  timestamp={formatTimestamp(event.createdAt)}
-                />
-              ))
-            )}
+          <TabsContent value="completed" className="mt-6">
+            <EventQueue 
+              events={convertToEventProps(completedWork)}
+            />
           </TabsContent>
         </Tabs>
       </div>
