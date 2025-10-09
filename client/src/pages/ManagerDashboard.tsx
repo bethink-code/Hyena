@@ -3,7 +3,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
-import { EventDetailModal, type EventDetailProps } from "@/components/EventDetailModal";
+import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -218,7 +218,7 @@ export default function ManagerDashboard() {
         </div>
       </div>
 
-      <EventDetailModal
+      <EventDetailPanel
         event={selectedEvent}
         open={!!selectedEvent}
         onClose={() => setSelectedEvent(null)}
