@@ -71,7 +71,7 @@ export function AppLayout({
     <div className="min-h-screen bg-background">
       <RoleNavigationHeader />
       <SidebarProvider style={style as React.CSSProperties}>
-        <div className="flex h-[calc(100vh-3rem)] w-full">
+        <div className="flex w-full">
           <Sidebar>
             {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
             <SidebarContent>
@@ -99,13 +99,13 @@ export function AppLayout({
             </SidebarContent>
           </Sidebar>
 
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col flex-1">
             <AppHeader
               title={title}
               homeRoute={homeRoute}
               notificationCount={notificationCount}
             />
-            <main className="flex-1 overflow-auto">{children}</main>
+            <main className="flex-1">{children}</main>
           </div>
         </div>
       </SidebarProvider>
