@@ -50,7 +50,7 @@ export default function ManagerDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <RoleNavigationHeader />
-      <AppHeader title="Property Management Dashboard" notificationCount={4} />
+      <AppHeader title="Property Management Dashboard" homeRoute="/manager" notificationCount={4} />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

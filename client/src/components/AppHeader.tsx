@@ -14,12 +14,14 @@ import { useLocation } from "wouter";
 
 interface AppHeaderProps {
   title: string;
+  homeRoute: string;
   showNotifications?: boolean;
   notificationCount?: number;
 }
 
 export function AppHeader({
   title,
+  homeRoute,
   showNotifications = true,
   notificationCount = 0,
 }: AppHeaderProps) {
@@ -34,7 +36,7 @@ export function AppHeader({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation(homeRoute)}
             data-testid="button-home"
           >
             <Home className="h-5 w-5" />

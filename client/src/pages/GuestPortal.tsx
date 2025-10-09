@@ -39,7 +39,7 @@ export default function GuestPortal() {
   return (
     <div className="min-h-screen bg-background">
       <RoleNavigationHeader />
-      <AppHeader title="Guest Portal" notificationCount={1} />
+      <AppHeader title="Guest Portal" homeRoute="/guest" notificationCount={1} />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <HeroSection

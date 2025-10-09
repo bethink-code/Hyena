@@ -48,7 +48,7 @@ export default function AdminCenter() {
   return (
     <div className="min-h-screen bg-background">
       <RoleNavigationHeader />
-      <AppHeader title="Platform Administration Center" notificationCount={2} />
+      <AppHeader title="Platform Administration Center" homeRoute="/admin" notificationCount={2} />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
