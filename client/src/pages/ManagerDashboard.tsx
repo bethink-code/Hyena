@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { Event, EventTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -17,7 +21,9 @@ import {
 } from "lucide-react";
 
 export default function ManagerDashboard() {
-  const [selectedEvent, setSelectedEvent] = useState<EventDetailProps | null>(null);
+  const { toast } = useToast();
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  
   const properties = [
     { id: "1", name: "Grand Hotel Downtown", location: "New York, NY" },
     { id: "2", name: "Beachside Resort", location: "Miami, FL" },
@@ -48,119 +54,171 @@ export default function ManagerDashboard() {
     },
   ];
 
-  const mockEvents: EventDetailProps[] = [
-    {
-      id: "evt-001",
-      title: "Wi-Fi Not Working - Room 305",
-      description: "Guest reported complete loss of connectivity in room 305. Unable to connect any devices.",
-      priority: "critical" as const,
-      status: "new" as const,
-      location: "Room 305",
-      timestamp: "2m ago",
-      category: "Network Connectivity",
-      affectedGuests: 3,
-      estimatedResolution: "30 minutes",
-      rootCause: "Access point firmware corruption detected. Device became unresponsive after automatic update.",
-      timeline: [
-        {
-          timestamp: "2m ago",
-          action: "Incident reported by guest",
-          actor: "Guest Portal",
-        },
-        {
-          timestamp: "1m ago",
-          action: "Auto-diagnostic initiated",
-          actor: "Monitoring System",
-        },
-      ],
+  // Fetch all events
+  const { data: events = [] } = useQuery<Event[]>({
+    queryKey: ["/api/events"],
+  });
+
+  // Fetch timeline for selected event
+  const { data: timeline = [] } = useQuery<EventTimeline[]>({
+    queryKey: ["/api/events", selectedEventId, "timeline"],
+    enabled: !!selectedEventId,
+  });
+
+  // Assign event mutation
+  const assignEventMutation = useMutation({
+    mutationFn: async ({ eventId, assignedTo }: { eventId: string; assignedTo: string }) => {
+      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+        status: "assigned",
+        assignedTo,
+      });
+      const event = await response.json();
+      
+      // Add timeline entry
+      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+        action: `Assigned to ${assignedTo}`,
+        actor: "Manager Dashboard",
+      });
+      
+      return event;
     },
-    {
-      id: "evt-002",
-      title: "Slow Internet Speed - Conference Hall A",
-      description: "Multiple guests experiencing degraded performance during conference.",
-      priority: "high" as const,
-      status: "assigned" as const,
-      location: "Conference Hall A",
-      assignedTo: "John Smith",
-      timestamp: "15m ago",
-      category: "Performance",
-      affectedGuests: 12,
-      estimatedResolution: "1 hour",
-      timeline: [
-        {
-          timestamp: "15m ago",
-          action: "Incident reported",
-          actor: "Property Manager",
-        },
-        {
-          timestamp: "12m ago",
-          action: "Assigned to John Smith",
-          actor: "System",
-        },
-        {
-          timestamp: "10m ago",
-          action: "Technician en route",
-          actor: "John Smith",
-        },
-      ],
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      toast({
+        title: "Event Assigned",
+        description: "Technician has been notified",
+      });
     },
-    {
-      id: "evt-003",
-      title: "Device Connection Limit Reached",
-      description: "Guest attempting to connect additional device but has reached limit.",
-      priority: "medium" as const,
-      status: "in_progress" as const,
-      location: "Room 412",
-      assignedTo: "Sarah Wilson",
-      timestamp: "1h ago",
-      category: "Configuration",
-      affectedGuests: 1,
-      estimatedResolution: "15 minutes",
-      rootCause: "Guest package allows 3 devices, customer has 4 devices. Requires upgrade or device prioritization.",
-      timeline: [
-        {
-          timestamp: "1h ago",
-          action: "Incident auto-created from guest portal",
-          actor: "System",
-        },
-        {
-          timestamp: "55m ago",
-          action: "Assigned to Sarah Wilson",
-          actor: "System",
-        },
-        {
-          timestamp: "45m ago",
-          action: "Contacted guest about upgrade options",
-          actor: "Sarah Wilson",
-        },
-      ],
+    onError: (error: any) => {
+      toast({
+        title: "Assignment Failed",
+        description: error.message || "Failed to assign event",
+        variant: "destructive",
+      });
     },
-    {
-      id: "evt-004",
-      title: "VPN Connection Issues",
-      description: "Business guest unable to establish VPN connection for remote work.",
-      priority: "high" as const,
-      status: "new" as const,
-      location: "Room 508",
-      timestamp: "45m ago",
-      category: "Advanced Services",
-      affectedGuests: 1,
-      estimatedResolution: "45 minutes",
-      timeline: [
-        {
-          timestamp: "45m ago",
-          action: "Incident reported via phone",
-          actor: "Front Desk",
-        },
-      ],
+  });
+
+  // Resolve event mutation
+  const resolveEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+        status: "resolved",
+      });
+      const event = await response.json();
+      
+      // Add timeline entry
+      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+        action: "Event marked as resolved",
+        actor: "Manager Dashboard",
+      });
+      
+      return event;
     },
-  ];
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      toast({
+        title: "Event Resolved",
+        description: "Event has been marked as resolved",
+      });
+      setSelectedEventId(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Resolution Failed",
+        description: error.message || "Failed to resolve event",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Escalate event mutation
+  const escalateEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const currentEvent = events.find(e => e.id === eventId);
+      const newPriority = currentEvent?.priority === 'critical' ? 'critical' : 
+                          currentEvent?.priority === 'high' ? 'critical' :
+                          currentEvent?.priority === 'medium' ? 'high' : 'medium';
+      
+      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+        priority: newPriority,
+      });
+      const event = await response.json();
+      
+      // Add timeline entry
+      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+        action: `Priority escalated to ${newPriority}`,
+        actor: "Manager Dashboard",
+      });
+      
+      return event;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      toast({
+        title: "Event Escalated",
+        description: "Priority has been increased",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Escalation Failed",
+        description: error.message || "Failed to escalate event",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Convert Event + Timeline to EventDetailProps
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
+  };
+
+  const convertToEventDetailProps = (event: Event, withTimeline: boolean = false): EventDetailProps => ({
+    id: event.id,
+    title: event.title,
+    description: event.description,
+    priority: event.priority as any,
+    status: event.status as any,
+    location: event.location || undefined,
+    assignedTo: event.assignedTo || undefined,
+    timestamp: formatTimestamp(event.createdAt),
+    category: event.category || undefined,
+    affectedGuests: event.affectedGuests || undefined,
+    estimatedResolution: event.estimatedResolution || undefined,
+    rootCause: event.rootCause || undefined,
+    resolution: event.resolution || undefined,
+    timeline: withTimeline ? timeline.map(entry => ({
+      timestamp: formatTimestamp(entry.timestamp),
+      action: entry.action,
+      actor: entry.actor,
+    })) : [],
+  });
+
+  const selectedEvent = selectedEventId 
+    ? events.find(e => e.id === selectedEventId) 
+    : null;
+  const selectedEventDetails = selectedEvent ? convertToEventDetailProps(selectedEvent, true) : null;
+
+  // Calculate KPIs from actual events
+  const activeIncidents = events.filter(e => e.status !== 'resolved').length;
+  const totalAffectedGuests = events.filter(e => e.status !== 'resolved').reduce((sum, e) => sum + (e.affectedGuests || 0), 0);
+  const criticalEvents = events.filter(e => e.priority === 'critical' && e.status !== 'resolved').length;
 
   return (
     <AppLayout
       title="Property Management Dashboard"
       homeRoute="/manager"
-      notificationCount={4}
+      notificationCount={activeIncidents}
       navSections={navSections}
       sidebarHeader={
         <PropertySelector
@@ -178,29 +236,29 @@ export default function ManagerDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <KPIWidget
             title="Active Incidents"
-            value={12}
-            change={-8}
+            value={activeIncidents}
+            change={0}
             trend="down"
             icon={AlertTriangle}
           />
           <KPIWidget
             title="Affected Guests"
-            value={45}
-            change={-15}
+            value={totalAffectedGuests}
+            change={0}
             trend="down"
             icon={Users}
           />
           <KPIWidget
-            title="Revenue at Risk"
-            value="R2.3k"
-            change={12}
-            trend="up"
+            title="Critical Events"
+            value={criticalEvents}
+            change={0}
+            trend={criticalEvents > 0 ? "up" : "down"}
             icon={DollarSign}
           />
           <KPIWidget
-            title="Avg Resolution Time"
-            value="18m"
-            change={-22}
+            title="Total Events"
+            value={events.length}
+            change={0}
             trend="down"
             icon={Clock}
           />
@@ -209,30 +267,27 @@ export default function ManagerDashboard() {
         <div>
           <h3 className="text-xl font-semibold mb-4">Incident Queue</h3>
           <EventQueue
-            events={mockEvents}
-            onEventClick={(eventId) => {
-              const event = mockEvents.find(e => e.id === eventId);
-              if (event) setSelectedEvent(event);
-            }}
+            events={events.map(e => convertToEventDetailProps(e, false))}
+            onEventClick={(eventId) => setSelectedEventId(eventId)}
           />
         </div>
       </div>
 
       <EventDetailPanel
-        event={selectedEvent}
-        open={!!selectedEvent}
-        onClose={() => setSelectedEvent(null)}
+        event={selectedEventDetails}
+        open={!!selectedEventId}
+        onClose={() => setSelectedEventId(null)}
         onAssign={(id) => {
-          console.log("Assign event:", id);
-          setSelectedEvent(null);
+          assignEventMutation.mutate({
+            eventId: id,
+            assignedTo: "John Smith", // In real app, show technician selector
+          });
         }}
         onResolve={(id) => {
-          console.log("Resolve event:", id);
-          setSelectedEvent(null);
+          resolveEventMutation.mutate(id);
         }}
         onEscalate={(id) => {
-          console.log("Escalate event:", id);
-          setSelectedEvent(null);
+          escalateEventMutation.mutate(id);
         }}
       />
     </AppLayout>

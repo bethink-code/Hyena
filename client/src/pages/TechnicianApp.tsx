@@ -1,13 +1,18 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { EventCard } from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { Event } from "@shared/schema";
+import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench, Play } from "lucide-react";
 
 export default function TechnicianApp() {
+  const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
 
   const properties = [
@@ -33,44 +38,86 @@ export default function TechnicianApp() {
     },
   ];
 
-  const workQueue = [
-    {
-      id: "evt-001",
-      title: "Wi-Fi Not Working - Room 305",
-      description: "Guest reported complete loss of connectivity in room 305.",
-      priority: "critical" as const,
-      status: "assigned" as const,
-      location: "Room 305, Building A",
-      timestamp: "2m ago",
-    },
-    {
-      id: "evt-002",
-      title: "Slow Internet - Conference Hall A",
-      description: "Multiple guests experiencing degraded performance.",
-      priority: "high" as const,
-      status: "assigned" as const,
-      location: "Conference Hall A, Main Building",
-      timestamp: "15m ago",
-    },
-  ];
+  // Fetch all events
+  const { data: allEvents = [] } = useQuery<Event[]>({
+    queryKey: ["/api/events"],
+  });
 
-  const completedWork = [
-    {
-      id: "evt-100",
-      title: "Device Limit Issue - Room 412",
-      description: "Resolved guest device connection limit issue.",
-      priority: "medium" as const,
-      status: "resolved" as const,
-      location: "Room 412",
-      timestamp: "2h ago",
+  // Filter events for work queue (assigned or in_progress)
+  const workQueue = allEvents.filter(e => 
+    e.status === 'assigned' || e.status === 'in_progress'
+  );
+
+  // Filter events for completed work
+  const completedWork = allEvents.filter(e => e.status === 'resolved');
+
+  // Start work mutation
+  const startWorkMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+        status: "in_progress",
+      });
+      const event = await response.json();
+      
+      // Add timeline entry
+      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+        action: "Technician started working on issue",
+        actor: "Technician App",
+      });
+      
+      return event;
     },
-  ];
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({
+        title: "Work Started",
+        description: "Event marked as in progress",
+      });
+    },
+  });
+
+  // Resolve event mutation
+  const resolveEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+        status: "resolved",
+      });
+      const event = await response.json();
+      
+      // Add timeline entry
+      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+        action: "Event resolved by technician",
+        actor: "Technician App",
+      });
+      
+      return event;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({
+        title: "Event Resolved",
+        description: "Event has been marked as resolved",
+      });
+      setSelectedEvent(null);
+    },
+  });
+
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
+  };
 
   return (
     <AppLayout
       title="Technician App"
       homeRoute="/technician"
-      notificationCount={2}
+      notificationCount={workQueue.length}
       navSections={navSections}
       sidebarHeader={
         <PropertySelector
@@ -86,63 +133,102 @@ export default function TechnicianApp() {
               Work Queue ({workQueue.length})
             </TabsTrigger>
             <TabsTrigger value="completed" data-testid="tab-completed">
-              Completed
+              Completed ({completedWork.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="queue" className="mt-6 space-y-4">
-            {workQueue.map((event) => (
-              <div key={event.id}>
-                <EventCard
-                  {...event}
-                  onView={() => setSelectedEvent(event.id)}
-                />
-                {selectedEvent === event.id && (
-                  <Card className="mt-4">
-                    <CardHeader>
-                      <CardTitle>Incident Actions</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => console.log("Navigate to location")}
-                        data-testid="button-navigate"
-                      >
-                        <MapPin className="h-4 w-4 mr-2" />
-                        Navigate to Location
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => console.log("Upload photo")}
-                        data-testid="button-upload-photo"
-                      >
-                        <Camera className="h-4 w-4 mr-2" />
-                        Upload Photo/Documentation
-                      </Button>
-                      <Button
-                        className="w-full"
-                        onClick={() => {
-                          console.log("Mark as resolved");
-                          setSelectedEvent(null);
-                        }}
-                        data-testid="button-resolve"
-                      >
-                        <CheckCircle2 className="h-4 w-4 mr-2" />
-                        Mark as Resolved
-                      </Button>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            ))}
+            {workQueue.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  No events in work queue
+                </CardContent>
+              </Card>
+            ) : (
+              workQueue.map((event) => (
+                <div key={event.id}>
+                  <EventCard
+                    id={event.id}
+                    title={event.title}
+                    description={event.description}
+                    priority={event.priority as any}
+                    status={event.status as any}
+                    location={event.location || undefined}
+                    timestamp={formatTimestamp(event.createdAt)}
+                    onView={() => setSelectedEvent(event.id)}
+                  />
+                  {selectedEvent === event.id && (
+                    <Card className="mt-4">
+                      <CardHeader>
+                        <CardTitle>Incident Actions</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        {event.status === 'assigned' && (
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start"
+                            onClick={() => startWorkMutation.mutate(event.id)}
+                            data-testid="button-start-work"
+                          >
+                            <Play className="h-4 w-4 mr-2" />
+                            Start Working
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => console.log("Navigate to location")}
+                          data-testid="button-navigate"
+                        >
+                          <MapPin className="h-4 w-4 mr-2" />
+                          Navigate to Location
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => console.log("Upload photo")}
+                          data-testid="button-upload-photo"
+                        >
+                          <Camera className="h-4 w-4 mr-2" />
+                          Upload Photo/Documentation
+                        </Button>
+                        <Button
+                          className="w-full"
+                          onClick={() => resolveEventMutation.mutate(event.id)}
+                          data-testid="button-resolve"
+                        >
+                          <CheckCircle2 className="h-4 w-4 mr-2" />
+                          Mark as Resolved
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ))
+            )}
           </TabsContent>
 
           <TabsContent value="completed" className="mt-6 space-y-4">
-            {completedWork.map((event) => (
-              <EventCard key={event.id} {...event} />
-            ))}
+            {completedWork.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 text-center text-muted-foreground">
+                  No completed work yet
+                </CardContent>
+              </Card>
+            ) : (
+              completedWork.map((event) => (
+                <EventCard 
+                  key={event.id}
+                  id={event.id}
+                  title={event.title}
+                  description={event.description}
+                  priority={event.priority as any}
+                  status={event.status as any}
+                  location={event.location || undefined}
+                  timestamp={formatTimestamp(event.createdAt)}
+                />
+              ))
+            )}
           </TabsContent>
         </Tabs>
       </div>
