@@ -1,13 +1,37 @@
 import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
+import { PropertySelector } from "@/components/PropertySelector";
 import { EventCard } from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Camera, CheckCircle2 } from "lucide-react";
+import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function TechnicianApp() {
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+
+  const properties = [
+    { id: "1", name: "Grand Hotel Downtown", location: "New York, NY" },
+    { id: "2", name: "Beachside Resort", location: "Miami, FL" },
+    { id: "3", name: "Mountain Lodge", location: "Denver, CO" },
+  ];
+
+  const navSections = [
+    {
+      label: "Work",
+      items: [
+        { title: "Work Queue", href: "/technician", icon: ClipboardList },
+        { title: "Completed Jobs", href: "/technician/completed", icon: History },
+      ],
+    },
+    {
+      label: "Maintenance",
+      items: [
+        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
+        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
+      ],
+    },
+  ];
 
   const workQueue = [
     {
@@ -47,9 +71,15 @@ export default function TechnicianApp() {
       title="Technician App"
       homeRoute="/technician"
       notificationCount={2}
-      showSidebar={false}
+      navSections={navSections}
+      sidebarHeader={
+        <PropertySelector
+          properties={properties}
+          onPropertyChange={(id) => console.log("Property changed:", id)}
+        />
+      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <Tabs defaultValue="queue" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="queue" data-testid="tab-queue">
