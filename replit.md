@@ -66,7 +66,9 @@ Preferred communication style: Simple, everyday language.
 **Current Storage Implementation:**
 - In-memory storage interface (`MemStorage`) for development
 - Abstracted storage interface (`IStorage`) designed for easy migration to database
-- CRUD operations for User entity with extensibility for events, properties, incidents
+- CRUD operations for Event and EventTimeline entities with full lifecycle support
+- Event status transitions: new → assigned → in_progress → resolved
+- Timeline tracking for all event state changes with actor attribution
 
 **API Design:**
 - RESTful API patterns with `/api` prefix convention
@@ -74,14 +76,26 @@ Preferred communication style: Simple, everyday language.
 - Error handling middleware with status code normalization
 - Credential-based authentication preparation
 
+**Event Integration System:**
+- Shared event storage backend with PostgreSQL schema (events, timeline tables)
+- RESTful API for event CRUD operations (`GET /api/events`, `POST /api/events`, `PATCH /api/events/:id`)
+- Timeline API for event history tracking (`GET /api/events/:id/timeline`, `POST /api/events/:id/timeline`)
+- React Query-based state management with cache invalidation for real-time updates
+- Event lifecycle flow fully integrated across interfaces:
+  - **Event Simulator**: Creates events with manual/preset/bulk creation tools
+  - **Manager Dashboard**: Assigns events to technicians, escalates priority, resolves incidents
+  - **Technician App**: Starts work, resolves events, tracks completed work
+- All state changes create timeline entries with actor/timestamp tracking
+- Cache invalidation ensures real-time UI updates across all connected interfaces
+
 ### Data Models
 
 **Core Entities (from schema):**
-- Users: ID (UUID), username (unique), password
+- **Events**: ID (UUID), title, description, priority (critical/high/medium/low), status (new/assigned/in_progress/resolved), location, assignedTo, category, affectedGuests, estimatedResolution, rootCause, resolution, timestamps
+- **EventTimeline**: ID (UUID), eventId (FK), action, actor, timestamp - tracks all event state changes
 - Extensible schema structure ready for:
-  - Events/Incidents (priority, status, location, assignment)
   - Properties (multi-property support)
-  - Technician assignments
+  - Users/Technicians (authentication and assignment)
   - Guest feedback
   - Network status tracking
 
