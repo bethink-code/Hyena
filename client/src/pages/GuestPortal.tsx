@@ -1,11 +1,14 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { HeroSection } from "@/components/HeroSection";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { IssueReportForm } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
+import { EventQueue } from "@/components/EventQueue";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { Event } from "@shared/schema";
 import heroImage from "@assets/stock_images/modern_hotel_lobby_w_9345d9d3.jpg";
 import step1 from "@assets/stock_images/wifi_troubleshooting_00ddfe0a.jpg";
 import step2 from "@assets/stock_images/wifi_troubleshooting_5279112e.jpg";
@@ -13,6 +16,27 @@ import step3 from "@assets/stock_images/wifi_troubleshooting_4467e740.jpg";
 
 export default function GuestPortal() {
   const [showFeedback, setShowFeedback] = useState(false);
+
+  // Fetch all events (in a real app, would filter by guest ID)
+  const { data: allEvents = [] } = useQuery<Event[]>({
+    queryKey: ["/api/events"],
+  });
+
+  // Filter to show guest-related events (source=guest_portal or reported by guest)
+  const guestEvents = allEvents.filter(event => 
+    event.source === "guest_portal" || event.source === "front_desk"
+  );
+
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
+  };
 
   const troubleshootingSteps = [
     {
@@ -54,12 +78,15 @@ export default function GuestPortal() {
         <NetworkStatusIndicator status="healthy" incidentCount={0} />
 
         <Tabs defaultValue="troubleshoot" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="troubleshoot" data-testid="tab-troubleshoot">
               Troubleshooting
             </TabsTrigger>
             <TabsTrigger value="report" data-testid="tab-report">
               Report Issue
+            </TabsTrigger>
+            <TabsTrigger value="my-issues" data-testid="tab-my-issues">
+              My Issues
             </TabsTrigger>
           </TabsList>
           <TabsContent value="troubleshoot" className="mt-6">
@@ -75,6 +102,39 @@ export default function GuestPortal() {
                 setShowFeedback(true);
               }}
             />
+          </TabsContent>
+          <TabsContent value="my-issues" className="mt-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">My Reported Issues</h3>
+                <p className="text-sm text-muted-foreground">
+                  Track the status of your reported network issues
+                </p>
+              </div>
+              {guestEvents.length === 0 ? (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p>You haven't reported any issues yet.</p>
+                  <p className="text-sm mt-2">Use the "Report Issue" tab to create a new issue.</p>
+                </div>
+              ) : (
+                <EventQueue 
+                  events={guestEvents.map(event => ({
+                    id: event.id,
+                    title: event.title,
+                    description: event.description,
+                    priority: event.priority as any,
+                    status: event.status as any,
+                    location: event.location || undefined,
+                    assignedTo: event.assignedTo || undefined,
+                    timestamp: formatTimestamp(event.createdAt),
+                  }))}
+                  onEventClick={(eventId) => {
+                    // Guest can view event details (read-only)
+                    console.log("View event details:", eventId);
+                  }}
+                />
+              )}
+            </div>
           </TabsContent>
         </Tabs>
       </div>
