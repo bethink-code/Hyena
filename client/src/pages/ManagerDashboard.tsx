@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
+import { EventDetailModal, type EventDetailProps } from "@/components/EventDetailModal";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -15,6 +17,7 @@ import {
 } from "lucide-react";
 
 export default function ManagerDashboard() {
+  const [selectedEvent, setSelectedEvent] = useState<EventDetailProps | null>(null);
   const properties = [
     { id: "1", name: "Grand Hotel Downtown", location: "New York, NY" },
     { id: "2", name: "Beachside Resort", location: "Miami, FL" },
@@ -45,7 +48,7 @@ export default function ManagerDashboard() {
     },
   ];
 
-  const mockEvents = [
+  const mockEvents: EventDetailProps[] = [
     {
       id: "evt-001",
       title: "Wi-Fi Not Working - Room 305",
@@ -54,6 +57,22 @@ export default function ManagerDashboard() {
       status: "new" as const,
       location: "Room 305",
       timestamp: "2m ago",
+      category: "Network Connectivity",
+      affectedGuests: 3,
+      estimatedResolution: "30 minutes",
+      rootCause: "Access point firmware corruption detected. Device became unresponsive after automatic update.",
+      timeline: [
+        {
+          timestamp: "2m ago",
+          action: "Incident reported by guest",
+          actor: "Guest Portal",
+        },
+        {
+          timestamp: "1m ago",
+          action: "Auto-diagnostic initiated",
+          actor: "Monitoring System",
+        },
+      ],
     },
     {
       id: "evt-002",
@@ -64,6 +83,26 @@ export default function ManagerDashboard() {
       location: "Conference Hall A",
       assignedTo: "John Smith",
       timestamp: "15m ago",
+      category: "Performance",
+      affectedGuests: 12,
+      estimatedResolution: "1 hour",
+      timeline: [
+        {
+          timestamp: "15m ago",
+          action: "Incident reported",
+          actor: "Property Manager",
+        },
+        {
+          timestamp: "12m ago",
+          action: "Assigned to John Smith",
+          actor: "System",
+        },
+        {
+          timestamp: "10m ago",
+          action: "Technician en route",
+          actor: "John Smith",
+        },
+      ],
     },
     {
       id: "evt-003",
@@ -74,6 +113,27 @@ export default function ManagerDashboard() {
       location: "Room 412",
       assignedTo: "Sarah Wilson",
       timestamp: "1h ago",
+      category: "Configuration",
+      affectedGuests: 1,
+      estimatedResolution: "15 minutes",
+      rootCause: "Guest package allows 3 devices, customer has 4 devices. Requires upgrade or device prioritization.",
+      timeline: [
+        {
+          timestamp: "1h ago",
+          action: "Incident auto-created from guest portal",
+          actor: "System",
+        },
+        {
+          timestamp: "55m ago",
+          action: "Assigned to Sarah Wilson",
+          actor: "System",
+        },
+        {
+          timestamp: "45m ago",
+          action: "Contacted guest about upgrade options",
+          actor: "Sarah Wilson",
+        },
+      ],
     },
     {
       id: "evt-004",
@@ -83,6 +143,16 @@ export default function ManagerDashboard() {
       status: "new" as const,
       location: "Room 508",
       timestamp: "45m ago",
+      category: "Advanced Services",
+      affectedGuests: 1,
+      estimatedResolution: "45 minutes",
+      timeline: [
+        {
+          timestamp: "45m ago",
+          action: "Incident reported via phone",
+          actor: "Front Desk",
+        },
+      ],
     },
   ];
 
@@ -140,10 +210,31 @@ export default function ManagerDashboard() {
           <h3 className="text-xl font-semibold mb-4">Incident Queue</h3>
           <EventQueue
             events={mockEvents}
-            onEventClick={(id) => console.log("View event:", id)}
+            onEventClick={(eventId) => {
+              const event = mockEvents.find(e => e.id === eventId);
+              if (event) setSelectedEvent(event);
+            }}
           />
         </div>
       </div>
+
+      <EventDetailModal
+        event={selectedEvent}
+        open={!!selectedEvent}
+        onClose={() => setSelectedEvent(null)}
+        onAssign={(id) => {
+          console.log("Assign event:", id);
+          setSelectedEvent(null);
+        }}
+        onResolve={(id) => {
+          console.log("Resolve event:", id);
+          setSelectedEvent(null);
+        }}
+        onEscalate={(id) => {
+          console.log("Escalate event:", id);
+          setSelectedEvent(null);
+        }}
+      />
     </AppLayout>
   );
 }
