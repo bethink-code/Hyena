@@ -6,6 +6,17 @@ Project Hyena is a proactive event-driven network monitoring platform designed s
 
 The application is built as a full-stack web platform with a React frontend and Express backend, designed for scalability across multiple properties with white-label theming capabilities.
 
+## Localisation Context
+
+**Region: South Africa**
+
+All application features should adhere to South African conventions:
+- **Currency**: South African Rand (ZAR) - Display using "R" symbol (e.g., R1,250.00)
+- **Date Formats**: Use DD/MM/YYYY or YYYY-MM-DD formats (South African standard)
+- **Time Formats**: 24-hour format (HH:mm)
+- **Spelling**: British English (colour, organisation, analyse, etc.)
+- **Number Formats**: Space as thousand separator (e.g., 1 000 000) or comma (1,000,000) depending on context
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.

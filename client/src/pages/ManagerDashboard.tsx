@@ -192,7 +192,7 @@ export default function ManagerDashboard() {
           />
           <KPIWidget
             title="Revenue at Risk"
-            value="$2.3k"
+            value="R2.3k"
             change={12}
             trend="up"
             icon={DollarSign}
