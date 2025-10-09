@@ -7,6 +7,7 @@ import { IssueReportForm } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
 import { EventQueue } from "@/components/EventQueue";
+import { AIChatInterface } from "@/components/AIChatInterface";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Event } from "@shared/schema";
 import heroImage from "@assets/stock_images/modern_hotel_lobby_w_9345d9d3.jpg";
@@ -77,8 +78,11 @@ export default function GuestPortal() {
 
         <NetworkStatusIndicator status="healthy" incidentCount={0} />
 
-        <Tabs defaultValue="troubleshoot" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+        <Tabs defaultValue="ai-chat" className="w-full">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="ai-chat" data-testid="tab-ai-chat">
+              AI Assistant
+            </TabsTrigger>
             <TabsTrigger value="troubleshoot" data-testid="tab-troubleshoot">
               Troubleshooting
             </TabsTrigger>
@@ -89,6 +93,17 @@ export default function GuestPortal() {
               My Issues
             </TabsTrigger>
           </TabsList>
+          <TabsContent value="ai-chat" className="mt-6">
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Chat with AI Assistant</h3>
+                <p className="text-sm text-muted-foreground">
+                  Get instant help with network issues through our AI-powered assistant
+                </p>
+              </div>
+              <AIChatInterface />
+            </div>
+          </TabsContent>
           <TabsContent value="troubleshoot" className="mt-6">
             <TroubleshootingWizard
               steps={troubleshootingSteps}
