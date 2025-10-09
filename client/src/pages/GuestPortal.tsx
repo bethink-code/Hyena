@@ -4,18 +4,15 @@ import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { IssueReportForm } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import { Button } from "@/components/ui/button";
+import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
+import { AppHeader } from "@/components/AppHeader";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from "lucide-react";
-import { useLocation } from "wouter";
 import heroImage from "@assets/stock_images/modern_hotel_lobby_w_9345d9d3.jpg";
 import step1 from "@assets/stock_images/wifi_troubleshooting_00ddfe0a.jpg";
 import step2 from "@assets/stock_images/wifi_troubleshooting_5279112e.jpg";
 import step3 from "@assets/stock_images/wifi_troubleshooting_4467e740.jpg";
 
 export default function GuestPortal() {
-  const [, setLocation] = useLocation();
   const [showFeedback, setShowFeedback] = useState(false);
 
   const troubleshootingSteps = [
@@ -41,22 +38,8 @@ export default function GuestPortal() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/")}
-              data-testid="button-back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Guest Portal</h1>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
+      <RoleNavigationHeader />
+      <AppHeader title="Guest Portal" notificationCount={1} />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <HeroSection

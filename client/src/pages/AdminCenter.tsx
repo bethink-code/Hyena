@@ -1,12 +1,10 @@
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
+import { AppHeader } from "@/components/AppHeader";
 import { PropertyCard } from "@/components/PropertyCard";
 import { KPIWidget } from "@/components/KPIWidget";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Building2, AlertTriangle, TrendingUp, Users } from "lucide-react";
-import { useLocation } from "wouter";
+import { Building2, AlertTriangle, TrendingUp, Users } from "lucide-react";
 
 export default function AdminCenter() {
-  const [, setLocation] = useLocation();
 
   const properties = [
     {
@@ -49,22 +47,8 @@ export default function AdminCenter() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/")}
-              data-testid="button-back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Platform Administration Center</h1>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
+      <RoleNavigationHeader />
+      <AppHeader title="Platform Administration Center" notificationCount={2} />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

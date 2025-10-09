@@ -1,12 +1,10 @@
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
+import { AppHeader } from "@/components/AppHeader";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, AlertTriangle, Users, DollarSign, Clock } from "lucide-react";
-import { useLocation } from "wouter";
+import { AlertTriangle, Users, DollarSign, Clock } from "lucide-react";
 
 export default function ManagerDashboard() {
-  const [, setLocation] = useLocation();
 
   const mockEvents = [
     {
@@ -51,22 +49,8 @@ export default function ManagerDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/")}
-              data-testid="button-back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Property Management Dashboard</h1>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
+      <RoleNavigationHeader />
+      <AppHeader title="Property Management Dashboard" notificationCount={4} />
 
       <main className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

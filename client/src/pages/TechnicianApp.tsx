@@ -1,14 +1,13 @@
 import { useState } from "react";
-import { ThemeToggle } from "@/components/ThemeToggle";
+import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
+import { AppHeader } from "@/components/AppHeader";
 import { EventCard } from "@/components/EventCard";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, MapPin, Camera, CheckCircle2 } from "lucide-react";
-import { useLocation } from "wouter";
+import { MapPin, Camera, CheckCircle2 } from "lucide-react";
 
 export default function TechnicianApp() {
-  const [, setLocation] = useLocation();
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
 
   const workQueue = [
@@ -46,22 +45,8 @@ export default function TechnicianApp() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setLocation("/")}
-              data-testid="button-back"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="text-xl font-bold">Technician App</h1>
-          </div>
-          <ThemeToggle />
-        </div>
-      </header>
+      <RoleNavigationHeader />
+      <AppHeader title="Technician App" notificationCount={2} />
 
       <main className="container mx-auto px-4 py-8 max-w-4xl space-y-8">
         <Tabs defaultValue="queue" className="w-full">
