@@ -1,5 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
-import { PropertyCard } from "@/components/PropertyCard";
+import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import {
   LayoutDashboard,
@@ -120,15 +120,10 @@ export default function AdminCenter() {
 
         <div>
           <h3 className="text-xl font-semibold mb-4">Property Status</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {properties.map((property) => (
-              <PropertyCard
-                key={property.name}
-                {...property}
-                onClick={() => console.log("View property:", property.name)}
-              />
-            ))}
-          </div>
+          <PropertyList
+            properties={properties}
+            onPropertyClick={(property) => console.log("View property:", property.name)}
+          />
         </div>
       </div>
     </AppLayout>
