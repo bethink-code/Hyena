@@ -9,6 +9,7 @@ import GuestPortal from "@/pages/GuestPortal";
 import ManagerDashboard from "@/pages/ManagerDashboard";
 import AdminCenter from "@/pages/AdminCenter";
 import TechnicianApp from "@/pages/TechnicianApp";
+import EventSimulator from "@/pages/EventSimulator";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -19,6 +20,7 @@ function Router() {
       <Route path="/manager" component={ManagerDashboard} />
       <Route path="/admin" component={AdminCenter} />
       <Route path="/technician" component={TechnicianApp} />
+      <Route path="/simulator" component={EventSimulator} />
       <Route component={NotFound} />
     </Switch>
   );

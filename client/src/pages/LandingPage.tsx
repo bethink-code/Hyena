@@ -1,7 +1,10 @@
 import { RoleSelector } from "@/components/RoleSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { UserRole } from "@/components/RoleSelector";
 import { useLocation } from "wouter";
+import { Zap } from "lucide-react";
 
 export default function LandingPage() {
   const [, setLocation] = useLocation();
@@ -28,6 +31,27 @@ export default function LandingPage() {
               Proactive event-driven monitoring for hospitality networks
             </p>
           </div>
+
+          <Card className="border-primary/50">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Zap className="h-6 w-6 text-primary" />
+                <div className="flex-1">
+                  <CardTitle>Event Simulator</CardTitle>
+                  <CardDescription>
+                    Create and test network events for demonstration and testing
+                  </CardDescription>
+                </div>
+                <Button
+                  onClick={() => setLocation('/simulator')}
+                  variant="default"
+                  data-testid="button-simulator"
+                >
+                  Open Simulator
+                </Button>
+              </div>
+            </CardHeader>
+          </Card>
 
           <RoleSelector onSelectRole={handleRoleSelect} />
         </div>
