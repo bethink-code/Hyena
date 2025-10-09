@@ -16,9 +16,9 @@ import {
 
 export default function NetworkStatus() {
   const properties = [
-    { id: "1", name: "Grand Hotel Downtown", location: "New York, NY" },
-    { id: "2", name: "Beachside Resort", location: "Miami, FL" },
-    { id: "3", name: "Mountain Lodge", location: "Denver, CO" },
+    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
+    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
+    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
   ];
 
   const navSections = [

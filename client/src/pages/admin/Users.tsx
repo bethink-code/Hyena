@@ -42,9 +42,9 @@ export default function Users() {
   ];
 
   const users = [
-    { name: "Sarah Johnson", email: "sarah@hotel.com", role: "Manager", property: "Grand Hotel Downtown" },
-    { name: "Michael Brown", email: "michael@hotel.com", role: "Technician", property: "Beachside Resort" },
-    { name: "Emma Davis", email: "emma@hotel.com", role: "Manager", property: "Mountain Lodge" },
+    { name: "Sarah Johnson", email: "sarah@hotel.com", role: "Manager", property: "The Table Bay Hotel" },
+    { name: "Michael Brown", email: "michael@hotel.com", role: "Technician", property: "Umhlanga Sands Resort" },
+    { name: "Emma Davis", email: "emma@hotel.com", role: "Manager", property: "Saxon Hotel" },
     { name: "James Wilson", email: "james@hotel.com", role: "Admin", property: "All Properties" },
   ];
 

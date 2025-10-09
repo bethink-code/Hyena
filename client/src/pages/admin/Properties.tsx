@@ -39,14 +39,14 @@ export default function Properties() {
   ];
 
   const properties = [
-    { name: "Grand Hotel Downtown", location: "New York, NY", status: "healthy" as const, incidentCount: 0 },
-    { name: "Beachside Resort", location: "Miami, FL", status: "degraded" as const, incidentCount: 3 },
-    { name: "Mountain Lodge", location: "Denver, CO", status: "critical" as const, incidentCount: 8 },
-    { name: "Urban Suites", location: "San Francisco, CA", status: "healthy" as const, incidentCount: 1 },
-    { name: "Lakeside Inn", location: "Seattle, WA", status: "degraded" as const, incidentCount: 4 },
-    { name: "Desert Oasis Hotel", location: "Phoenix, AZ", status: "healthy" as const, incidentCount: 0 },
-    { name: "Coastal Retreat", location: "San Diego, CA", status: "healthy" as const, incidentCount: 2 },
-    { name: "Metropolitan Plaza", location: "Chicago, IL", status: "degraded" as const, incidentCount: 5 },
+    { name: "The Table Bay Hotel", location: "Cape Town, Western Cape", status: "healthy" as const, incidentCount: 0 },
+    { name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 3 },
+    { name: "Saxon Hotel", location: "Johannesburg, Gauteng", status: "critical" as const, incidentCount: 8 },
+    { name: "Sandton Sun Hotel", location: "Sandton, Gauteng", status: "healthy" as const, incidentCount: 1 },
+    { name: "Waterfront Lodge", location: "Cape Town, Western Cape", status: "degraded" as const, incidentCount: 4 },
+    { name: "Kruger Park Lodge", location: "Mpumalanga", status: "healthy" as const, incidentCount: 0 },
+    { name: "Plettenberg Bay Resort", location: "Plettenberg Bay, Western Cape", status: "healthy" as const, incidentCount: 2 },
+    { name: "Durban Beachfront Hotel", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 5 },
   ];
 
   return (
