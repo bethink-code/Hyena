@@ -1,3 +1,4 @@
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import {
@@ -11,7 +12,17 @@ import {
   Shield,
 } from "lucide-react";
 
+type PropertyWithId = {
+  id: string;
+  name: string;
+  location: string;
+  status: "healthy" | "degraded" | "critical" | "offline";
+  incidentCount: number;
+};
+
 export default function Properties() {
+  const [, setLocation] = useLocation();
+
   const navSections = [
     {
       label: "Overview",
@@ -38,15 +49,15 @@ export default function Properties() {
     },
   ];
 
-  const properties = [
-    { name: "The Table Bay Hotel", location: "Cape Town, Western Cape", status: "healthy" as const, incidentCount: 0 },
-    { name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 3 },
-    { name: "Saxon Hotel", location: "Johannesburg, Gauteng", status: "critical" as const, incidentCount: 8 },
-    { name: "Sandton Sun Hotel", location: "Sandton, Gauteng", status: "healthy" as const, incidentCount: 1 },
-    { name: "Waterfront Lodge", location: "Cape Town, Western Cape", status: "degraded" as const, incidentCount: 4 },
-    { name: "Kruger Park Lodge", location: "Mpumalanga", status: "healthy" as const, incidentCount: 0 },
-    { name: "Plettenberg Bay Resort", location: "Plettenberg Bay, Western Cape", status: "healthy" as const, incidentCount: 2 },
-    { name: "Durban Beachfront Hotel", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 5 },
+  const properties: PropertyWithId[] = [
+    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape", status: "healthy" as const, incidentCount: 0 },
+    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 3 },
+    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng", status: "critical" as const, incidentCount: 8 },
+    { id: "4", name: "Sandton Sun Hotel", location: "Sandton, Gauteng", status: "healthy" as const, incidentCount: 1 },
+    { id: "5", name: "Waterfront Lodge", location: "Cape Town, Western Cape", status: "degraded" as const, incidentCount: 4 },
+    { id: "6", name: "Kruger Park Lodge", location: "Mpumalanga", status: "healthy" as const, incidentCount: 0 },
+    { id: "7", name: "Plettenberg Bay Resort", location: "Plettenberg Bay, Western Cape", status: "healthy" as const, incidentCount: 2 },
+    { id: "8", name: "Durban Beachfront Hotel", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 5 },
   ];
 
   return (
@@ -63,7 +74,10 @@ export default function Properties() {
 
         <PropertyList 
           properties={properties}
-          onPropertyClick={(name) => console.log("Property clicked:", name)}
+          onPropertyClick={(property) => {
+            const propertyWithId = property as PropertyWithId;
+            setLocation(`/admin/properties/${propertyWithId.id}`);
+          }}
         />
       </div>
     </AppLayout>
