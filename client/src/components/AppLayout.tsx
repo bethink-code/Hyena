@@ -68,10 +68,10 @@ export function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <RoleNavigationHeader />
       <SidebarProvider style={style as React.CSSProperties}>
-        <div className="flex w-full">
+        <div className="flex w-full flex-1">
           <Sidebar>
             {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
             <SidebarContent>
