@@ -29,7 +29,7 @@ export const events = pgTable("events", {
   affectedGuests: integer("affected_guests"),
   estimatedResolution: text("estimated_resolution"),
   assignedTo: text("assigned_to"),
-  propertyId: text("property_id"),
+  propertyId: text("property_id").notNull(),
   source: text("source"), // 'guest_portal' | 'api_monitoring' | 'manual_report' | etc.
   rootCause: text("root_cause"),
   resolution: text("resolution"),
