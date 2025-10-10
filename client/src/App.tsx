@@ -16,6 +16,7 @@ import ManagerNetwork from "@/pages/manager/NetworkStatus";
 import ManagerAnalytics from "@/pages/manager/Analytics";
 import ManagerReports from "@/pages/manager/Reports";
 import ManagerMessages from "@/pages/manager/Messages";
+import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
 
 import TechnicianCompleted from "@/pages/technician/CompletedJobs";
 import TechnicianSchedule from "@/pages/technician/Schedule";
@@ -39,6 +40,7 @@ function Router() {
       <Route path="/guest" component={GuestPortal} />
       
       <Route path="/manager" component={ManagerDashboard} />
+      <Route path="/manager/properties/:id" component={ManagerPropertyDetail} />
       <Route path="/manager/incidents" component={ManagerIncidents} />
       <Route path="/manager/network" component={ManagerNetwork} />
       <Route path="/manager/analytics" component={ManagerAnalytics} />

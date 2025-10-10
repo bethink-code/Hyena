@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
+import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PROPERTIES } from "@/lib/properties";
 import type { Event, EventTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
@@ -22,14 +25,12 @@ import {
 
 export default function ManagerDashboard() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Use the first 3 properties for the manager's scope
+  const managerProperties = PROPERTIES.slice(0, 3);
 
   const navSections = [
     {
@@ -218,6 +219,32 @@ export default function ManagerDashboard() {
   const totalAffectedGuests = events.filter(e => e.status !== 'resolved').reduce((sum, e) => sum + (e.affectedGuests || 0), 0);
   const criticalEvents = events.filter(e => e.priority === 'critical' && e.status !== 'resolved').length;
 
+  // Calculate property incident counts and statuses (for all manager properties)
+  const propertyIncidentCounts = managerProperties.reduce((acc, prop) => {
+    const propertyEvents = allEvents.filter(e => e.propertyId === prop.id && e.status !== 'resolved');
+    acc[prop.id] = propertyEvents.length;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const getPropertyStatus = (propertyId: string): "healthy" | "degraded" | "critical" | "offline" => {
+    const propertyEvents = allEvents.filter(e => e.propertyId === propertyId && e.status !== 'resolved');
+    const hasCritical = propertyEvents.some(e => e.priority === 'critical');
+    const activeCount = propertyEvents.length;
+
+    if (hasCritical) return "critical";
+    if (activeCount > 3) return "degraded";
+    if (activeCount > 0) return "degraded";
+    return "healthy";
+  };
+
+  const propertyCards = managerProperties.map(prop => ({
+    id: prop.id,
+    name: prop.name,
+    location: prop.location,
+    status: getPropertyStatus(prop.id),
+    incidentCount: propertyIncidentCounts[prop.id] || 0,
+  }));
+
   return (
     <AppLayout
       title="Property Management Dashboard"
@@ -226,7 +253,7 @@ export default function ManagerDashboard() {
       navSections={navSections}
       sidebarHeader={
         <PropertySelector
-          properties={properties}
+          properties={managerProperties}
           onPropertyChange={setSelectedPropertyId}
         />
       }
@@ -265,6 +292,14 @@ export default function ManagerDashboard() {
             change={0}
             trend="down"
             icon={Clock}
+          />
+        </div>
+
+        <div>
+          <h3 className="text-xl font-semibold mb-4">Property Status</h3>
+          <PropertyList
+            properties={propertyCards}
+            onPropertyClick={(property) => setLocation(`/manager/properties/${property.id}`)}
           />
         </div>
 
