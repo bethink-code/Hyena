@@ -29,7 +29,6 @@ export default function AdminCenter() {
       label: "Overview",
       items: [
         { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
       ],
     },
     {

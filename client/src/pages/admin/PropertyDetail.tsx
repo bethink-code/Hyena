@@ -37,7 +37,6 @@ export default function PropertyDetail() {
       label: "Overview",
       items: [
         { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
       ],
     },
     {
@@ -211,10 +210,10 @@ export default function PropertyDetail() {
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold mb-2">Property Not Found</h2>
             <p className="text-muted-foreground mb-6">The property you're looking for doesn't exist.</p>
-            <Link href="/admin/properties">
+            <Link href="/admin">
               <Button variant="outline" data-testid="button-back-to-properties">
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to All Properties
+                Back to Dashboard
               </Button>
             </Link>
           </div>
@@ -232,10 +231,10 @@ export default function PropertyDetail() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Property Header */}
         <div className="mb-6">
-          <Link href="/admin/properties">
+          <Link href="/admin">
             <Button variant="ghost" size="sm" className="mb-4" data-testid="button-back">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to All Properties
+              Back to Dashboard
             </Button>
           </Link>
           
