@@ -1,6 +1,9 @@
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
+import type { Event } from "@shared/schema";
 import {
   LayoutDashboard,
   Building2,
@@ -12,16 +15,13 @@ import {
   Shield,
 } from "lucide-react";
 
-type PropertyWithId = {
-  id: string;
-  name: string;
-  location: string;
-  status: "healthy" | "degraded" | "critical" | "offline";
-  incidentCount: number;
-};
-
 export default function Properties() {
   const [, setLocation] = useLocation();
+
+  // Fetch all events to calculate incident counts per property
+  const { data: allEvents = [] } = useQuery<Event[]>({
+    queryKey: ["/api/events"],
+  });
 
   const navSections = [
     {
@@ -49,16 +49,15 @@ export default function Properties() {
     },
   ];
 
-  const properties: PropertyWithId[] = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape", status: "healthy" as const, incidentCount: 0 },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 3 },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng", status: "critical" as const, incidentCount: 8 },
-    { id: "4", name: "Sandton Sun Hotel", location: "Sandton, Gauteng", status: "healthy" as const, incidentCount: 1 },
-    { id: "5", name: "Waterfront Lodge", location: "Cape Town, Western Cape", status: "degraded" as const, incidentCount: 4 },
-    { id: "6", name: "Kruger Park Lodge", location: "Mpumalanga", status: "healthy" as const, incidentCount: 0 },
-    { id: "7", name: "Plettenberg Bay Resort", location: "Plettenberg Bay, Western Cape", status: "healthy" as const, incidentCount: 2 },
-    { id: "8", name: "Durban Beachfront Hotel", location: "Durban, KwaZulu-Natal", status: "degraded" as const, incidentCount: 5 },
-  ];
+  // Calculate incident counts for each property from actual events
+  const propertiesWithIncidents = PROPERTIES.map(property => {
+    const propertyEvents = allEvents.filter(e => e.propertyId === property.id);
+    const incidentCount = propertyEvents.filter(e => e.status !== 'resolved').length;
+    return {
+      ...property,
+      incidentCount,
+    };
+  });
 
   return (
     <AppLayout
@@ -73,10 +72,11 @@ export default function Properties() {
         </div>
 
         <PropertyList 
-          properties={properties}
+          properties={propertiesWithIncidents}
           onPropertyClick={(property) => {
-            const propertyWithId = property as PropertyWithId;
-            setLocation(`/admin/properties/${propertyWithId.id}`);
+            if (property.id) {
+              setLocation(`/admin/properties/${property.id}`);
+            }
           }}
         />
       </div>

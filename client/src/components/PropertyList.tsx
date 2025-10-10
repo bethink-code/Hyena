@@ -12,6 +12,7 @@ import { useState } from "react";
 import type { NetworkHealth } from "./NetworkStatusIndicator";
 
 interface Property {
+  id?: string;
   name: string;
   location: string;
   status: NetworkHealth;

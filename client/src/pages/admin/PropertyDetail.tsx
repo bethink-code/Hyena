@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { getPropertyById } from "@/lib/properties";
 import type { Event, EventTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
@@ -22,25 +23,14 @@ import {
   MapPin,
 } from "lucide-react";
 
-const PROPERTIES = [
-  { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape", status: "healthy" as const },
-  { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal", status: "degraded" as const },
-  { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng", status: "critical" as const },
-  { id: "4", name: "Sandton Sun Hotel", location: "Sandton, Gauteng", status: "healthy" as const },
-  { id: "5", name: "Waterfront Lodge", location: "Cape Town, Western Cape", status: "degraded" as const },
-  { id: "6", name: "Kruger Park Lodge", location: "Mpumalanga", status: "healthy" as const },
-  { id: "7", name: "Plettenberg Bay Resort", location: "Plettenberg Bay, Western Cape", status: "healthy" as const },
-  { id: "8", name: "Durban Beachfront Hotel", location: "Durban, KwaZulu-Natal", status: "degraded" as const },
-];
-
 export default function PropertyDetail() {
   const { toast } = useToast();
   const params = useParams<{ id: string }>();
   const propertyId = params.id;
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
 
-  // Find property details
-  const property = PROPERTIES.find(p => p.id === propertyId);
+  // Find property details from shared constants
+  const property = getPropertyById(propertyId || "");
 
   const navSections = [
     {

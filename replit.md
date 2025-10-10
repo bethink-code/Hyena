@@ -91,10 +91,10 @@ Preferred communication style: Simple, everyday language.
 ### Data Models
 
 **Core Entities (from schema):**
-- **Events**: ID (UUID), title, description, priority (critical/high/medium/low), status (new/assigned/in_progress/resolved), location, assignedTo, category, affectedGuests, estimatedResolution, rootCause, resolution, timestamps
+- **Events**: ID (UUID), title, description, priority (critical/high/medium/low), status (new/assigned/in_progress/resolved), location, assignedTo, category, affectedGuests, estimatedResolution, rootCause, resolution, timestamps, propertyId (FK)
 - **EventTimeline**: ID (UUID), eventId (FK), action, actor, timestamp - tracks all event state changes
+- **Properties** (hardcoded constants): ID, name, location, status - managed in `client/src/lib/properties.ts` as static configuration. Properties are referenced by events via propertyId but are not stored in the database. This design allows for rapid prototyping without property CRUD operations.
 - Extensible schema structure ready for:
-  - Properties (multi-property support)
   - Users/Technicians (authentication and assignment)
   - Guest feedback
   - Network status tracking
@@ -193,3 +193,32 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-runtime-error-modal**: Development error overlay
 - **@replit/vite-plugin-cartographer**: Code navigation enhancement
 - **@replit/vite-plugin-dev-banner**: Development environment indicator
+
+## Feature Implementation Details
+
+### Admin Property Drill-Down (Completed)
+**Route Structure:**
+- All Properties page: `/admin/properties` - Grid view of all properties with search/filter
+- Property Detail page: `/admin/properties/:id` - Dedicated sub-navigation for property-specific events
+
+**Implementation:**
+- Shared property constants in `client/src/lib/properties.ts` (8 South African properties)
+- Properties.tsx fetches events to calculate real-time incident counts per property
+- PropertyDetail.tsx displays property-filtered events with full EventQueue pattern
+- Consistent Search + Filters + View Type controls across all list views
+- EventDetailPanel integration for drilling into individual events
+- Back button navigation returns to All Properties page
+
+**Design Pattern:**
+All detail views follow consistent slide-in panel pattern:
+- Properties list → Property detail (sub-navigation) → Event detail (slide-in panel)
+- Manager Dashboard → Event detail (slide-in panel)
+- Technician App → Event detail (slide-in panel)
+- Guest Portal → Event detail (slide-in panel)
+
+**Files:**
+- `/client/src/lib/properties.ts` - Shared property constants and helpers
+- `/client/src/pages/admin/Properties.tsx` - Property list with search/filter
+- `/client/src/pages/admin/PropertyDetail.tsx` - Property drill-down page
+- `/client/src/components/PropertyList.tsx` - Property grid component (supports optional id field)
+- Route registered in `/client/src/App.tsx` as `/admin/properties/:id`
