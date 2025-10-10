@@ -2,6 +2,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import type { Event } from "@shared/schema";
 import {
   LayoutDashboard,
@@ -17,6 +18,8 @@ import {
 } from "lucide-react";
 
 export default function AdminCenter() {
+  const [, setLocation] = useLocation();
+  
   // Fetch all events to calculate property-specific incident counts
   const { data: events = [] } = useQuery<Event[]>({
     queryKey: ["/api/events"],
@@ -78,6 +81,7 @@ export default function AdminCenter() {
 
   // Build properties array with real-time data
   const properties = propertyDefinitions.map(prop => ({
+    id: prop.id,
     name: prop.name,
     location: prop.location,
     status: getPropertyStatus(prop.id),
@@ -129,7 +133,7 @@ export default function AdminCenter() {
           <h3 className="text-xl font-semibold mb-4">Property Status</h3>
           <PropertyList
             properties={properties}
-            onPropertyClick={(property) => console.log("View property:", property.name)}
+            onPropertyClick={(property) => setLocation(`/admin/properties/${property.id}`)}
           />
         </div>
       </div>
