@@ -22,6 +22,7 @@ import TechnicianSchedule from "@/pages/technician/Schedule";
 import TechnicianEquipment from "@/pages/technician/Equipment";
 
 import AdminProperties from "@/pages/admin/Properties";
+import AdminPropertyDetail from "@/pages/admin/PropertyDetail";
 import AdminUsers from "@/pages/admin/Users";
 import AdminConfig from "@/pages/admin/Config";
 import AdminIntegrations from "@/pages/admin/Integrations";
@@ -50,6 +51,7 @@ function Router() {
       <Route path="/technician/equipment" component={TechnicianEquipment} />
       
       <Route path="/admin" component={AdminCenter} />
+      <Route path="/admin/properties/:id" component={AdminPropertyDetail} />
       <Route path="/admin/properties" component={AdminProperties} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/config" component={AdminConfig} />
