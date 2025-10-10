@@ -23,6 +23,7 @@ import {
 export default function ManagerDashboard() {
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
   
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
@@ -54,10 +55,13 @@ export default function ManagerDashboard() {
     },
   ];
 
-  // Fetch all events
-  const { data: events = [] } = useQuery<Event[]>({
+  // Fetch events for selected property
+  const { data: allEvents = [] } = useQuery<Event[]>({
     queryKey: ["/api/events"],
   });
+
+  // Filter events by selected property on client side
+  const events = allEvents.filter(e => e.propertyId === selectedPropertyId);
 
   // Fetch timeline for selected event
   const { data: timeline = [] } = useQuery<EventTimeline[]>({
@@ -223,7 +227,7 @@ export default function ManagerDashboard() {
       sidebarHeader={
         <PropertySelector
           properties={properties}
-          onPropertyChange={(id) => console.log("Property changed:", id)}
+          onPropertyChange={setSelectedPropertyId}
         />
       }
     >

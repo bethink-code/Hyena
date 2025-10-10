@@ -19,6 +19,7 @@ import {
 export default function IncidentQueue() {
   const { toast } = useToast();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
   
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
@@ -50,9 +51,12 @@ export default function IncidentQueue() {
     },
   ];
 
-  const { data: events = [] } = useQuery<Event[]>({
+  const { data: allEvents = [] } = useQuery<Event[]>({
     queryKey: ["/api/events"],
   });
+
+  // Filter events by selected property on client side
+  const events = allEvents.filter(e => e.propertyId === selectedPropertyId);
 
   const { data: timeline = [] } = useQuery<EventTimeline[]>({
     queryKey: ["/api/events", selectedEventId, "timeline"],
@@ -184,7 +188,7 @@ export default function IncidentQueue() {
       sidebarHeader={
         <PropertySelector
           properties={properties}
-          onPropertyChange={(id) => console.log("Property changed:", id)}
+          onPropertyChange={setSelectedPropertyId}
         />
       }
     >

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,8 @@ import {
 } from "lucide-react";
 
 export default function NetworkStatus() {
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
     { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
@@ -61,7 +64,7 @@ export default function NetworkStatus() {
       sidebarHeader={
         <PropertySelector
           properties={properties}
-          onPropertyChange={(id) => console.log("Property changed:", id)}
+          onPropertyChange={setSelectedPropertyId}
         />
       }
     >

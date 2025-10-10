@@ -48,6 +48,12 @@ const EVENT_CATEGORIES = [
   "Authentication",
 ];
 
+const PROPERTIES = [
+  { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
+  { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
+  { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
+];
+
 const PRESET_SCENARIOS = [
   {
     name: "Critical Wi-Fi Outage",
@@ -60,6 +66,7 @@ const PRESET_SCENARIOS = [
       affectedGuests: 150,
       estimatedResolution: "2 hours",
       source: "api_monitoring",
+      propertyId: "1", // Table Bay Hotel
     }]
   },
   {
@@ -74,6 +81,7 @@ const PRESET_SCENARIOS = [
         affectedGuests: 85,
         estimatedResolution: "45 minutes",
         source: "automated_alert",
+        propertyId: "2", // Umhlanga Sands Resort
       },
       {
         title: "Streaming Issues - Conference AV System",
@@ -84,6 +92,7 @@ const PRESET_SCENARIOS = [
         affectedGuests: 85,
         estimatedResolution: "30 minutes",
         source: "manual_report",
+        propertyId: "2", // Umhlanga Sands Resort
       }
     ]
   },
@@ -99,6 +108,7 @@ const PRESET_SCENARIOS = [
         affectedGuests: 1,
         estimatedResolution: "20 minutes",
         source: "guest_portal",
+        propertyId: "3", // Saxon Hotel
       },
       {
         title: "Cannot Connect - Room 412",
@@ -109,6 +119,7 @@ const PRESET_SCENARIOS = [
         affectedGuests: 1,
         estimatedResolution: "15 minutes",
         source: "guest_portal",
+        propertyId: "3", // Saxon Hotel
       },
       {
         title: "Device Limit Reached - Room 508",
@@ -119,6 +130,7 @@ const PRESET_SCENARIOS = [
         affectedGuests: 1,
         estimatedResolution: "10 minutes",
         source: "guest_portal",
+        propertyId: "3", // Saxon Hotel
       }
     ]
   },
@@ -133,6 +145,7 @@ const PRESET_SCENARIOS = [
       affectedGuests: 1,
       estimatedResolution: "Immediate",
       source: "api_monitoring",
+      propertyId: "1", // Table Bay Hotel
     }]
   },
 ];
@@ -151,6 +164,7 @@ export default function EventSimulator() {
     estimatedResolution: "",
     source: "manual_report",
     rootCause: "",
+    propertyId: "1", // Default to first property
   });
 
   // Fetch all events
@@ -215,6 +229,7 @@ export default function EventSimulator() {
       estimatedResolution: "",
       source: "manual_report",
       rootCause: "",
+      propertyId: "1", // Keep default property
     });
   };
 
@@ -312,6 +327,25 @@ export default function EventSimulator() {
                           {EVENT_SOURCES.map(source => (
                             <SelectItem key={source.value} value={source.value}>
                               {source.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="property">Property *</Label>
+                      <Select
+                        value={formData.propertyId}
+                        onValueChange={(value) => setFormData({ ...formData, propertyId: value })}
+                      >
+                        <SelectTrigger id="property" data-testid="select-property">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {PROPERTIES.map(property => (
+                            <SelectItem key={property.id} value={property.id}>
+                              {property.name}
                             </SelectItem>
                           ))}
                         </SelectContent>

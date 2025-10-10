@@ -25,10 +25,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all events
+  // Get all events (with optional propertyId filter)
   app.get("/api/events", async (req, res) => {
     try {
-      const events = await storage.getAllEvents();
+      const { propertyId } = req.query;
+      let events;
+      
+      if (propertyId && typeof propertyId === 'string') {
+        events = await storage.getEventsByProperty(propertyId);
+      } else {
+        events = await storage.getAllEvents();
+      }
+      
       res.json(events);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
@@ -6,6 +7,8 @@ import type { Event } from "@shared/schema";
 import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function CompletedJobs() {
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
     { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
@@ -33,7 +36,10 @@ export default function CompletedJobs() {
     queryKey: ["/api/events"],
   });
 
-  const completedWork = allEvents.filter(e => e.status === 'resolved');
+  // Filter by property and status on client side
+  const completedWork = allEvents
+    .filter(e => e.propertyId === selectedPropertyId)
+    .filter(e => e.status === 'resolved');
 
   const formatTimestamp = (date: Date | null | undefined) => {
     if (!date) return "N/A";
@@ -72,7 +78,7 @@ export default function CompletedJobs() {
       sidebarHeader={
         <PropertySelector
           properties={properties}
-          onPropertyChange={(id) => console.log("Property changed to:", id)}
+          onPropertyChange={setSelectedPropertyId}
         />
       }
     >

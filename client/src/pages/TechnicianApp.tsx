@@ -14,6 +14,7 @@ import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench,
 export default function TechnicianApp() {
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
 
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
@@ -43,13 +44,16 @@ export default function TechnicianApp() {
     queryKey: ["/api/events"],
   });
 
+  // Filter events by selected property on client side
+  const propertyEvents = allEvents.filter(e => e.propertyId === selectedPropertyId);
+
   // Filter events for work queue (assigned or in_progress)
-  const workQueue = allEvents.filter(e => 
+  const workQueue = propertyEvents.filter(e => 
     e.status === 'assigned' || e.status === 'in_progress'
   );
 
   // Filter events for completed work
-  const completedWork = allEvents.filter(e => e.status === 'resolved');
+  const completedWork = propertyEvents.filter(e => e.status === 'resolved');
 
   // Start work mutation
   const startWorkMutation = useMutation({
@@ -135,7 +139,7 @@ export default function TechnicianApp() {
       sidebarHeader={
         <PropertySelector
           properties={properties}
-          onPropertyChange={(id) => console.log("Property changed:", id)}
+          onPropertyChange={setSelectedPropertyId}
         />
       }
     >
