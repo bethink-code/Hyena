@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { User, Building2, Settings, Wrench } from "lucide-react";
+import { User, Building2, Settings, Wrench, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 
@@ -16,14 +16,15 @@ export function RoleNavigationHeader() {
   return (
     <div className="border-b bg-sidebar">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
-            className="font-bold"
+            className="font-bold gap-2"
             data-testid="button-logo"
           >
-            Project Hyena
+            <Home className="h-4 w-4" />
+            <span>Project Hyena</span>
           </Button>
         </div>
 
