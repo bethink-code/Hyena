@@ -18,6 +18,7 @@ import ManagerReports from "@/pages/manager/Reports";
 import ManagerMessages from "@/pages/manager/Messages";
 import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
 
+import TechnicianPropertyDetail from "@/pages/technician/PropertyDetail";
 import TechnicianCompleted from "@/pages/technician/CompletedJobs";
 import TechnicianSchedule from "@/pages/technician/Schedule";
 import TechnicianEquipment from "@/pages/technician/Equipment";
@@ -48,6 +49,7 @@ function Router() {
       <Route path="/manager/messages" component={ManagerMessages} />
       
       <Route path="/technician" component={TechnicianApp} />
+      <Route path="/technician/properties/:id" component={TechnicianPropertyDetail} />
       <Route path="/technician/completed" component={TechnicianCompleted} />
       <Route path="/technician/schedule" component={TechnicianSchedule} />
       <Route path="/technician/equipment" component={TechnicianEquipment} />

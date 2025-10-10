@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
+import { PropertyList } from "@/components/PropertyList";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { Button } from "@/components/ui/button";
@@ -9,20 +10,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PROPERTIES } from "@/lib/properties";
 import type { Event } from "@shared/schema";
 import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench, Play } from "lucide-react";
 
 export default function TechnicianApp() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
 
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Technician works across these three properties
+  const technicianProperties = PROPERTIES.filter(p => 
+    ["1", "2", "3"].includes(p.id)
+  );
 
   const navSections = [
     {
@@ -46,16 +47,19 @@ export default function TechnicianApp() {
     queryKey: ["/api/events"],
   });
 
-  // Filter events by selected property on client side
-  const propertyEvents = allEvents.filter(e => e.propertyId === selectedPropertyId);
+  // Filter events for technician's properties (1, 2, 3)
+  const technicianPropertyIds = ["1", "2", "3"];
+  const technicianEvents = allEvents.filter(e => 
+    technicianPropertyIds.includes(e.propertyId)
+  );
 
   // Filter events for work queue (assigned or in_progress)
-  const workQueue = propertyEvents.filter(e => 
+  const workQueue = technicianEvents.filter(e => 
     e.status === 'assigned' || e.status === 'in_progress'
   );
 
   // Filter events for completed work
-  const completedWork = propertyEvents.filter(e => e.status === 'resolved');
+  const completedWork = technicianEvents.filter(e => e.status === 'resolved');
 
   // Start work mutation
   const startWorkMutation = useMutation({
@@ -138,14 +142,32 @@ export default function TechnicianApp() {
       homeRoute="/technician"
       notificationCount={workQueue.length}
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+        {/* Property Status Section */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">My Properties</h2>
+            <p className="text-muted-foreground">Properties assigned to your coverage area</p>
+          </div>
+          
+          <PropertyList
+            properties={technicianProperties.map(property => {
+              const propertyEventCount = allEvents.filter(
+                e => e.propertyId === property.id && 
+                (e.status === 'new' || e.status === 'assigned' || e.status === 'in_progress')
+              ).length;
+              
+              return {
+                ...property,
+                incidentCount: propertyEventCount,
+              };
+            })}
+            onPropertyClick={(property) => navigate(`/technician/properties/${property.id}`)}
+          />
+        </div>
+
+        {/* Work Queue Section */}
         <Tabs defaultValue="queue" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="queue" data-testid="tab-queue">
