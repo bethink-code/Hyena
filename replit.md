@@ -231,29 +231,48 @@ Preferred communication style: Simple, everyday language.
 
 ## Feature Implementation Details
 
-### Admin Property Drill-Down (Completed)
-**Route Structure:**
-- All Properties page: `/admin/properties` - Grid view of all properties with search/filter
-- Property Detail page: `/admin/properties/:id` - Dedicated sub-navigation for property-specific events
+### Property Card Navigation Pattern (Completed)
 
-**Implementation:**
-- Shared property constants in `client/src/lib/properties.ts` (8 South African properties)
-- Properties.tsx fetches events to calculate real-time incident counts per property
-- PropertyDetail.tsx displays property-filtered events with full EventQueue pattern
-- Consistent Search + Filters + View Type controls across all list views
-- EventDetailPanel integration for drilling into individual events
-- Back button navigation returns to All Properties page
+**Unified Pattern Across All Roles:**
+All role interfaces (Admin, Manager, Technician) now use the same property card navigation pattern, removing dropdown selectors in favor of clickable property cards.
+
+**Admin Implementation:**
+- Route: `/admin` - Portfolio Dashboard shows all 8 properties as cards with real-time incident counts
+- Route: `/admin/properties/:id` - Property detail page with filtered event queue
+- "All Properties" nav item removed (properties shown directly on dashboard)
+- Back button returns to Portfolio Dashboard
+
+**Manager Implementation:**
+- Route: `/manager` - Dashboard shows 3 manager properties as cards (IDs: 4, 5, 6)
+- Route: `/manager/properties/:id` - Property detail page with assignment/escalation controls
+- PropertySelector dropdown removed from sidebar
+- Events from all 3 manager properties shown in main work queue
+- Property cards provide navigation to property-specific filtered views
+
+**Technician Implementation:**
+- Route: `/technician` - Dashboard shows 3 technician properties as cards (IDs: 1, 2, 3)
+- Route: `/technician/properties/:id` - Property detail page with work queue and completed jobs
+- PropertySelector dropdown removed from sidebar
+- Work queue aggregates events from all 3 technician properties (status: assigned/in_progress)
+- Property cards show status badges and active incident counts
+- "My Properties" section displays coverage area
 
 **Design Pattern:**
 All detail views follow consistent slide-in panel pattern:
-- Properties list → Property detail (sub-navigation) → Event detail (slide-in panel)
-- Manager Dashboard → Event detail (slide-in panel)
-- Technician App → Event detail (slide-in panel)
-- Guest Portal → Event detail (slide-in panel)
+- Dashboard (property cards) → Click card → Property detail (sub-navigation with filtered events) → Event detail (slide-in panel)
+- Back button always returns to role's main dashboard
 
-**Files:**
-- `/client/src/lib/properties.ts` - Shared property constants and helpers
-- `/client/src/pages/admin/Properties.tsx` - Property list with search/filter
-- `/client/src/pages/admin/PropertyDetail.tsx` - Property drill-down page
-- `/client/src/components/PropertyList.tsx` - Property grid component (supports optional id field)
-- Route registered in `/client/src/App.tsx` as `/admin/properties/:id`
+**Shared Components:**
+- `/client/src/lib/properties.ts` - Shared property constants (8 South African properties)
+- `/client/src/components/PropertyList.tsx` - Reusable property grid with search/filter
+- `/client/src/components/PropertyCard.tsx` - Individual property card with status/incidents
+- `/client/src/components/EventDetailPanel.tsx` - Consistent event detail slide-in panel
+
+**Key Files:**
+- `/client/src/pages/AdminCenter.tsx` - Admin portfolio dashboard
+- `/client/src/pages/admin/PropertyDetail.tsx` - Admin property drill-down
+- `/client/src/pages/ManagerDashboard.tsx` - Manager dashboard with cards
+- `/client/src/pages/manager/PropertyDetail.tsx` - Manager property drill-down
+- `/client/src/pages/TechnicianApp.tsx` - Technician dashboard with cards
+- `/client/src/pages/technician/PropertyDetail.tsx` - Technician property drill-down
+- Routes registered in `/client/src/App.tsx`
