@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
 import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
@@ -27,10 +26,10 @@ export default function ManagerDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
   
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
+  const managerPropertyIds = managerProperties.map(p => p.id);
 
   const navSections = [
     {
@@ -56,13 +55,13 @@ export default function ManagerDashboard() {
     },
   ];
 
-  // Fetch events for selected property
+  // Fetch all events
   const { data: allEvents = [] } = useQuery<Event[]>({
     queryKey: ["/api/events"],
   });
 
-  // Filter events by selected property on client side
-  const events = allEvents.filter(e => e.propertyId === selectedPropertyId);
+  // Filter events for manager's properties
+  const events = allEvents.filter(e => managerPropertyIds.includes(e.propertyId || ''));
 
   // Fetch timeline for selected event
   const { data: timeline = [] } = useQuery<EventTimeline[]>({
@@ -251,12 +250,6 @@ export default function ManagerDashboard() {
       homeRoute="/manager"
       notificationCount={activeIncidents}
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={managerProperties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
