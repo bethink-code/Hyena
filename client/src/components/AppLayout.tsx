@@ -68,47 +68,49 @@ export function AppLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       <RoleNavigationHeader />
-      <SidebarProvider style={style as React.CSSProperties}>
-        <div className="flex w-full flex-1">
-          <Sidebar>
-            {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
-            <SidebarContent>
-              {navSections.map((section, index) => (
-                <SidebarGroup key={index}>
-                  {section.label && <SidebarGroupLabel>{section.label}</SidebarGroupLabel>}
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {section.items.map((item) => (
-                        <SidebarMenuItem key={item.title}>
-                          <SidebarMenuButton
-                            onClick={() => setLocation(item.href)}
-                            isActive={location === item.href}
-                            data-testid={`sidebar-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
-                          >
-                            <item.icon className="h-4 w-4" />
-                            <span>{item.title}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      ))}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              ))}
-            </SidebarContent>
-          </Sidebar>
+      <div className="flex-1 overflow-hidden">
+        <SidebarProvider style={style as React.CSSProperties}>
+          <div className="flex w-full h-full">
+            <Sidebar>
+              {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
+              <SidebarContent>
+                {navSections.map((section, index) => (
+                  <SidebarGroup key={index}>
+                    {section.label && <SidebarGroupLabel>{section.label}</SidebarGroupLabel>}
+                    <SidebarGroupContent>
+                      <SidebarMenu>
+                        {section.items.map((item) => (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton
+                              onClick={() => setLocation(item.href)}
+                              isActive={location === item.href}
+                              data-testid={`sidebar-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                            >
+                              <item.icon className="h-4 w-4" />
+                              <span>{item.title}</span>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
+                      </SidebarMenu>
+                    </SidebarGroupContent>
+                  </SidebarGroup>
+                ))}
+              </SidebarContent>
+            </Sidebar>
 
-          <div className="flex flex-col flex-1">
-            <AppHeader
-              title={title}
-              homeRoute={homeRoute}
-              notificationCount={notificationCount}
-            />
-            <main className="flex-1">{children}</main>
+            <div className="flex flex-col flex-1">
+              <AppHeader
+                title={title}
+                homeRoute={homeRoute}
+                notificationCount={notificationCount}
+              />
+              <main className="flex-1">{children}</main>
+            </div>
           </div>
-        </div>
-      </SidebarProvider>
+        </SidebarProvider>
+      </div>
     </div>
   );
 }
