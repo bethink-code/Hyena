@@ -48,9 +48,13 @@ export function AppLayout({
 }: AppLayoutProps) {
   const [location, setLocation] = useLocation();
 
+  const headerHeight = "3.5rem"; // ~56px for header with py-2 + button
+  
   const style = {
     "--sidebar-width": "16rem",
     "--sidebar-width-icon": "3rem",
+    "--sidebar-top": headerHeight,
+    "--sidebar-height": `calc(100vh - ${headerHeight})`,
   };
 
   if (!showSidebar) {
@@ -68,49 +72,47 @@ export function AppLayout({
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background">
       <RoleNavigationHeader />
-      <div className="flex-1 overflow-hidden">
-        <SidebarProvider style={style as React.CSSProperties}>
-          <div className="flex w-full h-full">
-            <Sidebar>
-              {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
-              <SidebarContent>
-                {navSections.map((section, index) => (
-                  <SidebarGroup key={index}>
-                    {section.label && <SidebarGroupLabel>{section.label}</SidebarGroupLabel>}
-                    <SidebarGroupContent>
-                      <SidebarMenu>
-                        {section.items.map((item) => (
-                          <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                              onClick={() => setLocation(item.href)}
-                              isActive={location === item.href}
-                              data-testid={`sidebar-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
-                            >
-                              <item.icon className="h-4 w-4" />
-                              <span>{item.title}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        ))}
-                      </SidebarMenu>
-                    </SidebarGroupContent>
-                  </SidebarGroup>
-                ))}
-              </SidebarContent>
-            </Sidebar>
+      <SidebarProvider style={style as React.CSSProperties}>
+        <div className="flex w-full h-full">
+          <Sidebar>
+            {sidebarHeader && <SidebarHeader className="p-4">{sidebarHeader}</SidebarHeader>}
+            <SidebarContent>
+              {navSections.map((section, index) => (
+                <SidebarGroup key={index}>
+                  {section.label && <SidebarGroupLabel>{section.label}</SidebarGroupLabel>}
+                  <SidebarGroupContent>
+                    <SidebarMenu>
+                      {section.items.map((item) => (
+                        <SidebarMenuItem key={item.title}>
+                          <SidebarMenuButton
+                            onClick={() => setLocation(item.href)}
+                            isActive={location === item.href}
+                            data-testid={`sidebar-${item.title.toLowerCase().replace(/\s+/g, '-')}`}
+                          >
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.title}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </SidebarMenu>
+                  </SidebarGroupContent>
+                </SidebarGroup>
+              ))}
+            </SidebarContent>
+          </Sidebar>
 
-            <div className="flex flex-col flex-1">
-              <AppHeader
-                title={title}
-                homeRoute={homeRoute}
-                notificationCount={notificationCount}
-              />
-              <main className="flex-1">{children}</main>
-            </div>
+          <div className="flex flex-col flex-1">
+            <AppHeader
+              title={title}
+              homeRoute={homeRoute}
+              notificationCount={notificationCount}
+            />
+            <main className="flex-1">{children}</main>
           </div>
-        </SidebarProvider>
-      </div>
+        </div>
+      </SidebarProvider>
     </div>
   );
 }

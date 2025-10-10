@@ -194,6 +194,41 @@ Preferred communication style: Simple, everyday language.
 - **@replit/vite-plugin-cartographer**: Code navigation enhancement
 - **@replit/vite-plugin-dev-banner**: Development environment indicator
 
+## Critical Implementation Details
+
+### Global Layout & Header Integration (Completed)
+
+**Challenge:** Integrating a global RoleNavigationHeader above shadcn's sidebar component, which uses CSS variables for positioning.
+
+**Solution Implemented:**
+1. **AppLayout Component** sets CSS variables on SidebarProvider:
+   - `--sidebar-top: 3.5rem` - Offsets sidebar below header
+   - `--sidebar-height: calc(100vh - 3.5rem)` - Sidebar height excludes header
+   - `--sidebar-width: 16rem` - Standard sidebar width
+   - `--sidebar-width-icon: 3rem` - Collapsed sidebar width
+
+2. **Modified shadcn Sidebar Component** (`client/src/components/ui/sidebar.tsx`):
+   - Removed hardcoded `inset-y-0` and `h-svh` classes from sidebar-container div
+   - Added inline styles using CSS variables:
+     ```typescript
+     style={{
+       top: "var(--sidebar-top, 0)",
+       height: "var(--sidebar-height, 100vh)",
+     }}
+     ```
+   - This ensures sidebar respects the offset across all breakpoints (especially md: 768px+)
+
+3. **Layout Structure:**
+   - RoleNavigationHeader: `sticky top-0 z-50`, ~3.5rem height
+   - SidebarProvider wraps Sidebar and main content area
+   - Sidebar starts at 3.5rem from top (below header)
+   - No overlap between header and sidebar at any screen size
+
+**Files Modified:**
+- `client/src/components/AppLayout.tsx` - Sets CSS variables
+- `client/src/components/ui/sidebar.tsx` - Uses variables for positioning
+- `client/src/components/RoleNavigationHeader.tsx` - Global header with role switcher
+
 ## Feature Implementation Details
 
 ### Admin Property Drill-Down (Completed)
