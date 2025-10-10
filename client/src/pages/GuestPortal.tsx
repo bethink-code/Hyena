@@ -7,6 +7,7 @@ import { IssueReportForm } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
 import { EventQueue } from "@/components/EventQueue";
+import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { AIChatInterface } from "@/components/AIChatInterface";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Event } from "@shared/schema";
@@ -17,6 +18,7 @@ import step3 from "@assets/stock_images/wifi_troubleshooting_4467e740.jpg";
 
 export default function GuestPortal() {
   const [showFeedback, setShowFeedback] = useState(false);
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
   // Fetch all events (in a real app, would filter by guest ID)
   const { data: allEvents = [] } = useQuery<Event[]>({
@@ -143,10 +145,7 @@ export default function GuestPortal() {
                     assignedTo: event.assignedTo || undefined,
                     timestamp: formatTimestamp(event.createdAt),
                   }))}
-                  onEventClick={(eventId) => {
-                    // Guest can view event details (read-only)
-                    console.log("View event details:", eventId);
-                  }}
+                  onEventClick={(eventId) => setViewingEventId(eventId)}
                 />
               )}
             </div>
@@ -161,6 +160,32 @@ export default function GuestPortal() {
         onSubmit={(rating, comments) =>
           console.log("Feedback:", { rating, comments })
         }
+      />
+
+      <EventDetailPanel
+        event={viewingEventId ? (() => {
+          const event = allEvents.find(e => e.id === viewingEventId);
+          if (!event) return null;
+          
+          return {
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            priority: event.priority as any,
+            status: event.status as any,
+            location: event.location || undefined,
+            assignedTo: event.assignedTo || undefined,
+            timestamp: formatTimestamp(event.createdAt),
+            category: event.category || undefined,
+            affectedGuests: event.affectedGuests || undefined,
+            estimatedResolution: event.estimatedResolution || undefined,
+            rootCause: event.rootCause || undefined,
+            resolution: event.resolution || undefined,
+            timeline: [],
+          };
+        })() : null}
+        open={viewingEventId !== null}
+        onClose={() => setViewingEventId(null)}
       />
     </AppLayout>
   );

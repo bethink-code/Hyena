@@ -3,11 +3,13 @@ import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { EventQueue } from "@/components/EventQueue";
+import { EventDetailPanel } from "@/components/EventDetailPanel";
 import type { Event } from "@shared/schema";
 import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function CompletedJobs() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
   
   const properties = [
     { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
@@ -90,9 +92,35 @@ export default function CompletedJobs() {
 
         <EventQueue
           events={completedWork.map(e => convertToEventProps(e))}
-          onEventClick={(eventId) => console.log("Event clicked:", eventId)}
+          onEventClick={(eventId) => setViewingEventId(eventId)}
         />
       </div>
+
+      <EventDetailPanel
+        event={viewingEventId ? (() => {
+          const event = allEvents.find(e => e.id === viewingEventId);
+          if (!event) return null;
+          
+          return {
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            priority: event.priority as any,
+            status: event.status as any,
+            location: event.location || undefined,
+            assignedTo: event.assignedTo || undefined,
+            timestamp: event.createdAt ? formatTimestamp(event.createdAt) : "N/A",
+            category: event.category || undefined,
+            affectedGuests: event.affectedGuests || undefined,
+            estimatedResolution: event.estimatedResolution || undefined,
+            rootCause: event.rootCause || undefined,
+            resolution: event.resolution || undefined,
+            timeline: [],
+          };
+        })() : null}
+        open={viewingEventId !== null}
+        onClose={() => setViewingEventId(null)}
+      />
     </AppLayout>
   );
 }

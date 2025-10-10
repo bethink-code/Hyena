@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertySelector } from "@/components/PropertySelector";
 import { EventQueue } from "@/components/EventQueue";
+import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +15,7 @@ import { MapPin, Camera, CheckCircle2, ClipboardList, History, Calendar, Wrench,
 export default function TechnicianApp() {
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
 
   const properties = [
@@ -156,8 +158,12 @@ export default function TechnicianApp() {
 
           <TabsContent value="queue" className="mt-6">
             <EventQueue 
+              key="work-queue"
               events={convertToEventProps(workQueue)}
-              onEventClick={(eventId) => setSelectedEvent(eventId)}
+              onEventClick={(eventId) => {
+                setSelectedEvent(eventId);
+                setViewingEventId(eventId);
+              }}
             />
             
             {selectedEvent && (
@@ -210,11 +216,39 @@ export default function TechnicianApp() {
 
           <TabsContent value="completed" className="mt-6">
             <EventQueue 
+              key="completed-jobs"
               events={convertToEventProps(completedWork)}
+              onEventClick={(eventId) => setViewingEventId(eventId)}
             />
           </TabsContent>
         </Tabs>
       </div>
+
+      <EventDetailPanel
+        event={viewingEventId ? (() => {
+          const event = allEvents.find(e => e.id === viewingEventId);
+          if (!event) return null;
+          
+          return {
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            priority: event.priority as any,
+            status: event.status as any,
+            location: event.location || undefined,
+            assignedTo: event.assignedTo || undefined,
+            timestamp: formatTimestamp(event.createdAt),
+            category: event.category || undefined,
+            affectedGuests: event.affectedGuests || undefined,
+            estimatedResolution: event.estimatedResolution || undefined,
+            rootCause: event.rootCause || undefined,
+            resolution: event.resolution || undefined,
+            timeline: [],
+          };
+        })() : null}
+        open={viewingEventId !== null}
+        onClose={() => setViewingEventId(null)}
+      />
     </AppLayout>
   );
 }

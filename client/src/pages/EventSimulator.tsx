@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { EventQueue } from "@/components/EventQueue";
+import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -152,6 +153,7 @@ const PRESET_SCENARIOS = [
 
 export default function EventSimulator() {
   const { toast } = useToast();
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -596,11 +598,38 @@ export default function EventSimulator() {
                   assignedTo: event.assignedTo || undefined,
                   timestamp: formatTimestamp(event.createdAt),
                 }))}
+                onEventClick={(eventId) => setSelectedEventId(eventId)}
               />
             )}
           </TabsContent>
         </Tabs>
       </div>
+
+      <EventDetailPanel
+        event={selectedEventId ? (() => {
+          const event = events.find(e => e.id === selectedEventId);
+          if (!event) return null;
+          
+          return {
+            id: event.id,
+            title: event.title,
+            description: event.description,
+            priority: event.priority as any,
+            status: event.status as any,
+            location: event.location || undefined,
+            assignedTo: event.assignedTo || undefined,
+            timestamp: formatTimestamp(event.createdAt),
+            category: event.category || undefined,
+            affectedGuests: event.affectedGuests || undefined,
+            estimatedResolution: event.estimatedResolution || undefined,
+            rootCause: event.rootCause || undefined,
+            resolution: event.resolution || undefined,
+            timeline: [],
+          };
+        })() : null}
+        open={selectedEventId !== null}
+        onClose={() => setSelectedEventId(null)}
+      />
     </AppLayout>
   );
 }
