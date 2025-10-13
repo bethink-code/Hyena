@@ -1,33 +1,27 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
 import {
-  LayoutDashboard,
   AlertTriangle,
   BarChart3,
   FileText,
   MessageSquare,
   Wifi,
-  TrendingUp,
-  TrendingDown,
 } from "lucide-react";
 
 export default function Analytics() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Use the first 3 properties for the manager's scope
+  const managerProperties = PROPERTIES.slice(0, 3);
 
   const navSections = [
     {
       label: "Main",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
+        { title: "Incidents", href: "/manager", icon: AlertTriangle },
         { title: "Network Status", href: "/manager/network", icon: Wifi },
       ],
     },
@@ -46,80 +40,105 @@ export default function Analytics() {
     },
   ];
 
+  // Mock analytics data for each property
+  const analyticsByProperty: Record<string, {
+    avgResponseTime: number;
+    resolutionRate: number;
+    guestSatisfaction: number;
+    totalIncidents: number;
+    trend: "up" | "down";
+  }> = {
+    "1": {
+      avgResponseTime: 23,
+      resolutionRate: 94,
+      guestSatisfaction: 4.6,
+      totalIncidents: 42,
+      trend: "down",
+    },
+    "2": {
+      avgResponseTime: 35,
+      resolutionRate: 88,
+      guestSatisfaction: 4.2,
+      totalIncidents: 58,
+      trend: "up",
+    },
+    "3": {
+      avgResponseTime: 48,
+      resolutionRate: 78,
+      guestSatisfaction: 3.8,
+      totalIncidents: 72,
+      trend: "up",
+    },
+  };
+
+  // Calculate analytics status for each property
+  const propertiesWithAnalytics = useMemo(() => {
+    return managerProperties.map(property => {
+      const analytics = analyticsByProperty[property.id] || {
+        avgResponseTime: 30,
+        resolutionRate: 90,
+        guestSatisfaction: 4.0,
+        totalIncidents: 50,
+        trend: "down",
+      };
+      
+      // Calculate status based on performance metrics
+      let analyticsStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      
+      // Critical if multiple metrics are poor
+      if (
+        (analytics.avgResponseTime > 45 && analytics.resolutionRate < 80) ||
+        analytics.guestSatisfaction < 4.0
+      ) {
+        analyticsStatus = "critical";
+      } 
+      // Degraded if some metrics need attention
+      else if (
+        analytics.avgResponseTime > 30 ||
+        analytics.resolutionRate < 90 ||
+        analytics.guestSatisfaction < 4.5
+      ) {
+        analyticsStatus = "degraded";
+      }
+
+      // Use total incidents as incident count
+      const incidentCount = analytics.totalIncidents;
+      
+      // Critical incidents based on response time and resolution rate
+      const criticalCount = analytics.avgResponseTime > 45 || analytics.resolutionRate < 80 ? 
+        Math.floor(analytics.totalIncidents * 0.3) : 
+        Math.floor(analytics.totalIncidents * 0.1);
+
+      return {
+        ...property,
+        status: analyticsStatus,
+        incidentCount,
+        criticalCount,
+        newCount: analytics.trend === "up" ? Math.floor(analytics.totalIncidents * 0.15) : 0,
+      };
+    });
+  }, [managerProperties]);
+
   return (
     <AppLayout
       title="Analytics"
       homeRoute="/manager"
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Performance Analytics</h2>
-          <p className="text-muted-foreground">Detailed metrics and trends analysis</p>
+          <p className="text-muted-foreground">Monitor performance metrics and trends across all properties</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Response Time</CardTitle>
-              <TrendingDown className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">23 min</div>
-              <p className="text-xs text-muted-foreground">-15% from last week</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Resolution Rate</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">94%</div>
-              <p className="text-xs text-muted-foreground">+3% from last week</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Guest Satisfaction</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4.6/5</div>
-              <p className="text-xs text-muted-foreground">+0.2 from last week</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Incidents</CardTitle>
-              <TrendingDown className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">42</div>
-              <p className="text-xs text-muted-foreground">-8 from last week</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Incident Trends</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-64 flex items-center justify-center text-muted-foreground">
-              Analytics chart placeholder - integrate charting library
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyList
+          properties={propertiesWithAnalytics}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/manager/properties/${property.id}`);
+            }
+          }}
+        />
       </div>
     </AppLayout>
   );
