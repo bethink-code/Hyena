@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { PropertyList } from "@/components/PropertyList";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
@@ -23,6 +25,7 @@ import {
 
 export default function ManagerDashboard() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
   
@@ -117,6 +120,31 @@ export default function ManagerDashboard() {
       },
     ];
   }, [incidents]);
+
+  // Calculate property stats with critical and new counts
+  const propertiesWithStats = useMemo(() => {
+    return managerProperties.map(property => {
+      const propertyIncidents = allIncidents.filter(i => i.propertyId === property.id);
+      const activeIncidents = propertyIncidents.filter(i => i.status !== 'resolved');
+      const incidentCount = activeIncidents.length;
+      const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
+      const newCount = activeIncidents.filter(i => i.status === 'new').length;
+
+      // Determine status based on incidents
+      let status: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      if (criticalCount > 0) status = "critical";
+      else if (incidentCount > 3) status = "degraded";
+      else if (incidentCount > 0) status = "degraded";
+
+      return {
+        ...property,
+        status,
+        incidentCount,
+        criticalCount,
+        newCount,
+      };
+    });
+  }, [managerProperties, allIncidents]);
 
   // Assign incident mutation
   const assignIncidentMutation = useMutation({
@@ -273,6 +301,21 @@ export default function ManagerDashboard() {
             <p className="text-muted-foreground mt-1">Monitor and manage network incidents across your properties</p>
           </div>
           <ReportIncidentDialog />
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-xl font-semibold mb-1">My Properties</h2>
+            <p className="text-sm text-muted-foreground">Properties under your management</p>
+          </div>
+          <PropertyList
+            properties={propertiesWithStats}
+            onPropertyClick={(property) => {
+              if (property.id) {
+                setLocation(`/manager/properties/${property.id}`);
+              }
+            }}
+          />
         </div>
 
         <SummaryMetrics metrics={metrics} />
