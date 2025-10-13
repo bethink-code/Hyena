@@ -52,6 +52,8 @@ export const insertIncidentSchema = createInsertSchema(incidents).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  scheduledFor: z.union([z.date(), z.string().datetime()]).optional(),
 });
 
 export const insertIncidentTimelineSchema = createInsertSchema(incidentTimeline).omit({
