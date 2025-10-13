@@ -156,10 +156,9 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                {EVENT_CATEGORY_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.icon && <span className="mr-2">{option.icon}</span>}
-                    {option.label}
+                {EVENT_CATEGORY_OPTIONS.map((category) => (
+                  <SelectItem key={category} value={category}>
+                    {category}
                   </SelectItem>
                 ))}
               </SelectContent>
