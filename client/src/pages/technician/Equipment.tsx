@@ -1,19 +1,13 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
 import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function Equipment() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
-
   const navSections = [
     {
       label: "Work",
@@ -31,60 +25,121 @@ export default function Equipment() {
     },
   ];
 
-  const equipment = [
-    { name: "Spare Router", quantity: 2, status: "available", location: "Storage Room" },
-    { name: "Ethernet Cables (Cat6)", quantity: 50, status: "available", location: "Storage Room" },
-    { name: "Access Point Units", quantity: 3, status: "available", location: "Storage Room" },
-    { name: "Network Switch", quantity: 1, status: "in-use", location: "Deployed" },
-    { name: "Cable Tester", quantity: 2, status: "available", location: "Technician Van" },
-  ];
+  // Mock equipment data for each property
+  const equipmentByProperty: Record<string, Array<{ name: string; status: "available" | "in-use" | "maintenance" | "critical"; quantity: number }>> = {
+    "1": [
+      { name: "Spare Router", status: "available", quantity: 2 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 50 },
+      { name: "Access Point Units", status: "available", quantity: 3 },
+      { name: "Network Switch", status: "in-use", quantity: 1 },
+      { name: "Cable Tester", status: "available", quantity: 2 },
+    ],
+    "2": [
+      { name: "Spare Router", status: "maintenance", quantity: 1 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 30 },
+      { name: "Access Point Units", status: "available", quantity: 2 },
+      { name: "Network Switch", status: "in-use", quantity: 2 },
+      { name: "Cable Tester", status: "maintenance", quantity: 1 },
+    ],
+    "3": [
+      { name: "Spare Router", status: "critical", quantity: 0 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 15 },
+      { name: "Access Point Units", status: "critical", quantity: 0 },
+      { name: "Network Switch", status: "in-use", quantity: 1 },
+      { name: "Cable Tester", status: "available", quantity: 1 },
+    ],
+    "4": [
+      { name: "Spare Router", status: "available", quantity: 3 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 60 },
+      { name: "Access Point Units", status: "available", quantity: 4 },
+      { name: "Network Switch", status: "in-use", quantity: 2 },
+      { name: "Cable Tester", status: "available", quantity: 2 },
+    ],
+    "5": [
+      { name: "Spare Router", status: "available", quantity: 1 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 25 },
+      { name: "Access Point Units", status: "maintenance", quantity: 1 },
+      { name: "Network Switch", status: "in-use", quantity: 1 },
+      { name: "Cable Tester", status: "available", quantity: 1 },
+    ],
+    "6": [
+      { name: "Spare Router", status: "available", quantity: 2 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 40 },
+      { name: "Access Point Units", status: "available", quantity: 3 },
+      { name: "Network Switch", status: "in-use", quantity: 1 },
+      { name: "Cable Tester", status: "available", quantity: 2 },
+    ],
+    "7": [
+      { name: "Spare Router", status: "available", quantity: 2 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 45 },
+      { name: "Access Point Units", status: "available", quantity: 3 },
+      { name: "Network Switch", status: "in-use", quantity: 1 },
+      { name: "Cable Tester", status: "available", quantity: 1 },
+    ],
+    "8": [
+      { name: "Spare Router", status: "maintenance", quantity: 1 },
+      { name: "Ethernet Cables (Cat6)", status: "available", quantity: 20 },
+      { name: "Access Point Units", status: "maintenance", quantity: 1 },
+      { name: "Network Switch", status: "in-use", quantity: 2 },
+      { name: "Cable Tester", status: "maintenance", quantity: 1 },
+    ],
+  };
+
+  // Calculate equipment health status for each property
+  const propertiesWithEquipmentHealth = useMemo(() => {
+    return PROPERTIES.map(property => {
+      const equipment = equipmentByProperty[property.id] || [];
+      
+      // Calculate equipment metrics
+      const totalEquipment = equipment.reduce((sum, item) => sum + item.quantity, 0);
+      const criticalItems = equipment.filter(item => item.status === "critical").length;
+      const maintenanceItems = equipment.filter(item => item.status === "maintenance").length;
+      const availableItems = equipment.filter(item => item.status === "available").length;
+      
+      // Determine overall equipment status
+      let equipmentStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      if (criticalItems >= 2) {
+        equipmentStatus = "critical";
+      } else if (criticalItems >= 1 || maintenanceItems >= 2) {
+        equipmentStatus = "degraded";
+      } else if (maintenanceItems >= 1) {
+        equipmentStatus = "degraded";
+      }
+
+      // Count equipment issues as incident count for the card
+      const incidentCount = criticalItems + maintenanceItems;
+      const criticalIncidentCount = criticalItems;
+
+      return {
+        ...property,
+        status: equipmentStatus,
+        incidentCount,
+        criticalCount: criticalIncidentCount,
+        newCount: 0,
+      };
+    });
+  }, []);
 
   return (
     <AppLayout
       title="Equipment Inventory"
       homeRoute="/technician"
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Equipment & Tools</h2>
-          <p className="text-muted-foreground">Track available equipment and inventory</p>
+          <p className="text-muted-foreground">Track equipment inventory and maintenance needs across all properties</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Inventory</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {equipment.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-md">
-                  <div className="space-y-1">
-                    <div className="font-medium">{item.name}</div>
-                    <div className="text-sm text-muted-foreground">{item.location}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-sm font-medium">Qty: {item.quantity}</div>
-                    </div>
-                    <Badge 
-                      variant={item.status === "available" ? "default" : "outline"}
-                      data-testid={`badge-status-${index}`}
-                    >
-                      {item.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyList
+          properties={propertiesWithEquipmentHealth}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/technician/properties/${property.id}`);
+            }
+          }}
+        />
       </div>
     </AppLayout>
   );
