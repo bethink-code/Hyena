@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -10,26 +10,19 @@ import {
   FileText,
   MessageSquare,
   Wifi,
-  Activity,
-  Server,
-  Radio,
 } from "lucide-react";
 
 export default function NetworkStatus() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Use the first 3 properties for the manager's scope
+  const managerProperties = PROPERTIES.slice(0, 3);
 
   const navSections = [
     {
       label: "Main",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
+        { title: "Incidents", href: "/manager", icon: AlertTriangle },
         { title: "Network Status", href: "/manager/network", icon: Wifi },
       ],
     },
@@ -48,96 +41,86 @@ export default function NetworkStatus() {
     },
   ];
 
-  const networkDevices = [
-    { name: "Main Router", status: "healthy", uptime: "99.8%", location: "Server Room" },
-    { name: "Access Point - Lobby", status: "healthy", uptime: "99.5%", location: "Ground Floor" },
-    { name: "Access Point - Floor 2", status: "degraded", uptime: "95.2%", location: "2nd Floor" },
-    { name: "Access Point - Floor 3", status: "healthy", uptime: "99.9%", location: "3rd Floor" },
-    { name: "Switch - Main", status: "healthy", uptime: "100%", location: "Server Room" },
-  ];
+  // Mock network device data for each property
+  const networkDevicesByProperty: Record<string, Array<{ name: string; status: "healthy" | "degraded" | "critical" | "offline"; uptime: string }>> = {
+    "1": [
+      { name: "Main Router", status: "healthy", uptime: "99.8%" },
+      { name: "Access Point - Lobby", status: "healthy", uptime: "99.5%" },
+      { name: "Access Point - Floor 2", status: "healthy", uptime: "99.2%" },
+      { name: "Access Point - Floor 3", status: "healthy", uptime: "99.9%" },
+      { name: "Switch - Main", status: "healthy", uptime: "100%" },
+    ],
+    "2": [
+      { name: "Main Router", status: "healthy", uptime: "98.5%" },
+      { name: "Access Point - Lobby", status: "degraded", uptime: "92.1%" },
+      { name: "Access Point - Floor 2", status: "degraded", uptime: "95.2%" },
+      { name: "Access Point - Floor 3", status: "healthy", uptime: "99.3%" },
+      { name: "Switch - Main", status: "healthy", uptime: "99.7%" },
+    ],
+    "3": [
+      { name: "Main Router", status: "critical", uptime: "85.2%" },
+      { name: "Access Point - Lobby", status: "degraded", uptime: "91.8%" },
+      { name: "Access Point - Floor 2", status: "critical", uptime: "82.5%" },
+      { name: "Access Point - Floor 3", status: "degraded", uptime: "93.1%" },
+      { name: "Switch - Main", status: "degraded", uptime: "94.3%" },
+    ],
+  };
+
+  // Calculate network health status for each property
+  const propertiesWithNetworkHealth = useMemo(() => {
+    return managerProperties.map(property => {
+      const devices = networkDevicesByProperty[property.id] || [];
+      
+      // Calculate health based on device statuses
+      const criticalCount = devices.filter(d => d.status === "critical").length;
+      const degradedCount = devices.filter(d => d.status === "degraded").length;
+      const healthyCount = devices.filter(d => d.status === "healthy").length;
+      const offlineCount = devices.filter(d => d.status === "offline").length;
+      
+      // Determine overall network health status
+      let networkStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      if (offlineCount > 0 || criticalCount >= 2) {
+        networkStatus = "critical";
+      } else if (criticalCount >= 1 || degradedCount >= 2) {
+        networkStatus = "degraded";
+      } else if (degradedCount >= 1) {
+        networkStatus = "degraded";
+      }
+
+      // Count network issues as incident count for the card
+      const incidentCount = criticalCount + degradedCount + offlineCount;
+      const criticalIncidentCount = criticalCount + offlineCount;
+
+      return {
+        ...property,
+        status: networkStatus,
+        incidentCount,
+        criticalCount: criticalIncidentCount,
+        newCount: 0,
+      };
+    });
+  }, [managerProperties]);
 
   return (
     <AppLayout
       title="Network Status"
       homeRoute="/manager"
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-1">Network Infrastructure</h2>
-          <p className="text-muted-foreground">Real-time status of all network devices</p>
+          <h2 className="text-2xl font-bold mb-1">Network Health Overview</h2>
+          <p className="text-muted-foreground">Monitor network infrastructure across all properties</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Network Health</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">98.5%</div>
-              <p className="text-xs text-muted-foreground">Overall uptime</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Devices</CardTitle>
-              <Server className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">5/5</div>
-              <p className="text-xs text-muted-foreground">All devices online</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between gap-1 space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Connected Clients</CardTitle>
-              <Radio className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">247</div>
-              <p className="text-xs text-muted-foreground">Guest devices</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Device Status</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {networkDevices.map((device, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-md">
-                  <div className="space-y-1">
-                    <div className="font-medium">{device.name}</div>
-                    <div className="text-sm text-muted-foreground">{device.location}</div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="text-right">
-                      <div className="text-sm font-medium">{device.uptime}</div>
-                      <div className="text-xs text-muted-foreground">Uptime</div>
-                    </div>
-                    <Badge 
-                      variant={device.status === "healthy" ? "default" : "destructive"}
-                      data-testid={`badge-status-${index}`}
-                    >
-                      {device.status}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyList
+          properties={propertiesWithNetworkHealth}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/manager/properties/${property.id}`);
+            }
+          }}
+        />
       </div>
     </AppLayout>
   );
