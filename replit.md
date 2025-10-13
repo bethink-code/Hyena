@@ -196,6 +196,63 @@ Preferred communication style: Simple, everyday language.
 
 ## Critical Implementation Details
 
+### Manual Event Creation System (Completed)
+
+**Challenge:** Managers and Technicians need to manually create events for issues not automatically detected by API monitoring (guest complaints at front desk, issues discovered on-site, load shedding alerts, weather impacts, etc.).
+
+**Solution Implemented:**
+
+1. **Extended Event Schema** (`shared/schema.ts`):
+   - Added `eventType` field: "reactive" | "proactive" | "environmental"
+   - Added `scheduledFor` timestamp for planned maintenance/events
+   - Added `metadata` text field for SA-specific JSON data (load shedding stage, ISP provider, weather type)
+
+2. **Comprehensive Event Categories** (`shared/eventCategories.ts`):
+   - **Network Categories**: Network Connectivity, Performance, Bandwidth, Hardware Failure, Configuration, Security, Authentication, Advanced Services
+   - **SA-Specific Categories**: Load Shedding/Power, ISP/Fibre Issues, Weather/Environmental
+   - **Operational Categories**: Guest Experience, Planned Maintenance, High Traffic/Event Day, Equipment Maintenance
+   - **Supporting Constants**: Eskom load shedding stages (1-8), SA ISP providers (Telkom, Vodacom, MTN, etc.), Weather event types (Cape Storm, KZN Flooding, etc.)
+
+3. **Manager Interface** (`client/src/components/ReportIncidentDialog.tsx`):
+   - Full-featured incident reporting form with all event categories
+   - Dynamic SA-specific fields:
+     - Load Shedding: Eskom stage selector (Stage 1-8)
+     - ISP Outage: ISP provider selector (Telkom, Vodacom, MTN, etc.)
+     - Weather Impact: Weather event type selector (Cape Storm, KZN Flooding, etc.)
+   - Proactive event support: Scheduled date/time picker for planned maintenance and high traffic events
+   - Automatic eventType inference based on category selection
+   - Integrated into ManagerDashboard with "Report Incident" button above event queue
+
+4. **Technician Interface** (`client/src/components/LogIssueDialog.tsx`):
+   - Streamlined field-optimized form for on-site issue logging
+   - Focus on categories relevant to field work (Hardware Failure, Network Connectivity, Equipment Maintenance, SA-specific issues)
+   - Required location field for precise incident tracking
+   - Integrated into TechnicianApp with "Log Issue" button in work queue tab
+
+5. **Event Simulator Updates** (`client/src/pages/EventSimulator.tsx`):
+   - Expanded preset scenarios including:
+     - Eskom Load Shedding Stage 4 with metadata
+     - Cape Storm fibre damage with ISP failover
+     - Telkom fibre outage (SA-specific)
+     - Planned conference (proactive with scheduled date)
+     - Scheduled maintenance (proactive with scheduled date)
+   - All event sources including manager_report, technician_report, eskom_api, weather_api
+   - Full category dropdown with all expanded options
+
+**Event Flow Examples:**
+- **Manager Reports Load Shedding**: Category → Load Shedding → Select Eskom Stage 4 → Creates environmental event with metadata {"loadSheddingStage":"stage_4"}
+- **Technician Logs Field Issue**: Category → Hardware Failure → Location required → Creates reactive event with source "technician_report"
+- **Manager Schedules Maintenance**: Category → Planned Maintenance → Pick scheduled date → Creates proactive event with scheduledFor timestamp
+
+**Files Modified:**
+- `/shared/eventCategories.ts` - Comprehensive event categories and SA constants
+- `/shared/schema.ts` - Extended event schema (eventType, scheduledFor, metadata)
+- `/client/src/components/ReportIncidentDialog.tsx` - Manager incident reporting with SA metadata
+- `/client/src/components/LogIssueDialog.tsx` - Technician issue logging
+- `/client/src/pages/ManagerDashboard.tsx` - Report Incident button integration
+- `/client/src/pages/TechnicianApp.tsx` - Log Issue button integration
+- `/client/src/pages/EventSimulator.tsx` - Expanded categories and SA preset scenarios
+
 ### Global Layout & Header Integration (Completed)
 
 **Challenge:** Integrating a global RoleNavigationHeader above shadcn's sidebar component, which uses CSS variables for positioning.

@@ -22,8 +22,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
-import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES } from "@shared/eventCategories";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES, LOAD_SHEDDING_STAGES, SA_ISP_PROVIDERS, WEATHER_EVENT_TYPES } from "@shared/eventCategories";
+import { AlertTriangle, Loader2, Calendar } from "lucide-react";
 import type { InsertEvent } from "@shared/schema";
 
 interface ReportIncidentDialogProps {
@@ -43,6 +43,10 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
     affectedGuests: "",
     estimatedResolution: "",
     propertyId: defaultPropertyId || PROPERTIES[0].id,
+    scheduledFor: "",
+    loadSheddingStage: "",
+    ispProvider: "",
+    weatherType: "",
   });
 
   const createEventMutation = useMutation({
@@ -73,6 +77,10 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
         affectedGuests: "",
         estimatedResolution: "",
         propertyId: defaultPropertyId || PROPERTIES[0].id,
+        scheduledFor: "",
+        loadSheddingStage: "",
+        ispProvider: "",
+        weatherType: "",
       });
     },
     onError: (error: any) => {
@@ -96,6 +104,20 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
       return;
     }
 
+    const eventType = formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
+                 formData.category === EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT 
+                 ? "proactive" 
+                 : formData.category === EVENT_CATEGORIES.LOAD_SHEDDING ||
+                   formData.category === EVENT_CATEGORIES.WEATHER_IMPACT ||
+                   formData.category === EVENT_CATEGORIES.ISP_OUTAGE
+                 ? "environmental"
+                 : "reactive";
+
+    const metadata: Record<string, string> = {};
+    if (formData.loadSheddingStage) metadata.loadSheddingStage = formData.loadSheddingStage;
+    if (formData.ispProvider) metadata.ispProvider = formData.ispProvider;
+    if (formData.weatherType) metadata.weatherType = formData.weatherType;
+
     const eventData: InsertEvent = {
       title: formData.title,
       description: formData.description,
@@ -107,13 +129,9 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
       estimatedResolution: formData.estimatedResolution || undefined,
       propertyId: formData.propertyId,
       source: "manager_report",
-      eventType: formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
-                 formData.category === EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT 
-                 ? "proactive" 
-                 : formData.category === EVENT_CATEGORIES.LOAD_SHEDDING ||
-                   formData.category === EVENT_CATEGORIES.WEATHER_IMPACT
-                 ? "environmental"
-                 : "reactive",
+      eventType,
+      scheduledFor: formData.scheduledFor ? (formData.scheduledFor as any) : undefined,
+      metadata: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : undefined,
     };
 
     createEventMutation.mutate(eventData);
@@ -286,6 +304,88 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
               data-testid="input-incident-resolution"
             />
           </div>
+
+          {/* SA-Specific & Proactive Event Fields */}
+          {formData.category === EVENT_CATEGORIES.LOAD_SHEDDING && (
+            <div className="space-y-2">
+              <Label htmlFor="load-shedding-stage">Load Shedding Stage</Label>
+              <Select
+                value={formData.loadSheddingStage}
+                onValueChange={(value) => setFormData({ ...formData, loadSheddingStage: value })}
+              >
+                <SelectTrigger id="load-shedding-stage" data-testid="select-load-shedding-stage">
+                  <SelectValue placeholder="Select Eskom stage" />
+                </SelectTrigger>
+                <SelectContent>
+                  {LOAD_SHEDDING_STAGES.map((stage) => (
+                    <SelectItem key={stage.value} value={stage.value}>
+                      {stage.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {formData.category === EVENT_CATEGORIES.ISP_OUTAGE && (
+            <div className="space-y-2">
+              <Label htmlFor="isp-provider">ISP Provider</Label>
+              <Select
+                value={formData.ispProvider}
+                onValueChange={(value) => setFormData({ ...formData, ispProvider: value })}
+              >
+                <SelectTrigger id="isp-provider" data-testid="select-isp-provider">
+                  <SelectValue placeholder="Select ISP" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SA_ISP_PROVIDERS.map((isp) => (
+                    <SelectItem key={isp} value={isp}>
+                      {isp}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {formData.category === EVENT_CATEGORIES.WEATHER_IMPACT && (
+            <div className="space-y-2">
+              <Label htmlFor="weather-type">Weather Event Type</Label>
+              <Select
+                value={formData.weatherType}
+                onValueChange={(value) => setFormData({ ...formData, weatherType: value })}
+              >
+                <SelectTrigger id="weather-type" data-testid="select-weather-type">
+                  <SelectValue placeholder="Select weather event" />
+                </SelectTrigger>
+                <SelectContent>
+                  {WEATHER_EVENT_TYPES.map((weather) => (
+                    <SelectItem key={weather} value={weather}>
+                      {weather}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {(formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
+            formData.category === EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT) && (
+            <div className="space-y-2">
+              <Label htmlFor="scheduled-for">Scheduled Date & Time</Label>
+              <div className="relative">
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                <Input
+                  id="scheduled-for"
+                  type="datetime-local"
+                  value={formData.scheduledFor}
+                  onChange={(e) => setFormData({ ...formData, scheduledFor: e.target.value })}
+                  className="pl-10"
+                  data-testid="input-scheduled-for"
+                />
+              </div>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <Button
