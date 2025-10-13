@@ -1,22 +1,15 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel } from "@/components/EventDetailPanel";
-import type { Event } from "@shared/schema";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
+import type { Incident } from "@shared/schema";
 import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function CompletedJobs() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
-  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
-
   const navSections = [
     {
       label: "Work",
@@ -34,93 +27,76 @@ export default function CompletedJobs() {
     },
   ];
 
-  const { data: allEvents = [] } = useQuery<Event[]>({
+  const { data: allEvents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/events"],
   });
 
-  // Filter by property and status on client side
-  const completedWork = allEvents
-    .filter(e => e.propertyId === selectedPropertyId)
-    .filter(e => e.status === 'resolved');
+  // Calculate completed job metrics for each property
+  const propertiesWithCompletedJobs = useMemo(() => {
+    return PROPERTIES.map(property => {
+      // Get all completed jobs for this property
+      const completedJobs = allEvents.filter(
+        e => e.propertyId === property.id && e.status === 'resolved'
+      );
 
-  const formatTimestamp = (date: Date | null | undefined) => {
-    if (!date) return "N/A";
-    const now = new Date();
-    const diffMs = now.getTime() - new Date(date).getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return "Just now";
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return `${Math.floor(diffMins / 1440)}d ago`;
-  };
+      // Calculate jobs completed this week
+      const oneWeekAgo = new Date();
+      oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+      
+      const completedThisWeek = completedJobs.filter(job => {
+        if (!job.updatedAt) return false;
+        return new Date(job.updatedAt) >= oneWeekAgo;
+      }).length;
 
-  const convertToEventProps = (event: Event) => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    priority: event.priority as any,
-    status: event.status as any,
-    location: event.location || undefined,
-    assignedTo: event.assignedTo || undefined,
-    timestamp: event.createdAt ? formatTimestamp(event.createdAt) : "N/A",
-    category: event.category || undefined,
-    affectedGuests: event.affectedGuests || undefined,
-    estimatedResolution: event.estimatedResolution || undefined,
-    rootCause: event.rootCause || undefined,
-    resolution: event.resolution || undefined,
-    timeline: [],
-  });
+      const totalCompleted = completedJobs.length;
+
+      // Calculate all jobs (completed + pending) for completion rate
+      const allPropertyJobs = allEvents.filter(e => e.propertyId === property.id);
+      const completionRate = allPropertyJobs.length > 0
+        ? Math.round((totalCompleted / allPropertyJobs.length) * 100)
+        : 0;
+
+      // Determine status based on completion metrics
+      let status: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      if (completionRate >= 90) {
+        status = "healthy";
+      } else if (completionRate >= 70) {
+        status = "degraded";
+      } else {
+        status = "critical";
+      }
+
+      return {
+        ...property,
+        status,
+        incidentCount: totalCompleted,
+        criticalCount: completedThisWeek,
+        newCount: completionRate,
+      };
+    });
+  }, [allEvents]);
 
   return (
     <AppLayout
       title="Completed Jobs"
       homeRoute="/technician"
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-1">Completed Jobs</h2>
-          <p className="text-muted-foreground">Review your completed work history</p>
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+        <div>
+          <h2 className="text-2xl font-bold mb-1">Completed Jobs by Property</h2>
+          <p className="text-muted-foreground">Review completed work history across all properties</p>
         </div>
 
-        <EventQueue
-          events={completedWork.map(e => convertToEventProps(e))}
-          onEventClick={(eventId) => setViewingEventId(eventId)}
+        <PropertyList
+          properties={propertiesWithCompletedJobs}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/technician/properties/${property.id}`);
+            }
+          }}
         />
       </div>
-
-      <EventDetailPanel
-        event={viewingEventId ? (() => {
-          const event = allEvents.find(e => e.id === viewingEventId);
-          if (!event) return null;
-          
-          return {
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            priority: event.priority as any,
-            status: event.status as any,
-            location: event.location || undefined,
-            assignedTo: event.assignedTo || undefined,
-            timestamp: event.createdAt ? formatTimestamp(event.createdAt) : "N/A",
-            category: event.category || undefined,
-            affectedGuests: event.affectedGuests || undefined,
-            estimatedResolution: event.estimatedResolution || undefined,
-            rootCause: event.rootCause || undefined,
-            resolution: event.resolution || undefined,
-            timeline: [],
-          };
-        })() : null}
-        open={viewingEventId !== null}
-        onClose={() => setViewingEventId(null)}
-      />
     </AppLayout>
   );
 }
