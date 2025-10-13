@@ -2,15 +2,16 @@ import { useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
-import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
+import { IncidentQueue } from "@/components/IncidentQueue";
+import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
-import type { Event, EventTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   ClipboardList,
   History,
@@ -27,8 +28,8 @@ export default function TechnicianPropertyDetail() {
   const { toast } = useToast();
   const params = useParams<{ id: string }>();
   const propertyId = params.id;
-  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
-  const [viewingEventId, setViewingEventId] = useState<string | null>(null);
+  const [selectedIncident, setSelectedIncident] = useState<string | null>(null);
+  const [viewingIncidentId, setViewingIncidentId] = useState<string | null>(null);
 
   // Find property details from shared constants
   const property = getPropertyById(propertyId || "");
@@ -37,8 +38,7 @@ export default function TechnicianPropertyDetail() {
     {
       label: "Work",
       items: [
-        { title: "Work Queue", href: "/technician", icon: ClipboardList },
-        { title: "Completed Jobs", href: "/technician/completed", icon: History },
+        { title: "My Work", href: "/technician", icon: ClipboardList },
       ],
     },
     {
@@ -50,77 +50,77 @@ export default function TechnicianPropertyDetail() {
     },
   ];
 
-  // Fetch all events
-  const { data: allEvents = [] } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
-  // Filter events by selected property
-  const events = allEvents.filter(e => e.propertyId === propertyId);
+  // Filter incidents by selected property
+  const incidents = allIncidents.filter(i => i.propertyId === propertyId);
 
-  // Filter events for work queue (assigned or in_progress)
-  const workQueue = events.filter(e => 
-    e.status === 'assigned' || e.status === 'in_progress'
+  // Filter incidents for work queue (assigned or in_progress)
+  const workQueue = incidents.filter(i => 
+    i.status === 'assigned' || i.status === 'in_progress'
   );
 
-  // Filter events for completed work
-  const completedWork = events.filter(e => e.status === 'resolved');
+  // Filter incidents for completed work
+  const completedWork = incidents.filter(i => i.status === 'resolved');
 
-  // Fetch timeline for selected event
-  const { data: timeline = [] } = useQuery<EventTimeline[]>({
-    queryKey: ["/api/events", viewingEventId, "timeline"],
-    enabled: !!viewingEventId,
+  // Fetch timeline for selected incident
+  const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
+    queryKey: ["/api/incidents", viewingIncidentId, "timeline"],
+    enabled: !!viewingIncidentId,
   });
 
   // Start work mutation
   const startWorkMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+    mutationFn: async (incidentId: string) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "in_progress",
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: "Technician started working on issue",
         actor: "Technician App",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", viewingEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", viewingIncidentId, "timeline"] });
       toast({
         title: "Work Started",
-        description: "Event marked as in progress",
+        description: "Incident marked as in progress",
       });
     },
   });
 
-  // Resolve event mutation
-  const resolveEventMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+  // Resolve incident mutation
+  const resolveIncidentMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "resolved",
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
-        action: "Event resolved by technician",
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
+        action: "Incident resolved by technician",
         actor: "Technician App",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", viewingEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", viewingIncidentId, "timeline"] });
       toast({
-        title: "Event Resolved",
-        description: "Event has been marked as resolved",
+        title: "Incident Resolved",
+        description: "Incident has been marked as resolved",
       });
-      setSelectedEvent(null);
-      setViewingEventId(null);
+      setSelectedIncident(null);
+      setViewingIncidentId(null);
     },
   });
 
@@ -135,33 +135,33 @@ export default function TechnicianPropertyDetail() {
     return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
-  const convertToEventProps = (events: Event[]) => {
-    return events.map(event => ({
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      priority: event.priority as any,
-      status: event.status as any,
-      location: event.location || undefined,
-      assignedTo: event.assignedTo || undefined,
-      timestamp: formatTimestamp(event.createdAt),
+  const convertToIncidentProps = (incidents: Incident[]) => {
+    return incidents.map(incident => ({
+      id: incident.id,
+      title: incident.title,
+      description: incident.description,
+      priority: incident.priority as any,
+      status: incident.status as any,
+      location: incident.location || undefined,
+      assignedTo: incident.assignedTo || undefined,
+      timestamp: formatTimestamp(incident.createdAt),
     }));
   };
 
-  const convertToEventDetail = (event: Event): EventDetailProps => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    priority: event.priority as any,
-    status: event.status as any,
-    location: event.location || undefined,
-    assignedTo: event.assignedTo || undefined,
-    timestamp: formatTimestamp(event.createdAt),
-    category: event.category || undefined,
-    affectedGuests: event.affectedGuests || undefined,
-    estimatedResolution: event.estimatedResolution || undefined,
-    rootCause: event.rootCause || undefined,
-    resolution: event.resolution || undefined,
+  const convertToIncidentDetail = (incident: Incident): IncidentDetailProps => ({
+    id: incident.id,
+    title: incident.title,
+    description: incident.description,
+    priority: incident.priority as any,
+    status: incident.status as any,
+    location: incident.location || undefined,
+    assignedTo: incident.assignedTo || undefined,
+    timestamp: formatTimestamp(incident.createdAt),
+    category: incident.category || undefined,
+    affectedGuests: incident.affectedGuests || undefined,
+    estimatedResolution: incident.estimatedResolution || undefined,
+    rootCause: incident.rootCause || undefined,
+    resolution: incident.resolution || undefined,
     timeline: timeline.map(t => ({
       action: t.action,
       actor: t.actor,
@@ -190,18 +190,17 @@ export default function TechnicianPropertyDetail() {
         title="Property Not Found"
         homeRoute="/technician"
         navSections={navSections}
+        notificationCount={0}
       >
-        <div className="container mx-auto px-4 py-8 max-w-7xl">
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-2">Property Not Found</h2>
-            <p className="text-muted-foreground mb-6">The property you're looking for doesn't exist.</p>
-            <Link href="/technician">
-              <Button variant="outline" data-testid="button-back-to-dashboard">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Dashboard
-              </Button>
-            </Link>
-          </div>
+        <div className="text-center py-12">
+          <h2 className="text-2xl font-bold mb-2">Property Not Found</h2>
+          <p className="text-muted-foreground mb-6">The property you're looking for doesn't exist.</p>
+          <Link href="/technician">
+            <Button variant="outline" data-testid="button-back-to-dashboard">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
         </div>
       </AppLayout>
     );
@@ -214,9 +213,9 @@ export default function TechnicianPropertyDetail() {
       notificationCount={workQueue.length}
       navSections={navSections}
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
+      <div className="space-y-6">
         {/* Property Header */}
-        <div className="mb-6">
+        <div>
           <Link href="/technician">
             <Button variant="ghost" size="sm" className="mb-4" data-testid="button-back">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -240,90 +239,98 @@ export default function TechnicianPropertyDetail() {
           </div>
         </div>
 
-        {/* Work Queue */}
-        <div className="space-y-4">
-          <div>
-            <h2 className="text-xl font-semibold mb-1">Work Queue ({workQueue.length})</h2>
-            <p className="text-sm text-muted-foreground">Active incidents at this property</p>
-          </div>
+        {/* Tabs for Work Queue and Completed Work */}
+        <Tabs defaultValue="work-queue" className="w-full">
+          <TabsList>
+            <TabsTrigger value="work-queue" data-testid="tab-work-queue">
+              Work Queue ({workQueue.length})
+            </TabsTrigger>
+            <TabsTrigger value="completed" data-testid="tab-completed">
+              Completed Work ({completedWork.length})
+            </TabsTrigger>
+          </TabsList>
 
-          <EventQueue 
-            events={convertToEventProps(workQueue)}
-            onEventClick={(eventId) => {
-              setSelectedEvent(eventId);
-              setViewingEventId(eventId);
-            }}
-          />
+          <TabsContent value="work-queue" className="mt-6 space-y-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Active incidents at this property</p>
+            </div>
 
-          {selectedEvent && (
-            <Card className="mt-4">
-              <CardHeader>
-                <CardTitle>Incident Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {workQueue.find(e => e.id === selectedEvent)?.status === 'assigned' && (
+            <IncidentQueue 
+              incidents={convertToIncidentProps(workQueue)}
+              onIncidentClick={(incidentId) => {
+                setSelectedIncident(incidentId);
+                setViewingIncidentId(incidentId);
+              }}
+            />
+
+            {selectedIncident && (
+              <Card className="mt-4">
+                <CardHeader>
+                  <CardTitle>Incident Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {workQueue.find(i => i.id === selectedIncident)?.status === 'assigned' && (
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start"
+                      onClick={() => startWorkMutation.mutate(selectedIncident)}
+                      data-testid="button-start-work"
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Working
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     className="w-full justify-start"
-                    onClick={() => startWorkMutation.mutate(selectedEvent)}
-                    data-testid="button-start-work"
+                    onClick={() => console.log("Navigate to location")}
+                    data-testid="button-navigate"
                   >
-                    <Play className="h-4 w-4 mr-2" />
-                    Start Working
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Navigate to Location
                   </Button>
-                )}
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => console.log("Navigate to location")}
-                  data-testid="button-navigate"
-                >
-                  <MapPin className="h-4 w-4 mr-2" />
-                  Navigate to Location
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() => console.log("Upload photo")}
-                  data-testid="button-upload-photo"
-                >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Upload Photo/Documentation
-                </Button>
-                <Button
-                  className="w-full"
-                  onClick={() => resolveEventMutation.mutate(selectedEvent)}
-                  data-testid="button-resolve"
-                >
-                  <CheckCircle2 className="h-4 w-4 mr-2" />
-                  Mark as Resolved
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => console.log("Upload photo")}
+                    data-testid="button-upload-photo"
+                  >
+                    <Camera className="h-4 w-4 mr-2" />
+                    Upload Photo/Documentation
+                  </Button>
+                  <Button
+                    className="w-full"
+                    onClick={() => resolveIncidentMutation.mutate(selectedIncident)}
+                    data-testid="button-resolve"
+                  >
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Mark as Resolved
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-        {/* Completed Work */}
-        <div className="space-y-4 mt-8">
-          <div>
-            <h2 className="text-xl font-semibold mb-1">Completed Work ({completedWork.length})</h2>
-            <p className="text-sm text-muted-foreground">Resolved incidents at this property</p>
-          </div>
+          <TabsContent value="completed" className="mt-6 space-y-4">
+            <div>
+              <p className="text-sm text-muted-foreground">Resolved incidents at this property</p>
+            </div>
 
-          <EventQueue 
-            events={convertToEventProps(completedWork)}
-            onEventClick={(eventId) => setViewingEventId(eventId)}
-          />
-        </div>
+            <IncidentQueue 
+              incidents={convertToIncidentProps(completedWork)}
+              onIncidentClick={(incidentId) => setViewingIncidentId(incidentId)}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
 
-      <EventDetailPanel
-        event={viewingEventId ? (() => {
-          const event = allEvents.find(e => e.id === viewingEventId);
-          return event ? convertToEventDetail(event) : null;
+      <IncidentDetailPanel
+        incident={viewingIncidentId ? (() => {
+          const incident = allIncidents.find(i => i.id === viewingIncidentId);
+          return incident ? convertToIncidentDetail(incident) : null;
         })() : null}
-        open={viewingEventId !== null}
-        onClose={() => setViewingEventId(null)}
+        open={viewingIncidentId !== null}
+        onClose={() => setViewingIncidentId(null)}
       />
     </AppLayout>
   );
