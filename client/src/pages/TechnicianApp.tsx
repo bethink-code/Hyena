@@ -232,14 +232,19 @@ export default function TechnicianApp() {
           
           <PropertyList
             properties={technicianProperties.map(property => {
-              const propertyIncidentCount = allIncidents.filter(
+              const activeIncidents = allIncidents.filter(
                 i => i.propertyId === property.id && 
                 (i.status === 'new' || i.status === 'assigned' || i.status === 'in_progress')
-              ).length;
+              );
+              const incidentCount = activeIncidents.length;
+              const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
+              const newCount = activeIncidents.filter(i => i.status === 'new').length;
               
               return {
                 ...property,
-                incidentCount: propertyIncidentCount,
+                incidentCount,
+                criticalCount,
+                newCount,
               };
             })}
             onPropertyClick={(property) => navigate(`/technician/properties/${property.id}`)}

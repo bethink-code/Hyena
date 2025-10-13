@@ -3,7 +3,7 @@ import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import type { Event } from "@shared/schema";
+import type { Incident } from "@shared/schema";
 import {
   LayoutDashboard,
   Building2,
@@ -20,9 +20,9 @@ import {
 export default function AdminCenter() {
   const [, setLocation] = useLocation();
   
-  // Fetch all events to calculate property-specific incident counts
-  const { data: events = [] } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents to calculate property-specific incident counts
+  const { data: incidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
   const navSections = [
     {
@@ -59,18 +59,11 @@ export default function AdminCenter() {
     { id: "6", name: "Kruger Park Lodge", location: "Mpumalanga" },
   ];
 
-  // Calculate incident counts per property from actual events
-  const propertyIncidentCounts = propertyDefinitions.reduce((acc, prop) => {
-    const propertyEvents = events.filter(e => e.propertyId === prop.id && e.status !== 'resolved');
-    acc[prop.id] = propertyEvents.length;
-    return acc;
-  }, {} as Record<string, number>);
-
   // Determine property status based on incident count and priority
   const getPropertyStatus = (propertyId: string): "healthy" | "degraded" | "critical" | "offline" => {
-    const propertyEvents = events.filter(e => e.propertyId === propertyId && e.status !== 'resolved');
-    const hasCritical = propertyEvents.some(e => e.priority === 'critical');
-    const activeCount = propertyEvents.length;
+    const propertyIncidents = incidents.filter(i => i.propertyId === propertyId && i.status !== 'resolved');
+    const hasCritical = propertyIncidents.some(i => i.priority === 'critical');
+    const activeCount = propertyIncidents.length;
 
     if (hasCritical) return "critical";
     if (activeCount > 3) return "degraded";
@@ -78,17 +71,27 @@ export default function AdminCenter() {
     return "healthy";
   };
 
-  // Build properties array with real-time data
-  const properties = propertyDefinitions.map(prop => ({
-    id: prop.id,
-    name: prop.name,
-    location: prop.location,
-    status: getPropertyStatus(prop.id),
-    incidentCount: propertyIncidentCounts[prop.id] || 0,
-  }));
+  // Build properties array with real-time data including critical and new counts
+  const properties = propertyDefinitions.map(prop => {
+    const propertyIncidents = incidents.filter(i => i.propertyId === prop.id);
+    const activeIncidents = propertyIncidents.filter(i => i.status !== 'resolved');
+    const incidentCount = activeIncidents.length;
+    const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
+    const newCount = activeIncidents.filter(i => i.status === 'new').length;
+    
+    return {
+      id: prop.id,
+      name: prop.name,
+      location: prop.location,
+      status: getPropertyStatus(prop.id),
+      incidentCount,
+      criticalCount,
+      newCount,
+    };
+  });
 
   // Calculate total active incidents
-  const totalActiveIncidents = events.filter(e => e.status !== 'resolved').length;
+  const totalActiveIncidents = incidents.filter(i => i.status !== 'resolved').length;
 
   return (
     <AppLayout

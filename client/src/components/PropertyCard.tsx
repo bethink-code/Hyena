@@ -1,7 +1,7 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { MapPin, AlertTriangle } from "lucide-react";
+import { MapPin, AlertCircle, AlertTriangle } from "lucide-react";
 import type { NetworkHealth } from "./NetworkStatusIndicator";
 
 interface PropertyCardProps {
@@ -9,6 +9,8 @@ interface PropertyCardProps {
   location: string;
   status: NetworkHealth;
   incidentCount: number;
+  criticalCount?: number;
+  newCount?: number;
   onClick?: () => void;
   className?: string;
 }
@@ -18,6 +20,8 @@ export function PropertyCard({
   location,
   status,
   incidentCount,
+  criticalCount = 0,
+  newCount = 0,
   onClick,
   className,
 }: PropertyCardProps) {
@@ -35,27 +39,38 @@ export function PropertyCard({
       data-testid="card-property"
     >
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-start justify-between">
-          <span className="text-lg">{name}</span>
+        <div className="flex items-center justify-between gap-3 mb-3">
           <Badge
             className={cn("uppercase text-xs", statusColors[status])}
             data-testid="badge-property-status"
           >
             {status}
           </Badge>
-        </CardTitle>
+          <span className="text-sm font-semibold" data-testid="text-incident-count">
+            {incidentCount} Active
+          </span>
+        </div>
+        <h3 className="text-lg font-semibold truncate" data-testid="text-property-name">{name}</h3>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <MapPin className="h-4 w-4" />
-          <span>{location}</span>
+          <span data-testid="text-property-location">{location}</span>
         </div>
-        {incidentCount > 0 && (
-          <div className="flex items-center gap-2 text-sm">
-            <AlertTriangle className="h-4 w-4 text-event-high" />
-            <span className="text-event-high font-medium">
-              {incidentCount} active incident{incidentCount !== 1 ? "s" : ""}
-            </span>
+        {(criticalCount > 0 || newCount > 0) && (
+          <div className="flex items-center gap-4 text-sm">
+            {criticalCount > 0 && (
+              <div className="flex items-center gap-1.5 text-event-critical" data-testid="text-critical-count">
+                <AlertCircle className="h-4 w-4" />
+                <span className="font-medium">{criticalCount} Critical</span>
+              </div>
+            )}
+            {newCount > 0 && (
+              <div className="flex items-center gap-1.5 text-event-high" data-testid="text-new-count">
+                <AlertTriangle className="h-4 w-4" />
+                <span className="font-medium">{newCount} New</span>
+              </div>
+            )}
           </div>
         )}
       </CardContent>

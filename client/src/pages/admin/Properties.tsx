@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
-import type { Event } from "@shared/schema";
+import type { Incident } from "@shared/schema";
 import {
   LayoutDashboard,
   Building2,
@@ -18,9 +18,9 @@ import {
 export default function Properties() {
   const [, setLocation] = useLocation();
 
-  // Fetch all events to calculate incident counts per property
-  const { data: allEvents = [] } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents to calculate incident counts per property
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
   const navSections = [
@@ -49,13 +49,19 @@ export default function Properties() {
     },
   ];
 
-  // Calculate incident counts for each property from actual events
+  // Calculate incident counts for each property from actual incidents
   const propertiesWithIncidents = PROPERTIES.map(property => {
-    const propertyEvents = allEvents.filter(e => e.propertyId === property.id);
-    const incidentCount = propertyEvents.filter(e => e.status !== 'resolved').length;
+    const propertyIncidents = allIncidents.filter(i => i.propertyId === property.id);
+    const activeIncidents = propertyIncidents.filter(i => i.status !== 'resolved');
+    const incidentCount = activeIncidents.length;
+    const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
+    const newCount = activeIncidents.filter(i => i.status === 'new').length;
+    
     return {
       ...property,
       incidentCount,
+      criticalCount,
+      newCount,
     };
   });
 

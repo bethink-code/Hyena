@@ -17,6 +17,8 @@ interface Property {
   location: string;
   status: NetworkHealth;
   incidentCount: number;
+  criticalCount?: number;
+  newCount?: number;
 }
 
 interface PropertyListProps {
