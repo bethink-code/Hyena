@@ -1,18 +1,15 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
 import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function Schedule() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Use the first 3 properties for the technician's scope
+  const technicianProperties = PROPERTIES.slice(0, 3);
 
   const navSections = [
     {
@@ -31,55 +28,86 @@ export default function Schedule() {
     },
   ];
 
-  const maintenanceTasks = [
-    { task: "Router Firmware Update", date: "15/10/2025", priority: "medium", equipment: "Main Router" },
-    { task: "Access Point Inspection", date: "18/10/2025", priority: "low", equipment: "All APs" },
-    { task: "Cable Infrastructure Check", date: "22/10/2025", priority: "medium", equipment: "Server Room" },
-    { task: "Battery Backup Test", date: "25/10/2025", priority: "high", equipment: "UPS Systems" },
-  ];
+  // Mock maintenance task data for each property
+  const maintenanceTasksByProperty: Record<string, Array<{ task: string; date: string; priority: "high" | "medium" | "low"; equipment: string; status: "scheduled" | "overdue" | "completed" }>> = {
+    "1": [
+      { task: "Router Firmware Update", date: "15/10/2025", priority: "medium", equipment: "Main Router", status: "scheduled" },
+      { task: "Access Point Inspection", date: "18/10/2025", priority: "low", equipment: "All APs", status: "scheduled" },
+      { task: "Cable Infrastructure Check", date: "22/10/2025", priority: "medium", equipment: "Server Room", status: "scheduled" },
+      { task: "Battery Backup Test", date: "25/10/2025", priority: "high", equipment: "UPS Systems", status: "scheduled" },
+      { task: "Switch Maintenance", date: "05/10/2025", priority: "medium", equipment: "Main Switch", status: "completed" },
+      { task: "Backup System Check", date: "01/10/2025", priority: "low", equipment: "Backup Router", status: "completed" },
+    ],
+    "2": [
+      { task: "Router Firmware Update", date: "08/10/2025", priority: "high", equipment: "Main Router", status: "overdue" },
+      { task: "Access Point Inspection", date: "20/10/2025", priority: "low", equipment: "All APs", status: "scheduled" },
+      { task: "Cable Infrastructure Check", date: "23/10/2025", priority: "medium", equipment: "Server Room", status: "scheduled" },
+      { task: "Battery Backup Test", date: "09/10/2025", priority: "high", equipment: "UPS Systems", status: "overdue" },
+      { task: "Switch Maintenance", date: "28/09/2025", priority: "medium", equipment: "Main Switch", status: "completed" },
+    ],
+    "3": [
+      { task: "Router Firmware Update", date: "05/10/2025", priority: "high", equipment: "Main Router", status: "overdue" },
+      { task: "Access Point Inspection", date: "06/10/2025", priority: "medium", equipment: "All APs", status: "overdue" },
+      { task: "Cable Infrastructure Check", date: "21/10/2025", priority: "medium", equipment: "Server Room", status: "scheduled" },
+      { task: "Battery Backup Test", date: "03/10/2025", priority: "high", equipment: "UPS Systems", status: "overdue" },
+      { task: "Switch Maintenance", date: "20/09/2025", priority: "low", equipment: "Main Switch", status: "completed" },
+    ],
+  };
+
+  // Calculate maintenance schedule status for each property
+  const propertiesWithScheduleStatus = useMemo(() => {
+    return technicianProperties.map(property => {
+      const tasks = maintenanceTasksByProperty[property.id] || [];
+      
+      // Calculate task counts by status
+      const scheduledCount = tasks.filter(t => t.status === "scheduled").length;
+      const overdueCount = tasks.filter(t => t.status === "overdue").length;
+      const completedCount = tasks.filter(t => t.status === "completed").length;
+      
+      // Determine overall maintenance schedule status
+      let scheduleStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      if (overdueCount >= 3) {
+        scheduleStatus = "critical";
+      } else if (overdueCount >= 2) {
+        scheduleStatus = "degraded";
+      } else if (overdueCount >= 1) {
+        scheduleStatus = "degraded";
+      }
+
+      // Use overdue count as incident count and scheduled tasks as new count
+      const incidentCount = overdueCount;
+      const criticalIncidentCount = tasks.filter(t => t.status === "overdue" && t.priority === "high").length;
+
+      return {
+        ...property,
+        status: scheduleStatus,
+        incidentCount,
+        criticalCount: criticalIncidentCount,
+        newCount: scheduledCount,
+      };
+    });
+  }, [technicianProperties]);
 
   return (
     <AppLayout
       title="Preventive Maintenance"
       homeRoute="/technician"
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Maintenance Schedule</h2>
-          <p className="text-muted-foreground">Upcoming preventive maintenance tasks</p>
+          <p className="text-muted-foreground">Preventive maintenance schedule across all properties</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Scheduled Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {maintenanceTasks.map((task, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-md">
-                  <div className="space-y-1">
-                    <div className="font-medium">{task.task}</div>
-                    <div className="text-sm text-muted-foreground">{task.equipment}</div>
-                    <div className="text-xs text-muted-foreground">Due: {task.date}</div>
-                  </div>
-                  <Badge 
-                    variant={task.priority === "high" ? "destructive" : "default"}
-                    data-testid={`badge-priority-${index}`}
-                  >
-                    {task.priority}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyList
+          properties={propertiesWithScheduleStatus}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/technician/properties/${property.id}`);
+            }
+          }}
+        />
       </div>
     </AppLayout>
   );
