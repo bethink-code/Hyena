@@ -1,32 +1,30 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertyList } from "@/components/PropertyList";
-import { KPIWidget } from "@/components/KPIWidget";
-import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
+import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
+import { IncidentQueue } from "@/components/IncidentQueue";
+import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
-import type { Event, EventTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
   AlertTriangle,
-  Users,
-  DollarSign,
-  Clock,
   BarChart3,
   FileText,
   MessageSquare,
   Wifi,
+  Clock,
+  CheckCircle2,
+  TrendingUp,
 } from "lucide-react";
 
 export default function ManagerDashboard() {
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
   
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
@@ -36,8 +34,7 @@ export default function ManagerDashboard() {
     {
       label: "Main",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
+        { title: "Incidents", href: "/manager", icon: AlertTriangle },
         { title: "Network Status", href: "/manager/network", icon: Wifi },
       ],
     },
@@ -56,127 +53,201 @@ export default function ManagerDashboard() {
     },
   ];
 
-  // Fetch all events
-  const { data: allEvents = [] } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
-  // Filter events for manager's properties
-  const events = allEvents.filter(e => managerPropertyIds.includes(e.propertyId || ''));
+  // Filter incidents for manager's properties and selected property
+  const incidents = useMemo(() => {
+    const managerIncidents = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    
+    if (selectedPropertyId === "all") {
+      return managerIncidents;
+    }
+    
+    return managerIncidents.filter(i => i.propertyId === selectedPropertyId);
+  }, [allIncidents, selectedPropertyId, managerPropertyIds]);
 
-  // Fetch timeline for selected event
-  const { data: timeline = [] } = useQuery<EventTimeline[]>({
-    queryKey: ["/api/events", selectedEventId, "timeline"],
-    enabled: !!selectedEventId,
+  // Fetch timeline for selected incident
+  const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
+    queryKey: ["/api/incidents", selectedIncidentId, "timeline"],
+    enabled: !!selectedIncidentId,
   });
 
-  // Assign event mutation
-  const assignEventMutation = useMutation({
-    mutationFn: async ({ eventId, assignedTo }: { eventId: string; assignedTo: string }) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+  // Calculate summary metrics
+  const metrics: MetricTile[] = useMemo(() => {
+    const criticalCount = incidents.filter(i => i.priority === 'critical' && i.status !== 'resolved').length;
+    const activeCount = incidents.filter(i => i.status !== 'resolved').length;
+    const assignedCount = incidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length;
+    const resolvedToday = incidents.filter(i => {
+      if (i.status !== 'resolved') return false;
+      const today = new Date().toDateString();
+      return new Date(i.updatedAt).toDateString() === today;
+    }).length;
+
+    return [
+      {
+        id: "critical",
+        label: "Critical Incidents",
+        value: criticalCount,
+        icon: AlertTriangle,
+        variant: criticalCount > 0 ? "critical" : "default",
+      },
+      {
+        id: "active",
+        label: "Active Incidents",
+        value: activeCount,
+        icon: LayoutDashboard,
+        variant: activeCount > 5 ? "high" : "default",
+      },
+      {
+        id: "in-progress",
+        label: "In Progress",
+        value: assignedCount,
+        icon: Clock,
+        variant: "medium",
+      },
+      {
+        id: "resolved-today",
+        label: "Resolved Today",
+        value: resolvedToday,
+        icon: CheckCircle2,
+        variant: "success",
+      },
+    ];
+  }, [incidents]);
+
+  // Assign incident mutation
+  const assignIncidentMutation = useMutation({
+    mutationFn: async ({ incidentId, assignedTo }: { incidentId: string; assignedTo: string }) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "assigned",
         assignedTo,
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      // Add timeline entry
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Assigned to ${assignedTo}`,
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Assigned",
+        title: "Incident Assigned",
         description: "Technician has been notified",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Assignment Failed",
-        description: error.message || "Failed to assign event",
+        description: error.message || "Failed to assign incident",
         variant: "destructive",
       });
     },
   });
 
-  // Resolve event mutation
-  const resolveEventMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+  // Resolve incident mutation
+  const resolveIncidentMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "resolved",
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      // Add timeline entry
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
-        action: "Event marked as resolved",
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
+        action: "Incident marked as resolved",
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Resolved",
-        description: "Event has been marked as resolved",
+        title: "Incident Resolved",
+        description: "Incident has been marked as resolved",
       });
-      setSelectedEventId(null);
+      setSelectedIncidentId(null);
     },
     onError: (error: any) => {
       toast({
         title: "Resolution Failed",
-        description: error.message || "Failed to resolve event",
+        description: error.message || "Failed to resolve incident",
         variant: "destructive",
       });
     },
   });
 
-  // Escalate event mutation
-  const escalateEventMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const currentEvent = events.find(e => e.id === eventId);
-      const newPriority = currentEvent?.priority === 'critical' ? 'critical' : 
-                          currentEvent?.priority === 'high' ? 'critical' :
-                          currentEvent?.priority === 'medium' ? 'high' : 'medium';
+  // Escalate incident mutation
+  const escalateIncidentMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
+      const currentIncident = incidents.find(i => i.id === incidentId);
+      const newPriority = currentIncident?.priority === 'critical' ? 'critical' : 
+        currentIncident?.priority === 'high' ? 'critical' :
+        currentIncident?.priority === 'medium' ? 'high' : 'medium';
       
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         priority: newPriority,
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      // Add timeline entry
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Priority escalated to ${newPriority}`,
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Escalated",
-        description: "Priority has been increased",
+        title: "Priority Escalated",
+        description: "Incident priority has been increased",
       });
     },
     onError: (error: any) => {
       toast({
         title: "Escalation Failed",
-        description: error.message || "Failed to escalate event",
+        description: error.message || "Failed to escalate incident",
         variant: "destructive",
       });
     },
   });
 
-  // Convert Event + Timeline to EventDetailProps
+  const selectedIncident = selectedIncidentId 
+    ? incidents.find(i => i.id === selectedIncidentId)
+    : null;
+
+  const incidentDetailProps: IncidentDetailProps | null = selectedIncident
+    ? {
+        id: selectedIncident.id,
+        title: selectedIncident.title,
+        description: selectedIncident.description,
+        priority: selectedIncident.priority as any,
+        status: selectedIncident.status as any,
+        location: selectedIncident.location || undefined,
+        assignedTo: selectedIncident.assignedTo || undefined,
+        timestamp: new Date(selectedIncident.createdAt).toLocaleString(),
+        category: selectedIncident.category || undefined,
+        affectedGuests: selectedIncident.affectedGuests || undefined,
+        estimatedResolution: selectedIncident.estimatedResolution || undefined,
+        rootCause: selectedIncident.rootCause || undefined,
+        resolution: selectedIncident.resolution || undefined,
+        timeline: timeline.map((t) => ({
+          timestamp: new Date(t.timestamp).toLocaleTimeString(),
+          action: t.action,
+          actor: t.actor,
+        })),
+      }
+    : null;
+
   const formatTimestamp = (date: Date) => {
     const now = new Date();
     const diffMs = now.getTime() - new Date(date).getTime();
@@ -188,142 +259,58 @@ export default function ManagerDashboard() {
     return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
-  const convertToEventDetailProps = (event: Event, withTimeline: boolean = false): EventDetailProps => ({
-    id: event.id,
-    title: event.title,
-    description: event.description,
-    priority: event.priority as any,
-    status: event.status as any,
-    location: event.location || undefined,
-    assignedTo: event.assignedTo || undefined,
-    timestamp: formatTimestamp(event.createdAt),
-    category: event.category || undefined,
-    affectedGuests: event.affectedGuests || undefined,
-    estimatedResolution: event.estimatedResolution || undefined,
-    rootCause: event.rootCause || undefined,
-    resolution: event.resolution || undefined,
-    timeline: withTimeline ? timeline.map(entry => ({
-      timestamp: formatTimestamp(entry.timestamp),
-      action: entry.action,
-      actor: entry.actor,
-    })) : [],
-  });
-
-  const selectedEvent = selectedEventId 
-    ? events.find(e => e.id === selectedEventId) 
-    : null;
-  const selectedEventDetails = selectedEvent ? convertToEventDetailProps(selectedEvent, true) : null;
-
-  // Calculate KPIs from actual events
-  const activeIncidents = events.filter(e => e.status !== 'resolved').length;
-  const totalAffectedGuests = events.filter(e => e.status !== 'resolved').reduce((sum, e) => sum + (e.affectedGuests || 0), 0);
-  const criticalEvents = events.filter(e => e.priority === 'critical' && e.status !== 'resolved').length;
-
-  // Calculate property incident counts and statuses (for all manager properties)
-  const propertyIncidentCounts = managerProperties.reduce((acc, prop) => {
-    const propertyEvents = allEvents.filter(e => e.propertyId === prop.id && e.status !== 'resolved');
-    acc[prop.id] = propertyEvents.length;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const getPropertyStatus = (propertyId: string): "healthy" | "degraded" | "critical" | "offline" => {
-    const propertyEvents = allEvents.filter(e => e.propertyId === propertyId && e.status !== 'resolved');
-    const hasCritical = propertyEvents.some(e => e.priority === 'critical');
-    const activeCount = propertyEvents.length;
-
-    if (hasCritical) return "critical";
-    if (activeCount > 3) return "degraded";
-    if (activeCount > 0) return "degraded";
-    return "healthy";
-  };
-
-  const propertyCards = managerProperties.map(prop => ({
-    id: prop.id,
-    name: prop.name,
-    location: prop.location,
-    status: getPropertyStatus(prop.id),
-    incidentCount: propertyIncidentCounts[prop.id] || 0,
-  }));
-
   return (
     <AppLayout
-      title="Property Management Dashboard"
-      homeRoute="/manager"
-      notificationCount={activeIncidents}
+      title="Incident Management"
       navSections={navSections}
+      homeRoute="/manager"
+      notificationCount={incidents.filter(i => i.status === 'new').length}
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-1">Performance Overview</h2>
-          <p className="text-muted-foreground">Monitor incidents and operational metrics</p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPIWidget
-            title="Active Incidents"
-            value={activeIncidents}
-            change={0}
-            trend="down"
-            icon={AlertTriangle}
-          />
-          <KPIWidget
-            title="Affected Guests"
-            value={totalAffectedGuests}
-            change={0}
-            trend="down"
-            icon={Users}
-          />
-          <KPIWidget
-            title="Critical Events"
-            value={criticalEvents}
-            change={0}
-            trend={criticalEvents > 0 ? "up" : "down"}
-            icon={DollarSign}
-          />
-          <KPIWidget
-            title="Total Events"
-            value={events.length}
-            change={0}
-            trend="down"
-            icon={Clock}
-          />
-        </div>
-
-        <div>
-          <h3 className="text-xl font-semibold mb-4">Property Status</h3>
-          <PropertyList
-            properties={propertyCards}
-            onPropertyClick={(property) => setLocation(`/manager/properties/${property.id}`)}
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-semibold">Incident Queue</h3>
-            <ReportIncidentDialog />
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold" data-testid="text-page-title">Incidents</h1>
+            <p className="text-muted-foreground mt-1">Monitor and manage network incidents across your properties</p>
           </div>
-          <EventQueue
-            events={events.map(e => convertToEventDetailProps(e, false))}
-            onEventClick={(eventId) => setSelectedEventId(eventId)}
-          />
+          <ReportIncidentDialog />
         </div>
+
+        <SummaryMetrics metrics={metrics} />
+
+        <IncidentQueue
+          incidents={incidents.map((incident) => ({
+            id: incident.id,
+            title: incident.title,
+            description: incident.description,
+            priority: incident.priority as any,
+            status: incident.status as any,
+            location: incident.location || undefined,
+            assignedTo: incident.assignedTo || undefined,
+            timestamp: formatTimestamp(incident.createdAt),
+          }))}
+          onIncidentClick={(id) => setSelectedIncidentId(id)}
+          properties={managerProperties}
+          selectedPropertyId={selectedPropertyId}
+          onPropertyChange={setSelectedPropertyId}
+          showPropertyFilter={true}
+        />
       </div>
 
-      <EventDetailPanel
-        event={selectedEventDetails}
-        open={!!selectedEventId}
-        onClose={() => setSelectedEventId(null)}
+      <IncidentDetailPanel
+        incident={incidentDetailProps}
+        open={!!selectedIncidentId}
+        onClose={() => setSelectedIncidentId(null)}
         onAssign={(id) => {
-          assignEventMutation.mutate({
-            eventId: id,
-            assignedTo: "John Smith", // In real app, show technician selector
+          assignIncidentMutation.mutate({
+            incidentId: id,
+            assignedTo: "John Smith",
           });
         }}
         onResolve={(id) => {
-          resolveEventMutation.mutate(id);
+          resolveIncidentMutation.mutate(id);
         }}
         onEscalate={(id) => {
-          escalateEventMutation.mutate(id);
+          escalateIncidentMutation.mutate(id);
         }}
       />
     </AppLayout>

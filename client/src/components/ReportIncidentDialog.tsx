@@ -24,7 +24,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES, LOAD_SHEDDING_STAGES, SA_ISP_PROVIDERS, WEATHER_EVENT_TYPES } from "@shared/eventCategories";
 import { AlertTriangle, Loader2, Calendar } from "lucide-react";
-import type { InsertEvent } from "@shared/schema";
+import type { InsertIncident } from "@shared/schema";
 
 interface ReportIncidentDialogProps {
   defaultPropertyId?: string;
@@ -49,20 +49,20 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
     weatherType: "",
   });
 
-  const createEventMutation = useMutation({
-    mutationFn: async (data: InsertEvent) => {
-      const response = await apiRequest("POST", "/api/events", data);
-      const event = await response.json();
+  const createIncidentMutation = useMutation({
+    mutationFn: async (data: InsertIncident) => {
+      const response = await apiRequest("POST", "/api/incidents", data);
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${event.id}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incident.id}/timeline`, {
         action: "Incident reported by manager",
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       toast({
         title: "Incident Reported",
         description: "The incident has been logged and is now in the queue",
@@ -104,7 +104,7 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
       return;
     }
 
-    const eventType = formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
+    const incidentType = formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
                  formData.category === EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT 
                  ? "proactive" 
                  : formData.category === EVENT_CATEGORIES.LOAD_SHEDDING ||
@@ -118,7 +118,7 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
     if (formData.ispProvider) metadata.ispProvider = formData.ispProvider;
     if (formData.weatherType) metadata.weatherType = formData.weatherType;
 
-    const eventData: InsertEvent = {
+    const incidentData: InsertIncident = {
       title: formData.title,
       description: formData.description,
       priority: formData.priority,
@@ -129,12 +129,12 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
       estimatedResolution: formData.estimatedResolution || undefined,
       propertyId: formData.propertyId,
       source: "manager_report",
-      eventType,
+      incidentType,
       scheduledFor: formData.scheduledFor ? (formData.scheduledFor as any) : undefined,
       metadata: Object.keys(metadata).length > 0 ? JSON.stringify(metadata) : undefined,
     };
 
-    createEventMutation.mutate(eventData);
+    createIncidentMutation.mutate(incidentData);
   };
 
   return (
@@ -398,10 +398,10 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
             </Button>
             <Button
               type="submit"
-              disabled={createEventMutation.isPending}
+              disabled={createIncidentMutation.isPending}
               data-testid="button-submit-incident"
             >
-              {createEventMutation.isPending ? (
+              {createIncidentMutation.isPending ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   Reporting...

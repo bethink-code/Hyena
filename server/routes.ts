@@ -1,80 +1,80 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertEventSchema, insertEventTimelineSchema } from "@shared/schema";
+import { insertIncidentSchema, insertIncidentTimelineSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Event routes
+  // Incident routes
   
-  // Create a new event
-  app.post("/api/events", async (req, res) => {
+  // Create a new incident
+  app.post("/api/incidents", async (req, res) => {
     try {
-      const validatedEvent = insertEventSchema.parse(req.body);
-      const event = await storage.createEvent(validatedEvent);
+      const validatedIncident = insertIncidentSchema.parse(req.body);
+      const incident = await storage.createIncident(validatedIncident);
       
       // Add initial timeline entry
-      await storage.addEventTimelineEntry({
-        eventId: event.id,
-        action: `Event created from ${event.source || 'unknown source'}`,
-        actor: event.source === 'guest_portal' ? 'Guest Portal' : 'System',
+      await storage.addIncidentTimelineEntry({
+        incidentId: incident.id,
+        action: `Incident created from ${incident.source || 'unknown source'}`,
+        actor: incident.source === 'guest_portal' ? 'Guest Portal' : 'System',
       });
       
-      res.json(event);
+      res.json(incident);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
   });
 
-  // Get all events (with optional propertyId filter)
-  app.get("/api/events", async (req, res) => {
+  // Get all incidents (with optional propertyId filter)
+  app.get("/api/incidents", async (req, res) => {
     try {
       const { propertyId } = req.query;
-      let events;
+      let incidents;
       
       if (propertyId && typeof propertyId === 'string') {
-        events = await storage.getEventsByProperty(propertyId);
+        incidents = await storage.getIncidentsByProperty(propertyId);
       } else {
-        events = await storage.getAllEvents();
+        incidents = await storage.getAllIncidents();
       }
       
-      res.json(events);
+      res.json(incidents);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Get single event
-  app.get("/api/events/:id", async (req, res) => {
+  // Get single incident
+  app.get("/api/incidents/:id", async (req, res) => {
     try {
-      const event = await storage.getEvent(req.params.id);
-      if (!event) {
-        return res.status(404).json({ error: "Event not found" });
+      const incident = await storage.getIncident(req.params.id);
+      if (!incident) {
+        return res.status(404).json({ error: "Incident not found" });
       }
-      res.json(event);
+      res.json(incident);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Update event
-  app.patch("/api/events/:id", async (req, res) => {
+  // Update incident
+  app.patch("/api/incidents/:id", async (req, res) => {
     try {
-      const event = await storage.updateEvent(req.params.id, req.body);
-      if (!event) {
-        return res.status(404).json({ error: "Event not found" });
+      const incident = await storage.updateIncident(req.params.id, req.body);
+      if (!incident) {
+        return res.status(404).json({ error: "Incident not found" });
       }
-      res.json(event);
+      res.json(incident);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Delete event
-  app.delete("/api/events/:id", async (req, res) => {
+  // Delete incident
+  app.delete("/api/incidents/:id", async (req, res) => {
     try {
-      const deleted = await storage.deleteEvent(req.params.id);
+      const deleted = await storage.deleteIncident(req.params.id);
       if (!deleted) {
-        return res.status(404).json({ error: "Event not found" });
+        return res.status(404).json({ error: "Incident not found" });
       }
       res.json({ success: true });
     } catch (error: any) {
@@ -82,44 +82,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get events by property
-  app.get("/api/events/property/:propertyId", async (req, res) => {
+  // Get incidents by property
+  app.get("/api/incidents/property/:propertyId", async (req, res) => {
     try {
-      const events = await storage.getEventsByProperty(req.params.propertyId);
-      res.json(events);
+      const incidents = await storage.getIncidentsByProperty(req.params.propertyId);
+      res.json(incidents);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Get events by status
-  app.get("/api/events/status/:status", async (req, res) => {
+  // Get incidents by status
+  app.get("/api/incidents/status/:status", async (req, res) => {
     try {
-      const events = await storage.getEventsByStatus(req.params.status);
-      res.json(events);
+      const incidents = await storage.getIncidentsByStatus(req.params.status);
+      res.json(incidents);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Add timeline entry to event
-  app.post("/api/events/:id/timeline", async (req, res) => {
+  // Add timeline entry to incident
+  app.post("/api/incidents/:id/timeline", async (req, res) => {
     try {
-      const validatedEntry = insertEventTimelineSchema.parse({
+      const validatedEntry = insertIncidentTimelineSchema.parse({
         ...req.body,
-        eventId: req.params.id,
+        incidentId: req.params.id,
       });
-      const entry = await storage.addEventTimelineEntry(validatedEntry);
+      const entry = await storage.addIncidentTimelineEntry(validatedEntry);
       res.json(entry);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
   });
 
-  // Get event timeline
-  app.get("/api/events/:id/timeline", async (req, res) => {
+  // Get incident timeline
+  app.get("/api/incidents/:id/timeline", async (req, res) => {
     try {
-      const timeline = await storage.getEventTimeline(req.params.id);
+      const timeline = await storage.getIncidentTimeline(req.params.id);
       res.json(timeline);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

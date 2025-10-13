@@ -17,8 +17,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// Event schema for the event management system
-export const events = pgTable("events", {
+// Incident schema for the incident management system
+export const incidents = pgTable("incidents", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   title: text("title").notNull(),
   description: text("description").notNull(),
@@ -33,33 +33,33 @@ export const events = pgTable("events", {
   source: text("source"), // 'guest_portal' | 'api_monitoring' | 'manual_report' | etc.
   rootCause: text("root_cause"),
   resolution: text("resolution"),
-  eventType: text("event_type"), // 'reactive' | 'proactive' | 'environmental'
-  scheduledFor: timestamp("scheduled_for"), // For planned maintenance / events
+  incidentType: text("incident_type"), // 'reactive' | 'proactive' | 'environmental'
+  scheduledFor: timestamp("scheduled_for"), // For planned maintenance / incidents
   metadata: text("metadata"), // JSON string for SA-specific data (load shedding stage, ISP, weather type)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
 
-export const eventTimeline = pgTable("event_timeline", {
+export const incidentTimeline = pgTable("incident_timeline", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id").notNull(),
+  incidentId: varchar("incident_id").notNull(),
   timestamp: timestamp("timestamp").notNull().defaultNow(),
   action: text("action").notNull(),
   actor: text("actor").notNull(),
 });
 
-export const insertEventSchema = createInsertSchema(events).omit({
+export const insertIncidentSchema = createInsertSchema(incidents).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertEventTimelineSchema = createInsertSchema(eventTimeline).omit({
+export const insertIncidentTimelineSchema = createInsertSchema(incidentTimeline).omit({
   id: true,
   timestamp: true,
 });
 
-export type InsertEvent = z.infer<typeof insertEventSchema>;
-export type Event = typeof events.$inferSelect;
-export type InsertEventTimeline = z.infer<typeof insertEventTimelineSchema>;
-export type EventTimeline = typeof eventTimeline.$inferSelect;
+export type InsertIncident = z.infer<typeof insertIncidentSchema>;
+export type Incident = typeof incidents.$inferSelect;
+export type InsertIncidentTimeline = z.infer<typeof insertIncidentTimelineSchema>;
+export type IncidentTimeline = typeof incidentTimeline.$inferSelect;

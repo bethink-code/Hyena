@@ -2,10 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Circle } from "lucide-react";
 
-export type EventStatus = "new" | "assigned" | "in_progress" | "resolved" | "closed";
+export type IncidentStatus = "new" | "assigned" | "in_progress" | "resolved" | "closed";
 
 interface StatusBadgeProps {
-  status: EventStatus;
+  status: IncidentStatus;
   className?: string;
 }
 

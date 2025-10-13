@@ -1,10 +1,10 @@
 import { 
   type User, 
   type InsertUser, 
-  type Event, 
-  type InsertEvent,
-  type EventTimeline,
-  type InsertEventTimeline 
+  type Incident, 
+  type InsertIncident,
+  type IncidentTimeline,
+  type InsertIncidentTimeline 
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -14,29 +14,29 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
   
-  // Event operations
-  createEvent(event: InsertEvent): Promise<Event>;
-  getEvent(id: string): Promise<Event | undefined>;
-  getAllEvents(): Promise<Event[]>;
-  getEventsByProperty(propertyId: string): Promise<Event[]>;
-  getEventsByStatus(status: string): Promise<Event[]>;
-  updateEvent(id: string, updates: Partial<Event>): Promise<Event | undefined>;
-  deleteEvent(id: string): Promise<boolean>;
+  // Incident operations
+  createIncident(incident: InsertIncident): Promise<Incident>;
+  getIncident(id: string): Promise<Incident | undefined>;
+  getAllIncidents(): Promise<Incident[]>;
+  getIncidentsByProperty(propertyId: string): Promise<Incident[]>;
+  getIncidentsByStatus(status: string): Promise<Incident[]>;
+  updateIncident(id: string, updates: Partial<Incident>): Promise<Incident | undefined>;
+  deleteIncident(id: string): Promise<boolean>;
   
-  // Event timeline operations
-  addEventTimelineEntry(entry: InsertEventTimeline): Promise<EventTimeline>;
-  getEventTimeline(eventId: string): Promise<EventTimeline[]>;
+  // Incident timeline operations
+  addIncidentTimelineEntry(entry: InsertIncidentTimeline): Promise<IncidentTimeline>;
+  getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
-  private events: Map<string, Event>;
-  private eventTimelines: Map<string, EventTimeline[]>;
+  private incidents: Map<string, Incident>;
+  private incidentTimelines: Map<string, IncidentTimeline[]>;
 
   constructor() {
     this.users = new Map();
-    this.events = new Map();
-    this.eventTimelines = new Map();
+    this.incidents = new Map();
+    this.incidentTimelines = new Map();
   }
 
   // User operations
@@ -57,87 +57,90 @@ export class MemStorage implements IStorage {
     return user;
   }
 
-  // Event operations
-  async createEvent(insertEvent: InsertEvent): Promise<Event> {
+  // Incident operations
+  async createIncident(insertIncident: InsertIncident): Promise<Incident> {
     const now = new Date();
-    const id = `evt-${Date.now()}-${randomUUID().substring(0, 8)}`;
-    const event: Event = {
+    const id = `inc-${Date.now()}-${randomUUID().substring(0, 8)}`;
+    const incident: Incident = {
       id,
-      ...insertEvent,
-      location: insertEvent.location ?? null,
-      category: insertEvent.category ?? null,
-      affectedGuests: insertEvent.affectedGuests ?? null,
-      estimatedResolution: insertEvent.estimatedResolution ?? null,
-      assignedTo: insertEvent.assignedTo ?? null,
-      propertyId: insertEvent.propertyId ?? null,
-      source: insertEvent.source ?? null,
-      rootCause: insertEvent.rootCause ?? null,
-      resolution: insertEvent.resolution ?? null,
+      ...insertIncident,
+      location: insertIncident.location ?? null,
+      category: insertIncident.category ?? null,
+      affectedGuests: insertIncident.affectedGuests ?? null,
+      estimatedResolution: insertIncident.estimatedResolution ?? null,
+      assignedTo: insertIncident.assignedTo ?? null,
+      propertyId: insertIncident.propertyId ?? null,
+      source: insertIncident.source ?? null,
+      rootCause: insertIncident.rootCause ?? null,
+      resolution: insertIncident.resolution ?? null,
+      incidentType: insertIncident.incidentType ?? null,
+      scheduledFor: insertIncident.scheduledFor ?? null,
+      metadata: insertIncident.metadata ?? null,
       createdAt: now,
       updatedAt: now,
     };
-    this.events.set(event.id, event);
-    return event;
+    this.incidents.set(incident.id, incident);
+    return incident;
   }
 
-  async getEvent(id: string): Promise<Event | undefined> {
-    return this.events.get(id);
+  async getIncident(id: string): Promise<Incident | undefined> {
+    return this.incidents.get(id);
   }
 
-  async getAllEvents(): Promise<Event[]> {
-    return Array.from(this.events.values());
+  async getAllIncidents(): Promise<Incident[]> {
+    return Array.from(this.incidents.values());
   }
 
-  async getEventsByProperty(propertyId: string): Promise<Event[]> {
-    return Array.from(this.events.values()).filter(
-      (event) => event.propertyId === propertyId
+  async getIncidentsByProperty(propertyId: string): Promise<Incident[]> {
+    return Array.from(this.incidents.values()).filter(
+      (incident) => incident.propertyId === propertyId
     );
   }
 
-  async getEventsByStatus(status: string): Promise<Event[]> {
-    return Array.from(this.events.values()).filter(
-      (event) => event.status === status
+  async getIncidentsByStatus(status: string): Promise<Incident[]> {
+    return Array.from(this.incidents.values()).filter(
+      (incident) => incident.status === status
     );
   }
 
-  async updateEvent(id: string, updates: Partial<Event>): Promise<Event | undefined> {
-    const event = this.events.get(id);
-    if (!event) return undefined;
+  async updateIncident(id: string, updates: Partial<Incident>): Promise<Incident | undefined> {
+    const incident = this.incidents.get(id);
+    if (!incident) return undefined;
     
-    const updatedEvent: Event = {
-      ...event,
+    const updatedIncident: Incident = {
+      ...incident,
       ...updates,
       updatedAt: new Date(),
     };
-    this.events.set(id, updatedEvent);
-    return updatedEvent;
+    this.incidents.set(id, updatedIncident);
+    return updatedIncident;
   }
 
-  async deleteEvent(id: string): Promise<boolean> {
-    const deleted = this.events.delete(id);
+  async deleteIncident(id: string): Promise<boolean> {
+    const deleted = this.incidents.delete(id);
     if (deleted) {
-      this.eventTimelines.delete(id);
+      this.incidentTimelines.delete(id);
     }
     return deleted;
   }
 
-  // Event timeline operations
-  async addEventTimelineEntry(insertEntry: InsertEventTimeline): Promise<EventTimeline> {
-    const entry: EventTimeline = {
+  // Incident timeline operations
+  async addIncidentTimelineEntry(insertEntry: InsertIncidentTimeline): Promise<IncidentTimeline> {
+    const entry: IncidentTimeline = {
       id: randomUUID(),
       ...insertEntry,
       timestamp: new Date(),
     };
 
-    const timeline = this.eventTimelines.get(entry.eventId) || [];
+    const timeline = this.incidentTimelines.get(entry.incidentId) || [];
     timeline.push(entry);
-    this.eventTimelines.set(entry.eventId, timeline);
+    this.incidentTimelines.set(entry.incidentId, timeline);
     
     return entry;
   }
 
-  async getEventTimeline(eventId: string): Promise<EventTimeline[]> {
-    return this.eventTimelines.get(eventId) || [];
+  async getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]> {
+    return this.incidentTimelines.get(incidentId) || [];
   }
 }
 

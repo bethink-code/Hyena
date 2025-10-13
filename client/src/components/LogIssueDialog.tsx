@@ -24,7 +24,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES } from "@shared/eventCategories";
 import { Wrench, Loader2 } from "lucide-react";
-import type { InsertEvent } from "@shared/schema";
+import type { InsertIncident } from "@shared/schema";
 
 interface LogIssueDialogProps {
   defaultPropertyId?: string;
@@ -43,20 +43,20 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
     propertyId: defaultPropertyId || PROPERTIES[0].id,
   });
 
-  const createEventMutation = useMutation({
-    mutationFn: async (data: InsertEvent) => {
-      const response = await apiRequest("POST", "/api/events", data);
-      const event = await response.json();
+  const createIncidentMutation = useMutation({
+    mutationFn: async (data: InsertIncident) => {
+      const response = await apiRequest("POST", "/api/incidents", data);
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${event.id}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incident.id}/timeline`, {
         action: "Issue logged by field technician",
         actor: "Technician App",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       toast({
         title: "Issue Logged",
         description: "The issue has been added to the system",
@@ -92,7 +92,7 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
       return;
     }
 
-    const eventData: InsertEvent = {
+    const incidentData: InsertIncident = {
       title: formData.title,
       description: formData.description,
       priority: formData.priority,
@@ -101,13 +101,12 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
       location: formData.location || undefined,
       propertyId: formData.propertyId,
       source: "technician_report",
-      eventType: formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
+      incidentType: formData.category === EVENT_CATEGORIES.PLANNED_MAINTENANCE || 
                  formData.category === EVENT_CATEGORIES.EQUIPMENT_MAINTENANCE
-                 ? "proactive" 
-                 : "reactive",
+                 ? "proactive" : "reactive",
     };
 
-    createEventMutation.mutate(eventData);
+    createIncidentMutation.mutate(incidentData);
   };
 
   return (
@@ -120,127 +119,103 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
           </Button>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-log-issue">
         <DialogHeader>
-          <DialogTitle>Log Field Issue</DialogTitle>
+          <DialogTitle>Log a New Issue</DialogTitle>
           <DialogDescription>
-            Quickly report issues discovered on-site during inspections or service calls
+            Report a technical issue or maintenance item you've encountered
           </DialogDescription>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="issue-title">Issue Title *</Label>
-            <Input
-              id="issue-title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="e.g., Access Point Not Responding"
-              required
-              data-testid="input-issue-title"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="issue-property">Property *</Label>
-              <Select
-                value={formData.propertyId}
-                onValueChange={(value) => setFormData({ ...formData, propertyId: value })}
-              >
-                <SelectTrigger id="issue-property" data-testid="select-issue-property">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PROPERTIES.filter(p => ["1", "2", "3"].includes(p.id)).map(property => (
-                    <SelectItem key={property.id} value={property.id}>
-                      {property.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="issue-location">Location *</Label>
-              <Input
-                id="issue-location"
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="e.g., Room 305, Lobby"
-                required
-                data-testid="input-issue-location"
-              />
-            </div>
+            <Label htmlFor="property">Property *</Label>
+            <Select
+              value={formData.propertyId}
+              onValueChange={(value) => setFormData({ ...formData, propertyId: value })}
+            >
+              <SelectTrigger id="property" data-testid="select-property">
+                <SelectValue placeholder="Select property" />
+              </SelectTrigger>
+              <SelectContent>
+                {PROPERTIES.map((property) => (
+                  <SelectItem key={property.id} value={property.id}>
+                    {property.name} - {property.location}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="issue-category">Category *</Label>
+            <Label htmlFor="category">Category *</Label>
             <Select
               value={formData.category}
               onValueChange={(value) => setFormData({ ...formData, category: value })}
             >
-              <SelectTrigger id="issue-category" data-testid="select-issue-category">
-                <SelectValue placeholder="Select category" />
+              <SelectTrigger id="category" data-testid="select-category">
+                <SelectValue placeholder="Select a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={EVENT_CATEGORIES.HARDWARE_FAILURE}>
-                  {EVENT_CATEGORIES.HARDWARE_FAILURE}
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.NETWORK_CONNECTIVITY}>
-                  {EVENT_CATEGORIES.NETWORK_CONNECTIVITY}
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.CONFIGURATION}>
-                  {EVENT_CATEGORIES.CONFIGURATION}
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.PERFORMANCE}>
-                  {EVENT_CATEGORIES.PERFORMANCE}
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.EQUIPMENT_MAINTENANCE}>
-                  {EVENT_CATEGORIES.EQUIPMENT_MAINTENANCE}
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.LOAD_SHEDDING}>
-                  {EVENT_CATEGORIES.LOAD_SHEDDING} (SA)
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.ISP_OUTAGE}>
-                  {EVENT_CATEGORIES.ISP_OUTAGE} (SA)
-                </SelectItem>
-                <SelectItem value={EVENT_CATEGORIES.WEATHER_IMPACT}>
-                  {EVENT_CATEGORIES.WEATHER_IMPACT} (SA)
-                </SelectItem>
+                {EVENT_CATEGORY_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.icon && <span className="mr-2">{option.icon}</span>}
+                    {option.label}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="issue-priority">Priority *</Label>
+            <Label htmlFor="title">Issue Title *</Label>
+            <Input
+              id="title"
+              placeholder="Brief description of the issue"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              data-testid="input-title"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="description">Detailed Description *</Label>
+            <Textarea
+              id="description"
+              placeholder="Provide details about what you observed, steps taken, etc."
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              rows={4}
+              data-testid="textarea-description"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              placeholder="e.g., Room 305, Lobby, Server Room"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              data-testid="input-location"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="priority">Priority</Label>
             <Select
               value={formData.priority}
               onValueChange={(value) => setFormData({ ...formData, priority: value })}
             >
-              <SelectTrigger id="issue-priority" data-testid="select-issue-priority">
-                <SelectValue />
+              <SelectTrigger id="priority" data-testid="select-priority">
+                <SelectValue placeholder="Select priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">Low - Can wait for scheduled maintenance</SelectItem>
-                <SelectItem value="medium">Medium - Should address soon</SelectItem>
-                <SelectItem value="high">High - Affecting guests/services</SelectItem>
-                <SelectItem value="critical">Critical - Immediate attention required</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="critical">Critical</SelectItem>
               </SelectContent>
             </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="issue-description">Description *</Label>
-            <Textarea
-              id="issue-description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="What's wrong? What did you observe? Any error messages or symptoms?"
-              rows={4}
-              required
-              data-testid="input-issue-description"
-            />
           </div>
 
           <div className="flex justify-end gap-3 pt-4">
@@ -248,23 +223,19 @@ export function LogIssueDialog({ defaultPropertyId, children }: LogIssueDialogPr
               type="button"
               variant="outline"
               onClick={() => setOpen(false)}
-              data-testid="button-cancel-issue"
+              data-testid="button-cancel"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              disabled={createEventMutation.isPending}
-              data-testid="button-submit-issue"
+              disabled={createIncidentMutation.isPending}
+              data-testid="button-submit"
             >
-              {createEventMutation.isPending ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Logging...
-                </>
-              ) : (
-                "Log Issue"
+              {createIncidentMutation.isPending && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               )}
+              Log Issue
             </Button>
           </div>
         </form>
