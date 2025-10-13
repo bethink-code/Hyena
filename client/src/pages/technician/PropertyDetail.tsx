@@ -37,16 +37,9 @@ export default function TechnicianPropertyDetail() {
 
   const navSections = [
     {
-      label: "Work",
+      label: "Navigation",
       items: [
         { title: "My Work", href: "/technician", icon: ClipboardList },
-      ],
-    },
-    {
-      label: "Maintenance",
-      items: [
-        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
-        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
       ],
     },
   ];

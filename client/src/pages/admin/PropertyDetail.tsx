@@ -40,26 +40,9 @@ export default function PropertyDetail() {
 
   const navSections = [
     {
-      label: "Overview",
+      label: "Navigation",
       items: [
         { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
       ],
     },
   ];
