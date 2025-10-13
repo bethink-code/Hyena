@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useMemo } from "react";
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { PropertySelector } from "@/components/PropertySelector";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { PropertyList } from "@/components/PropertyList";
+import { PROPERTIES } from "@/lib/properties";
 import {
-  LayoutDashboard,
   AlertTriangle,
   BarChart3,
   FileText,
@@ -13,20 +12,16 @@ import {
 } from "lucide-react";
 
 export default function Messages() {
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>("1");
+  const [, setLocation] = useLocation();
   
-  const properties = [
-    { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-    { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-    { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
-  ];
+  // Use the first 3 properties for the manager's scope
+  const managerProperties = PROPERTIES.slice(0, 3);
 
   const navSections = [
     {
       label: "Main",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
+        { title: "Incidents", href: "/manager", icon: AlertTriangle },
         { title: "Network Status", href: "/manager/network", icon: Wifi },
       ],
     },
@@ -45,58 +40,89 @@ export default function Messages() {
     },
   ];
 
-  const messages = [
-    { guest: "Sarah Johnson", room: "302", message: "Wi-Fi not working in room", time: "5m ago", status: "unread" },
-    { guest: "Michael Brown", room: "215", message: "Slow connection, please help", time: "15m ago", status: "unread" },
-    { guest: "Emma Davis", room: "420", message: "Thank you for quick resolution!", time: "1h ago", status: "read" },
-  ];
+  // Mock message data for each property
+  const messagesByProperty: Record<string, { 
+    unreadCount: number; 
+    totalMessages: number; 
+    urgentCount: number;
+    avgResponseTime: number; // in minutes
+  }> = {
+    "1": {
+      unreadCount: 2,
+      totalMessages: 45,
+      urgentCount: 0,
+      avgResponseTime: 15,
+    },
+    "2": {
+      unreadCount: 5,
+      totalMessages: 68,
+      urgentCount: 2,
+      avgResponseTime: 35,
+    },
+    "3": {
+      unreadCount: 8,
+      totalMessages: 92,
+      urgentCount: 4,
+      avgResponseTime: 65,
+    },
+  };
+
+  // Calculate communication status for each property
+  const propertiesWithMessages = useMemo(() => {
+    return managerProperties.map(property => {
+      const messages = messagesByProperty[property.id] || {
+        unreadCount: 0,
+        totalMessages: 0,
+        urgentCount: 0,
+        avgResponseTime: 0,
+      };
+      
+      // Determine status based on communication metrics
+      let status: "healthy" | "degraded" | "critical" | "offline" = "healthy";
+      
+      // Critical: 3+ urgent messages OR avg response time > 60 min
+      if (messages.urgentCount >= 3 || messages.avgResponseTime > 60) {
+        status = "critical";
+      }
+      // Degraded: 1-2 urgent messages OR avg response time > 30 min OR 5+ unread
+      else if (
+        messages.urgentCount >= 1 || 
+        messages.avgResponseTime > 30 || 
+        messages.unreadCount >= 5
+      ) {
+        status = "degraded";
+      }
+
+      return {
+        ...property,
+        status,
+        incidentCount: messages.unreadCount,
+        criticalCount: messages.urgentCount,
+        newCount: 0,
+      };
+    });
+  }, [managerProperties]);
 
   return (
     <AppLayout
       title="Guest Messages"
       homeRoute="/manager"
-      notificationCount={2}
       navSections={navSections}
-      sidebarHeader={
-        <PropertySelector
-          properties={properties}
-          onPropertyChange={setSelectedPropertyId}
-        />
-      }
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-1">Guest Communication</h2>
-          <p className="text-muted-foreground">Messages and feedback from guests</p>
+          <p className="text-muted-foreground">Monitor guest messages and feedback across all properties</p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Messages</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {messages.map((msg, index) => (
-                <div key={index} className="flex items-start justify-between p-4 border rounded-md">
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{msg.guest}</span>
-                      <span className="text-sm text-muted-foreground">Room {msg.room}</span>
-                    </div>
-                    <div className="text-sm">{msg.message}</div>
-                    <div className="text-xs text-muted-foreground">{msg.time}</div>
-                  </div>
-                  <Badge 
-                    variant={msg.status === "unread" ? "default" : "outline"}
-                    data-testid={`badge-status-${index}`}
-                  >
-                    {msg.status}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <PropertyList
+          properties={propertiesWithMessages}
+          onPropertyClick={(property) => {
+            if (property.id) {
+              setLocation(`/manager/properties/${property.id}`);
+            }
+          }}
+        />
       </div>
     </AppLayout>
   );
