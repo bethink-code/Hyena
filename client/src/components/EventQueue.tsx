@@ -23,7 +23,7 @@ export function EventQueue({ events, onEventClick, className }: EventQueueProps)
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   // Apply filters
   const filteredEvents = events.filter(event => {
