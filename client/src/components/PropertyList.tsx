@@ -40,7 +40,7 @@ interface PropertyListProps {
 export function PropertyList({ properties, onPropertyClick, className }: PropertyListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
 
   // Apply filters
   const filteredProperties = properties.filter(property => {
