@@ -278,7 +278,7 @@ export default function EventSimulator() {
     
     toast({
       title: "Scenario Loaded",
-      description: `Created ${scenario.incidents.length} incident(s) for "${scenario.name}"`,
+      description: `Created ${scenario.events.length} incident(s) for "${scenario.name}"`,
     });
   };
 
