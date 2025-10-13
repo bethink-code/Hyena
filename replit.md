@@ -51,6 +51,14 @@ Preferred communication style: Simple, everyday language.
   - **Active Incident Count:** Real-time display of non-resolved incidents for the property
   - **Report Incident Button:** `ReportIncidentDialog` positioned in header beside active incident count for easy access across all views
   - **Data Flow:** All calculations use live `/api/incidents` query results, no static or placeholder data
+  - **Minimal Navigation:** Property detail sidebars show only a single "back to dashboard" link, enforcing the pattern that properties are accessed via dashboard cards
+- **Universal List Pattern (System-Wide):** All role-specific pages use PropertyList component with consistent controls:
+  - **Search:** Left-aligned search input for filtering properties by name/location
+  - **Filter Dropdown:** Center-positioned status filter (All, Healthy, Degraded, Critical, Offline)
+  - **View Mode Toggle:** Right-aligned view switcher (Card, Table, Grid)
+  - **Property Cards:** Display domain-specific metrics (network health, analytics, reports, messages, incidents, schedule, equipment)
+  - **Navigation:** Clicking property card navigates to `/[role]/properties/{id}` detail page
+  - **Applied to:** Manager (NetworkStatus, Analytics, Reports, Messages, IncidentQueue), Technician (Schedule, CompletedJobs, Equipment)
 
 ## External Dependencies
 
