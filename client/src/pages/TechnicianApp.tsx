@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel } from "@/components/EventDetailPanel";
+import { LogIssueDialog } from "@/components/LogIssueDialog";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -179,6 +180,9 @@ export default function TechnicianApp() {
           </TabsList>
 
           <TabsContent value="queue" className="mt-6">
+            <div className="flex items-center justify-end mb-4">
+              <LogIssueDialog />
+            </div>
             <EventQueue 
               key="work-queue"
               events={convertToEventProps(workQueue)}
