@@ -314,33 +314,23 @@ export default function ManagerDashboard() {
           />
         </div>
 
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold mb-1">Incident Queue</h3>
-              <p className="text-sm text-muted-foreground">Monitor and manage network incidents</p>
-            </div>
-            <ReportIncidentDialog />
-          </div>
-          
-          <IncidentQueue
-            incidents={incidents.map((incident) => ({
-              id: incident.id,
-              title: incident.title,
-              description: incident.description,
-              priority: incident.priority as any,
-              status: incident.status as any,
-              location: incident.location || undefined,
-              assignedTo: incident.assignedTo || undefined,
-              timestamp: formatTimestamp(incident.createdAt),
-            }))}
-            onIncidentClick={(id) => setSelectedIncidentId(id)}
-            properties={managerProperties}
-            selectedPropertyId={selectedPropertyId}
-            onPropertyChange={setSelectedPropertyId}
-            showPropertyFilter={true}
-          />
-        </div>
+        <IncidentQueue
+          incidents={incidents.map((incident) => ({
+            id: incident.id,
+            title: incident.title,
+            description: incident.description,
+            priority: incident.priority as any,
+            status: incident.status as any,
+            location: incident.location || undefined,
+            assignedTo: incident.assignedTo || undefined,
+            timestamp: formatTimestamp(incident.createdAt),
+          }))}
+          onIncidentClick={(id) => setSelectedIncidentId(id)}
+          properties={managerProperties}
+          selectedPropertyId={selectedPropertyId}
+          onPropertyChange={setSelectedPropertyId}
+          showPropertyFilter={true}
+        />
       </div>
 
       <IncidentDetailPanel
