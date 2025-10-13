@@ -313,24 +313,6 @@ export default function ManagerDashboard() {
             }}
           />
         </div>
-
-        <IncidentQueue
-          incidents={incidents.map((incident) => ({
-            id: incident.id,
-            title: incident.title,
-            description: incident.description,
-            priority: incident.priority as any,
-            status: incident.status as any,
-            location: incident.location || undefined,
-            assignedTo: incident.assignedTo || undefined,
-            timestamp: formatTimestamp(incident.createdAt),
-          }))}
-          onIncidentClick={(id) => setSelectedIncidentId(id)}
-          properties={managerProperties}
-          selectedPropertyId={selectedPropertyId}
-          onPropertyChange={setSelectedPropertyId}
-          showPropertyFilter={true}
-        />
       </div>
 
       <IncidentDetailPanel
