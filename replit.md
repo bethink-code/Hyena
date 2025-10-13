@@ -46,6 +46,11 @@ Preferred communication style: Simple, everyday language.
 - **Manual Event Creation:** Managers and Technicians can create events with extended schema supporting `eventType`, `scheduledFor`, `metadata`, and comprehensive categories including SA-specific ones (Load Shedding, ISP, Weather). Implemented via `ReportIncidentDialog` (Manager) and `LogIssueDialog` (Technician) with dynamic SA-specific fields.
 - **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
 - **Property Card Navigation:** A unified pattern across Admin, Manager, and Technician interfaces. Property cards replace dropdowns, navigating to property-specific detail pages with filtered event queues. This includes a consistent slide-in panel for event details.
+- **Property Detail Pages (Universal Pattern):** All property detail pages (Admin, Manager, Technician) implement a consistent pattern with:
+  - **Live Status Badges:** Dynamically calculated from real-time incident data (Critical if any critical incidents exist, Degraded if >0 active incidents, Healthy otherwise)
+  - **Active Incident Count:** Real-time display of non-resolved incidents for the property
+  - **Report Incident Button:** `ReportIncidentDialog` positioned in header beside active incident count for easy access across all views
+  - **Data Flow:** All calculations use live `/api/incidents` query results, no static or placeholder data
 
 ## External Dependencies
 
