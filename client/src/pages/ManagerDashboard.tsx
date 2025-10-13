@@ -295,9 +295,12 @@ export default function ManagerDashboard() {
       notificationCount={incidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-1">Property Overview</h2>
-          <p className="text-muted-foreground">Multi-property health and incident metrics</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Property Overview</h2>
+            <p className="text-muted-foreground">Multi-property health and incident metrics</p>
+          </div>
+          <ReportIncidentDialog />
         </div>
 
         <SummaryMetrics metrics={metrics} />

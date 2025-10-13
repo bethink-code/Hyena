@@ -1,6 +1,7 @@
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
+import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import type { Incident } from "@shared/schema";
@@ -101,9 +102,12 @@ export default function AdminCenter() {
       navSections={navSections}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-        <div>
-          <h2 className="text-2xl font-bold mb-1">Portfolio Overview</h2>
-          <p className="text-muted-foreground">Multi-property health and performance metrics</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Portfolio Overview</h2>
+            <p className="text-muted-foreground">Multi-property health and performance metrics</p>
+          </div>
+          <ReportIncidentDialog />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
