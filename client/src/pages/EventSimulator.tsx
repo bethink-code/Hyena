@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PROPERTIES } from "@/lib/properties";
+import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES } from "@shared/eventCategories";
 import type { Event, InsertEvent } from "@shared/schema";
 import {
   Zap,
@@ -34,25 +36,12 @@ const EVENT_SOURCES = [
   { value: "api_monitoring", label: "API Monitoring System" },
   { value: "manual_report", label: "Manual Report" },
   { value: "front_desk", label: "Front Desk" },
+  { value: "manager_report", label: "Manager Report" },
+  { value: "technician_report", label: "Technician Report" },
   { value: "automated_alert", label: "Automated Alert" },
   { value: "scheduled_check", label: "Scheduled Health Check" },
-];
-
-const EVENT_CATEGORIES = [
-  "Network Connectivity",
-  "Performance",
-  "Configuration",
-  "Advanced Services",
-  "Hardware Failure",
-  "Security",
-  "Bandwidth",
-  "Authentication",
-];
-
-const PROPERTIES = [
-  { id: "1", name: "The Table Bay Hotel", location: "Cape Town, Western Cape" },
-  { id: "2", name: "Umhlanga Sands Resort", location: "Durban, KwaZulu-Natal" },
-  { id: "3", name: "Saxon Hotel", location: "Johannesburg, Gauteng" },
+  { value: "eskom_api", label: "Eskom Load Shedding API" },
+  { value: "weather_api", label: "Weather Alert API" },
 ];
 
 const PRESET_SCENARIOS = [
@@ -63,39 +52,77 @@ const PRESET_SCENARIOS = [
       description: "Total network outage affecting all guest rooms and common areas. No devices can connect.",
       priority: "critical",
       status: "new",
-      category: "Network Connectivity",
+      category: EVENT_CATEGORIES.NETWORK_CONNECTIVITY,
       affectedGuests: 150,
       estimatedResolution: "2 hours",
       source: "api_monitoring",
-      propertyId: "1", // Table Bay Hotel
+      propertyId: "1",
+      eventType: "reactive",
     }]
   },
   {
-    name: "High Traffic Conference",
-    events: [
-      {
-        title: "Bandwidth Congestion - Conference Hall A",
-        description: "100+ devices connected for corporate event causing network slowdown",
-        priority: "high",
-        status: "new",
-        category: "Performance",
-        affectedGuests: 85,
-        estimatedResolution: "45 minutes",
-        source: "automated_alert",
-        propertyId: "2", // Umhlanga Sands Resort
-      },
-      {
-        title: "Streaming Issues - Conference AV System",
-        description: "Video conferencing experiencing packet loss and jitter",
-        priority: "high",
-        status: "new",
-        category: "Advanced Services",
-        affectedGuests: 85,
-        estimatedResolution: "30 minutes",
-        source: "manual_report",
-        propertyId: "2", // Umhlanga Sands Resort
-      }
-    ]
+    name: "Eskom Load Shedding - Stage 4",
+    events: [{
+      title: "Stage 4 Load Shedding Alert - Cape Town",
+      description: "Eskom has implemented Stage 4 load shedding. Backup generators activated. UPS systems on standby. Expected duration: 4 hours.",
+      priority: "critical",
+      status: "new",
+      category: EVENT_CATEGORIES.LOAD_SHEDDING,
+      affectedGuests: 200,
+      estimatedResolution: "4 hours",
+      source: "eskom_api",
+      propertyId: "1",
+      eventType: "environmental",
+      metadata: JSON.stringify({ loadSheddingStage: "stage_4", area: "Cape Town CBD" }),
+    }]
+  },
+  {
+    name: "Cape Storm Network Impact",
+    events: [{
+      title: "Cape Storm - Fibre Line Damaged",
+      description: "Severe Cape storm has damaged fibre optic line. Telkom notified. Backup ISP connection active but degraded performance expected.",
+      priority: "high",
+      status: "new",
+      category: EVENT_CATEGORIES.WEATHER_IMPACT,
+      affectedGuests: 180,
+      estimatedResolution: "8-12 hours",
+      source: "weather_api",
+      propertyId: "1",
+      eventType: "environmental",
+      metadata: JSON.stringify({ weatherType: "Cape Storm", isp: "Telkom" }),
+    }]
+  },
+  {
+    name: "Telkom Fibre Outage (SA)",
+    events: [{
+      title: "Telkom Fibre Outage - Umhlanga Area",
+      description: "Telkom fibre cut reported in Umhlanga area. Multiple properties affected. ETR from Telkom: 6 hours. Failover to Vodacom backup line.",
+      priority: "critical",
+      status: "new",
+      category: EVENT_CATEGORIES.ISP_OUTAGE,
+      affectedGuests: 220,
+      estimatedResolution: "6 hours",
+      source: "automated_alert",
+      propertyId: "2",
+      eventType: "environmental",
+      metadata: JSON.stringify({ isp: "Telkom", backupISP: "Vodacom" }),
+    }]
+  },
+  {
+    name: "Planned Conference - High Traffic",
+    events: [{
+      title: "Corporate Conference - Bandwidth Upgrade Required",
+      description: "300-person tech conference scheduled. Additional bandwidth provisioned. Network capacity monitoring activated.",
+      priority: "medium",
+      status: "new",
+      category: EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT,
+      affectedGuests: 300,
+      estimatedResolution: "3 days",
+      source: "scheduled_check",
+      propertyId: "4",
+      eventType: "proactive",
+      scheduledFor: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    }]
   },
   {
     name: "Multiple Guest Issues",
@@ -105,48 +132,56 @@ const PRESET_SCENARIOS = [
         description: "Guest reports degraded performance, unable to work remotely",
         priority: "medium",
         status: "new",
-        category: "Performance",
+        category: EVENT_CATEGORIES.PERFORMANCE,
         affectedGuests: 1,
         estimatedResolution: "20 minutes",
         source: "guest_portal",
-        propertyId: "3", // Saxon Hotel
+        propertyId: "3",
+        eventType: "reactive",
       },
       {
         title: "Cannot Connect - Room 412",
         description: "Guest unable to find network SSID",
         priority: "medium",
         status: "new",
-        category: "Configuration",
+        category: EVENT_CATEGORIES.CONFIGURATION,
         affectedGuests: 1,
         estimatedResolution: "15 minutes",
         source: "guest_portal",
-        propertyId: "3", // Saxon Hotel
+        propertyId: "3",
+        eventType: "reactive",
       },
-      {
-        title: "Device Limit Reached - Room 508",
-        description: "Guest attempting to connect 5th device",
-        priority: "low",
-        status: "new",
-        category: "Configuration",
-        affectedGuests: 1,
-        estimatedResolution: "10 minutes",
-        source: "guest_portal",
-        propertyId: "3", // Saxon Hotel
-      }
     ]
   },
   {
     name: "Security Alert",
     events: [{
-      title: "Unauthorized Access Attempt Detected",
+      title: "Unauthorised Access Attempt Detected",
       description: "Multiple failed authentication attempts from Room 215. Potential security breach.",
       priority: "critical",
       status: "new",
-      category: "Security",
+      category: EVENT_CATEGORIES.SECURITY,
       affectedGuests: 1,
       estimatedResolution: "Immediate",
       source: "api_monitoring",
-      propertyId: "1", // Table Bay Hotel
+      propertyId: "1",
+      eventType: "reactive",
+    }]
+  },
+  {
+    name: "Scheduled Maintenance - Router Upgrade",
+    events: [{
+      title: "Planned Router Firmware Upgrade - Building A",
+      description: "Scheduled firmware upgrade for core routers in Building A. Brief service interruption expected during upgrade window (02:00-04:00).",
+      priority: "low",
+      status: "new",
+      category: EVENT_CATEGORIES.PLANNED_MAINTENANCE,
+      affectedGuests: 0,
+      estimatedResolution: "2 hours",
+      source: "scheduled_check",
+      propertyId: "5",
+      eventType: "proactive",
+      scheduledFor: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     }]
   },
 ];
@@ -424,7 +459,7 @@ export default function EventSimulator() {
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {EVENT_CATEGORIES.map(cat => (
+                          {EVENT_CATEGORY_OPTIONS.map((cat) => (
                             <SelectItem key={cat} value={cat}>
                               {cat}
                             </SelectItem>
