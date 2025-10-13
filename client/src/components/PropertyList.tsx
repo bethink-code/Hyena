@@ -8,6 +8,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import type { NetworkHealth } from "./NetworkStatusIndicator";
@@ -31,7 +40,7 @@ interface PropertyListProps {
 export function PropertyList({ properties, onPropertyClick, className }: PropertyListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("card");
+  const [viewMode, setViewMode] = useState<ViewMode>("table");
 
   // Apply filters
   const filteredProperties = properties.filter(property => {
@@ -95,8 +104,72 @@ export function PropertyList({ properties, onPropertyClick, className }: Propert
           )}
 
           {viewMode === "table" && (
-            <div className="text-center py-12 text-muted-foreground">
-              Table view coming soon
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Property</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Incidents</TableHead>
+                    {filteredProperties.some(p => p.criticalCount !== undefined && p.criticalCount > 0) && (
+                      <TableHead className="text-right">Critical</TableHead>
+                    )}
+                    {filteredProperties.some(p => p.newCount !== undefined && p.newCount > 0) && (
+                      <TableHead className="text-right">New</TableHead>
+                    )}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredProperties.map((property) => (
+                    <TableRow
+                      key={property.name}
+                      className="cursor-pointer hover-elevate"
+                      onClick={() => onPropertyClick?.(property)}
+                      data-testid={`row-property-${property.id || property.name.toLowerCase().replace(/\s+/g, '-')}`}
+                    >
+                      <TableCell className="font-medium">{property.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{property.location}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={
+                            property.status === "healthy" ? "default" :
+                            property.status === "degraded" ? "secondary" :
+                            property.status === "critical" ? "destructive" :
+                            "outline"
+                          }
+                          data-testid={`badge-status-${property.id || property.name.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          {property.status.charAt(0).toUpperCase() + property.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">{property.incidentCount}</TableCell>
+                      {filteredProperties.some(p => p.criticalCount !== undefined && p.criticalCount > 0) && (
+                        <TableCell className="text-right">
+                          {property.criticalCount !== undefined && property.criticalCount > 0 ? (
+                            <Badge variant="destructive" className="min-w-6 justify-center">
+                              {property.criticalCount}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
+                      {filteredProperties.some(p => p.newCount !== undefined && p.newCount > 0) && (
+                        <TableCell className="text-right">
+                          {property.newCount !== undefined && property.newCount > 0 ? (
+                            <Badge variant="secondary" className="min-w-6 justify-center">
+                              {property.newCount}
+                            </Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                        </TableCell>
+                      )}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
 
