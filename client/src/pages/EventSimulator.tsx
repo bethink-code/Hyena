@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
-import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel } from "@/components/EventDetailPanel";
+import { IncidentQueue } from "@/components/IncidentQueue";
+import { IncidentDetailPanel } from "@/components/IncidentDetailPanel";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES } from "@shared/eventCategories";
-import type { Event, InsertEvent } from "@shared/schema";
+import type { Incident, InsertIncident } from "@shared/schema";
 import {
   Zap,
   Plus,
@@ -188,7 +188,7 @@ const PRESET_SCENARIOS = [
 
 export default function EventSimulator() {
   const { toast } = useToast();
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -204,47 +204,47 @@ export default function EventSimulator() {
     propertyId: "1", // Default to first property
   });
 
-  // Fetch all events
-  const { data: events = [], isLoading } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents
+  const { data: incidents = [], isLoading } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
-  // Create event mutation
-  const createEventMutation = useMutation({
-    mutationFn: async (eventData: Omit<InsertEvent, 'createdAt' | 'updatedAt'>) => {
-      const response = await apiRequest("POST", "/api/events", eventData);
+  // Create incident mutation
+  const createIncidentMutation = useMutation({
+    mutationFn: async (incidentData: Omit<InsertIncident, 'createdAt' | 'updatedAt'>) => {
+      const response = await apiRequest("POST", "/api/incidents", incidentData);
       return await response.json();
     },
-    onSuccess: (event: Event) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+    onSuccess: (incident: Incident) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       toast({
-        title: "Event Created",
-        description: `${event.title} (${event.id})`,
+        title: "Incident Created",
+        description: `${incident.title} (${incident.id})`,
       });
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to create event",
+        description: error.message || "Failed to create incident",
         variant: "destructive",
       });
     },
   });
 
-  // Delete all events (for clearing)
-  const clearEventsMutation = useMutation({
+  // Delete all incidents (for clearing)
+  const clearIncidentsMutation = useMutation({
     mutationFn: async () => {
-      // Delete all events one by one
-      const deletePromises = events.map(event =>
-        apiRequest("DELETE", `/api/events/${event.id}`)
+      // Delete all incidents one by one
+      const deletePromises = incidents.map(incident =>
+        apiRequest("DELETE", `/api/incidents/${incident.id}`)
       );
       await Promise.all(deletePromises);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       toast({
-        title: "Events Cleared",
-        description: "All simulated events have been removed",
+        title: "Incidents Cleared",
+        description: "All simulated incidents have been removed",
       });
     },
   });
@@ -252,7 +252,7 @@ export default function EventSimulator() {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    createEventMutation.mutate(formData as any);
+    createIncidentMutation.mutate(formData as any);
 
     // Reset form
     setFormData({
@@ -271,19 +271,19 @@ export default function EventSimulator() {
   };
 
   const handlePresetScenario = async (scenario: typeof PRESET_SCENARIOS[0]) => {
-    // Create all events in the scenario
-    for (const event of scenario.events) {
-      await createEventMutation.mutateAsync(event as any);
+    // Create all incidents in the scenario
+    for (const incident of scenario.events) {
+      await createIncidentMutation.mutateAsync(incident as any);
     }
     
     toast({
       title: "Scenario Loaded",
-      description: `Created ${scenario.events.length} event(s) for "${scenario.name}"`,
+      description: `Created ${scenario.incidents.length} incident(s) for "${scenario.name}"`,
     });
   };
 
-  const clearAllEvents = () => {
-    clearEventsMutation.mutate();
+  const clearAllIncidents = () => {
+    clearIncidentsMutation.mutate();
   };
 
   const formatTimestamp = (date: Date) => {
@@ -299,7 +299,7 @@ export default function EventSimulator() {
 
   return (
     <AppLayout
-      title="Event Simulator"
+      title="Incident Simulator"
       homeRoute="/simulator"
       showSidebar={false}
     >
@@ -307,7 +307,7 @@ export default function EventSimulator() {
         <div>
           <div className="flex items-center gap-3 mb-2">
             <Zap className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Event Simulator</h1>
+            <h1 className="text-3xl font-bold">Incident Simulator</h1>
           </div>
           <p className="text-muted-foreground">
             Create and manage simulated network events for testing and demonstration purposes.
@@ -318,29 +318,29 @@ export default function EventSimulator() {
         <Tabs defaultValue="manual" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="manual" data-testid="tab-manual">
-              Manual Event
+              Manual Incident
             </TabsTrigger>
             <TabsTrigger value="presets" data-testid="tab-presets">
               Preset Scenarios
             </TabsTrigger>
             <TabsTrigger value="events" data-testid="tab-events">
-              Simulated Events ({events.length})
+              Simulated Incidents ({incidents.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="manual" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Create Custom Event</CardTitle>
+                <CardTitle>Create Custom Incident</CardTitle>
                 <CardDescription>
-                  Manually define all event properties for precise testing scenarios
+                  Manually define all incident properties for precise testing scenarios
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleManualSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="title">Event Title *</Label>
+                      <Label htmlFor="title">Incident Title *</Label>
                       <Input
                         id="title"
                         value={formData.title}
@@ -352,7 +352,7 @@ export default function EventSimulator() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="source">Event Source *</Label>
+                      <Label htmlFor="source">Incident Source *</Label>
                       <Select
                         value={formData.source}
                         onValueChange={(value) => setFormData({ ...formData, source: value })}
@@ -508,9 +508,9 @@ export default function EventSimulator() {
                     type="submit" 
                     className="w-full" 
                     data-testid="button-create-event"
-                    disabled={createEventMutation.isPending}
+                    disabled={createIncidentMutation.isPending}
                   >
-                    {createEventMutation.isPending ? (
+                    {createIncidentMutation.isPending ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                         Creating...
@@ -543,15 +543,15 @@ export default function EventSimulator() {
                         <div className="flex-1">
                           <CardTitle className="text-lg">{scenario.name}</CardTitle>
                           <CardDescription className="mt-1">
-                            {scenario.events.length} event{scenario.events.length > 1 ? 's' : ''}
+                            {scenario.events.length} incident{scenario.events.length > 1 ? 's' : ''}
                           </CardDescription>
                         </div>
                         <Button
                           onClick={() => handlePresetScenario(scenario)}
                           data-testid={`button-preset-${index}`}
-                          disabled={createEventMutation.isPending}
+                          disabled={createIncidentMutation.isPending}
                         >
-                          {createEventMutation.isPending ? (
+                          {createIncidentMutation.isPending ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           ) : (
                             <Wand2 className="h-4 w-4 mr-2" />
@@ -561,12 +561,12 @@ export default function EventSimulator() {
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                      {scenario.events.map((event, eventIndex) => (
-                        <div key={eventIndex} className="flex items-center gap-2 text-sm">
+                      {scenario.events.map((incident, incidentIndex) => (
+                        <div key={incidentIndex} className="flex items-center gap-2 text-sm">
                           <Badge variant="outline" className="capitalize">
-                            {event.priority}
+                            {incident.priority}
                           </Badge>
-                          <span className="text-muted-foreground">{event.title}</span>
+                          <span className="text-muted-foreground">{incident.title}</span>
                         </div>
                       ))}
                     </CardContent>
@@ -579,19 +579,19 @@ export default function EventSimulator() {
           <TabsContent value="events" className="space-y-4">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Simulated Events</h3>
+                <h3 className="text-lg font-semibold">Simulated Incidents</h3>
                 <p className="text-sm text-muted-foreground">
-                  All events in the system
+                  All incidents in the system
                 </p>
               </div>
-              {events.length > 0 && (
+              {incidents.length > 0 && (
                 <Button
                   variant="outline"
-                  onClick={clearAllEvents}
+                  onClick={clearAllIncidents}
                   data-testid="button-clear-all"
-                  disabled={clearEventsMutation.isPending}
+                  disabled={clearIncidentsMutation.isPending}
                 >
-                  {clearEventsMutation.isPending ? (
+                  {clearIncidentsMutation.isPending ? (
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   ) : (
                     <Trash2 className="h-4 w-4 mr-2" />
@@ -606,64 +606,64 @@ export default function EventSimulator() {
                 <CardContent className="pt-6">
                   <div className="text-center py-12">
                     <Loader2 className="h-12 w-12 mx-auto text-muted-foreground animate-spin mb-4" />
-                    <p className="text-muted-foreground">Loading events...</p>
+                    <p className="text-muted-foreground">Loading incidents...</p>
                   </div>
                 </CardContent>
               </Card>
-            ) : events.length === 0 ? (
+            ) : incidents.length === 0 ? (
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center py-12">
                     <Database className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                     <p className="text-muted-foreground">
-                      No events created yet. Use the Manual Event or Preset Scenarios tabs to create events.
+                      No incidents created yet. Use the Manual Incident or Preset Scenarios tabs to create incidents.
                     </p>
                   </div>
                 </CardContent>
               </Card>
             ) : (
-              <EventQueue 
-                events={events.map(event => ({
-                  id: event.id,
-                  title: event.title,
-                  description: event.description,
-                  priority: event.priority as any,
-                  status: event.status as any,
-                  location: event.location || undefined,
-                  assignedTo: event.assignedTo || undefined,
-                  timestamp: formatTimestamp(event.createdAt),
+              <IncidentQueue 
+                incidents={incidents.map(incident => ({
+                  id: incident.id,
+                  title: incident.title,
+                  description: incident.description,
+                  priority: incident.priority as any,
+                  status: incident.status as any,
+                  location: incident.location || undefined,
+                  assignedTo: incident.assignedTo || undefined,
+                  timestamp: formatTimestamp(incident.createdAt),
                 }))}
-                onEventClick={(eventId) => setSelectedEventId(eventId)}
+                onIncidentClick={(incidentId) => setSelectedIncidentId(incidentId)}
               />
             )}
           </TabsContent>
         </Tabs>
       </div>
 
-      <EventDetailPanel
-        event={selectedEventId ? (() => {
-          const event = events.find(e => e.id === selectedEventId);
-          if (!event) return null;
+      <IncidentDetailPanel
+        incident={selectedIncidentId ? (() => {
+          const incident = incidents.find(e => e.id === selectedIncidentId);
+          if (!incident) return null;
           
           return {
-            id: event.id,
-            title: event.title,
-            description: event.description,
-            priority: event.priority as any,
-            status: event.status as any,
-            location: event.location || undefined,
-            assignedTo: event.assignedTo || undefined,
-            timestamp: formatTimestamp(event.createdAt),
-            category: event.category || undefined,
-            affectedGuests: event.affectedGuests || undefined,
-            estimatedResolution: event.estimatedResolution || undefined,
-            rootCause: event.rootCause || undefined,
-            resolution: event.resolution || undefined,
+            id: incident.id,
+            title: incident.title,
+            description: incident.description,
+            priority: incident.priority as any,
+            status: incident.status as any,
+            location: incident.location || undefined,
+            assignedTo: incident.assignedTo || undefined,
+            timestamp: formatTimestamp(incident.createdAt),
+            category: incident.category || undefined,
+            affectedGuests: incident.affectedGuests || undefined,
+            estimatedResolution: incident.estimatedResolution || undefined,
+            rootCause: incident.rootCause || undefined,
+            resolution: incident.resolution || undefined,
             timeline: [],
           };
         })() : null}
-        open={selectedEventId !== null}
-        onClose={() => setSelectedEventId(null)}
+        open={selectedIncidentId !== null}
+        onClose={() => setSelectedIncidentId(null)}
       />
     </AppLayout>
   );
