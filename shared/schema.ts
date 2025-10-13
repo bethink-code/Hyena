@@ -33,6 +33,9 @@ export const events = pgTable("events", {
   source: text("source"), // 'guest_portal' | 'api_monitoring' | 'manual_report' | etc.
   rootCause: text("root_cause"),
   resolution: text("resolution"),
+  eventType: text("event_type"), // 'reactive' | 'proactive' | 'environmental'
+  scheduledFor: timestamp("scheduled_for"), // For planned maintenance / events
+  metadata: text("metadata"), // JSON string for SA-specific data (load shedding stage, ISP, weather type)
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });
