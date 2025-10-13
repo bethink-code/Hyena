@@ -82,16 +82,16 @@ export function IncidentDetailPanel({
       >
         <div className="flex flex-col h-full">
           <SheetHeader className="px-6 pt-6 pb-4 border-b">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1 space-y-2 pr-8">
+            <div className="space-y-2 pr-8">
+              <div className="flex items-center gap-2">
+                <PriorityBadge priority={incident.priority} />
                 <SheetTitle className="text-xl" data-testid="text-incident-title">
                   {incident.title}
                 </SheetTitle>
-                <SheetDescription className="text-base">
-                  {incident.description}
-                </SheetDescription>
               </div>
-              <PriorityBadge priority={incident.priority} />
+              <SheetDescription className="text-base">
+                {incident.description}
+              </SheetDescription>
             </div>
           </SheetHeader>
 
