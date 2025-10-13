@@ -13,11 +13,6 @@ import { getPropertyById } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   ArrowLeft,
   MapPin,
 } from "lucide-react";

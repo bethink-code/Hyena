@@ -15,9 +15,6 @@ import { getPropertyById } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   ClipboardList,
-  History,
-  Calendar,
-  Wrench,
   ArrowLeft,
   MapPin,
   Camera,

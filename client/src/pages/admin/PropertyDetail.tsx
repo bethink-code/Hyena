@@ -14,13 +14,6 @@ import { getPropertyById } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
   ArrowLeft,
   MapPin,
   AlertTriangle,
