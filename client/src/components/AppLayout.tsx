@@ -66,7 +66,7 @@ export function AppLayout({
           homeRoute={homeRoute}
           notificationCount={notificationCount}
         />
-        <main>{children}</main>
+        <main className="p-6">{children}</main>
       </div>
     );
   }
@@ -109,7 +109,7 @@ export function AppLayout({
               homeRoute={homeRoute}
               notificationCount={notificationCount}
             />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 p-6">{children}</main>
           </div>
         </div>
       </SidebarProvider>
