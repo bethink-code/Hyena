@@ -1,4 +1,5 @@
 import { PropertyCard } from "./PropertyCard";
+import { ViewSwitcher, type ViewMode } from "./ViewSwitcher";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -30,6 +31,7 @@ interface PropertyListProps {
 export function PropertyList({ properties, onPropertyClick, className }: PropertyListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [viewMode, setViewMode] = useState<ViewMode>("card");
 
   // Apply filters
   const filteredProperties = properties.filter(property => {
@@ -46,8 +48,8 @@ export function PropertyList({ properties, onPropertyClick, className }: Propert
 
   return (
     <div className={className}>
-      <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-center">
-        <div className="relative flex-1 w-full">
+      <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-center flex-wrap">
+        <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search properties..."
@@ -70,6 +72,8 @@ export function PropertyList({ properties, onPropertyClick, className }: Propert
             <SelectItem value="offline">Offline</SelectItem>
           </SelectContent>
         </Select>
+
+        <ViewSwitcher view={viewMode} onViewChange={setViewMode} />
       </div>
 
       {filteredProperties.length === 0 ? (
@@ -77,15 +81,37 @@ export function PropertyList({ properties, onPropertyClick, className }: Propert
           No properties found matching your filters
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredProperties.map((property) => (
-            <PropertyCard
-              key={property.name}
-              {...property}
-              onClick={() => onPropertyClick?.(property)}
-            />
-          ))}
-        </div>
+        <>
+          {viewMode === "card" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredProperties.map((property) => (
+                <PropertyCard
+                  key={property.name}
+                  {...property}
+                  onClick={() => onPropertyClick?.(property)}
+                />
+              ))}
+            </div>
+          )}
+
+          {viewMode === "table" && (
+            <div className="text-center py-12 text-muted-foreground">
+              Table view coming soon
+            </div>
+          )}
+
+          {viewMode === "grid" && (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+              {filteredProperties.map((property) => (
+                <PropertyCard
+                  key={property.name}
+                  {...property}
+                  onClick={() => onPropertyClick?.(property)}
+                />
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
