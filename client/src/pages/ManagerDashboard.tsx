@@ -6,6 +6,7 @@ import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
+import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
@@ -297,7 +298,10 @@ export default function ManagerDashboard() {
         </div>
 
         <div>
-          <h3 className="text-xl font-semibold mb-4">Incident Queue</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold">Incident Queue</h3>
+            <ReportIncidentDialog />
+          </div>
           <EventQueue
             events={events.map(e => convertToEventDetailProps(e, false))}
             onEventClick={(eventId) => setSelectedEventId(eventId)}
