@@ -2,14 +2,15 @@ import { useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
-import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel, type EventDetailProps } from "@/components/EventDetailPanel";
+import { IncidentQueue } from "@/components/IncidentQueue";
+import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
+import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
-import type { Event, EventTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
   AlertTriangle,
@@ -25,7 +26,7 @@ export default function PropertyDetail() {
   const { toast } = useToast();
   const params = useParams<{ id: string }>();
   const propertyId = params.id;
-  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
 
   // Find property details from shared constants
   const property = getPropertyById(propertyId || "");
@@ -54,147 +55,158 @@ export default function PropertyDetail() {
     },
   ];
 
-  // Fetch all events
-  const { data: allEvents = [] } = useQuery<Event[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
-  // Filter events by selected property
-  const events = allEvents.filter(e => e.propertyId === propertyId);
+  // Filter incidents by selected property
+  const incidents = allIncidents.filter(i => i.propertyId === propertyId);
 
-  // Fetch timeline for selected event
-  const { data: timeline = [] } = useQuery<EventTimeline[]>({
-    queryKey: ["/api/events", selectedEventId, "timeline"],
-    enabled: !!selectedEventId,
+  // Calculate property status based on incidents
+  const getPropertyStatus = (): "healthy" | "degraded" | "critical" | "offline" => {
+    const activeIncidents = incidents.filter(i => i.status !== 'resolved');
+    const hasCritical = activeIncidents.some(i => i.priority === 'critical');
+    const activeCount = activeIncidents.length;
+
+    if (hasCritical) return "critical";
+    if (activeCount > 3) return "degraded";
+    if (activeCount > 0) return "degraded";
+    return "healthy";
+  };
+
+  const propertyStatus = getPropertyStatus();
+  const statusVariant = propertyStatus === "healthy" ? "default" : 
+                        propertyStatus === "degraded" ? "secondary" : 
+                        "destructive";
+  const statusLabel = propertyStatus.toUpperCase();
+  const activeIncidentCount = incidents.filter(i => i.status !== 'resolved').length;
+
+  // Fetch timeline for selected incident
+  const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
+    queryKey: ["/api/incidents", selectedIncidentId, "timeline"],
+    enabled: !!selectedIncidentId,
   });
 
-  // Assign event mutation
-  const assignEventMutation = useMutation({
-    mutationFn: async ({ eventId, assignedTo }: { eventId: string; assignedTo: string }) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+  // Assign incident mutation
+  const assignIncidentMutation = useMutation({
+    mutationFn: async ({ incidentId, assignedTo }: { incidentId: string; assignedTo: string }) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "assigned",
         assignedTo,
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Assigned to ${assignedTo}`,
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Assigned",
+        title: "Incident Assigned",
         description: "Technician has been notified",
       });
     },
   });
 
-  // Resolve event mutation
-  const resolveEventMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+  // Resolve incident mutation
+  const resolveIncidentMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "resolved",
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
-        action: "Event marked as resolved",
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
+        action: "Incident marked as resolved",
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Resolved",
-        description: "Event has been marked as resolved",
+        title: "Incident Resolved",
+        description: "Incident has been marked as resolved",
       });
-      setSelectedEventId(null);
+      setSelectedIncidentId(null);
     },
   });
 
-  // Escalate event mutation
-  const escalateEventMutation = useMutation({
-    mutationFn: async (eventId: string) => {
-      const currentEvent = events.find(e => e.id === eventId);
-      const newPriority = currentEvent?.priority === 'critical' ? 'critical' : 
-                          currentEvent?.priority === 'high' ? 'critical' :
-                          currentEvent?.priority === 'medium' ? 'high' : 'medium';
+  // Escalate incident mutation
+  const escalateIncidentMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
+      const currentIncident = incidents.find(i => i.id === incidentId);
+      const newPriority = currentIncident?.priority === 'critical' ? 'critical' : 
+                          currentIncident?.priority === 'high' ? 'critical' :
+                          currentIncident?.priority === 'medium' ? 'high' : 'medium';
       
-      const response = await apiRequest("PATCH", `/api/events/${eventId}`, {
+      const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         priority: newPriority,
       });
-      const event = await response.json();
+      const incident = await response.json();
       
-      await apiRequest("POST", `/api/events/${eventId}/timeline`, {
+      await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Priority escalated to ${newPriority}`,
         actor: "Manager Dashboard",
       });
       
-      return event;
+      return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/events", selectedEventId, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Event Escalated",
+        title: "Incident Escalated",
         description: "Priority has been increased",
       });
     },
   });
 
-  const convertToEventDetailProps = (event: Event): EventDetailProps => {
-    const formatTimestamp = (date: Date) => {
-      const now = new Date();
-      const diffMs = now.getTime() - new Date(date).getTime();
-      const diffMins = Math.floor(diffMs / 60000);
-      
-      if (diffMins < 1) return "Just now";
-      if (diffMins < 60) return `${diffMins}m ago`;
-      if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-      return `${Math.floor(diffMins / 1440)}d ago`;
-    };
-
-    return {
-      id: event.id,
-      title: event.title,
-      description: event.description,
-      priority: event.priority as any,
-      status: event.status as any,
-      location: event.location || undefined,
-      assignedTo: event.assignedTo || undefined,
-      timestamp: event.createdAt ? formatTimestamp(event.createdAt) : "N/A",
-      category: event.category || undefined,
-      affectedGuests: event.affectedGuests || undefined,
-      estimatedResolution: event.estimatedResolution || undefined,
-      rootCause: event.rootCause || undefined,
-      resolution: event.resolution || undefined,
-      timeline: timeline.map(t => ({
-        action: t.action,
-        actor: t.actor,
-        timestamp: formatTimestamp(t.timestamp),
-      })),
-    };
+  const formatTimestamp = (date: Date) => {
+    const now = new Date();
+    const diffMs = now.getTime() - new Date(date).getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+    return `${Math.floor(diffMins / 1440)}d ago`;
   };
 
-  const selectedEventDetails = selectedEventId 
-    ? events.find(e => e.id === selectedEventId)
+  const selectedIncidentDetails = selectedIncidentId 
+    ? incidents.find(i => i.id === selectedIncidentId)
     : null;
 
-  const statusVariant = property?.status === "healthy" ? "default" : 
-                        property?.status === "degraded" ? "secondary" : 
-                        "destructive";
-
-  const statusLabel = property?.status === "healthy" ? "HEALTHY" :
-                      property?.status === "degraded" ? "DEGRADED" :
-                      "CRITICAL";
+  const incidentDetailProps: IncidentDetailProps | null = selectedIncidentDetails
+    ? {
+        id: selectedIncidentDetails.id,
+        title: selectedIncidentDetails.title,
+        description: selectedIncidentDetails.description,
+        priority: selectedIncidentDetails.priority as any,
+        status: selectedIncidentDetails.status as any,
+        location: selectedIncidentDetails.location || undefined,
+        assignedTo: selectedIncidentDetails.assignedTo || undefined,
+        timestamp: formatTimestamp(selectedIncidentDetails.createdAt),
+        category: selectedIncidentDetails.category || undefined,
+        affectedGuests: selectedIncidentDetails.affectedGuests || undefined,
+        estimatedResolution: selectedIncidentDetails.estimatedResolution || undefined,
+        rootCause: selectedIncidentDetails.rootCause || undefined,
+        resolution: selectedIncidentDetails.resolution || undefined,
+        timeline: timeline.map(t => ({
+          action: t.action,
+          actor: t.actor,
+          timestamp: formatTimestamp(t.timestamp),
+        })),
+      }
+    : null;
 
   if (!property) {
     return (
@@ -248,38 +260,50 @@ export default function PropertyDetail() {
                 <span data-testid="text-property-location">{property.location}</span>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-muted-foreground">Active Incidents</div>
-              <div className="text-3xl font-bold" data-testid="text-incident-count">
-                {events.filter(e => e.status !== 'resolved').length}
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Active Incidents</div>
+                <div className="text-3xl font-bold" data-testid="text-active-incidents">
+                  {activeIncidentCount}
+                </div>
               </div>
+              <ReportIncidentDialog />
             </div>
           </div>
         </div>
 
-        {/* Event Queue */}
-        <EventQueue
-          events={events.map(e => convertToEventDetailProps(e))}
-          onEventClick={(eventId) => setSelectedEventId(eventId)}
+        {/* Incident Queue */}
+        <IncidentQueue
+          incidents={incidents.map((incident) => ({
+            id: incident.id,
+            title: incident.title,
+            description: incident.description,
+            priority: incident.priority as any,
+            status: incident.status as any,
+            location: incident.location || undefined,
+            assignedTo: incident.assignedTo || undefined,
+            timestamp: formatTimestamp(incident.createdAt),
+          }))}
+          onIncidentClick={(id) => setSelectedIncidentId(id)}
         />
       </div>
 
-      {/* Event Detail Panel */}
-      <EventDetailPanel
-        event={selectedEventDetails ? convertToEventDetailProps(selectedEventDetails) : null}
-        open={!!selectedEventId}
-        onClose={() => setSelectedEventId(null)}
+      {/* Incident Detail Panel */}
+      <IncidentDetailPanel
+        incident={incidentDetailProps}
+        open={!!selectedIncidentId}
+        onClose={() => setSelectedIncidentId(null)}
         onAssign={(id) => {
-          assignEventMutation.mutate({
-            eventId: id,
+          assignIncidentMutation.mutate({
+            incidentId: id,
             assignedTo: "John Smith",
           });
         }}
         onResolve={(id) => {
-          resolveEventMutation.mutate(id);
+          resolveIncidentMutation.mutate(id);
         }}
         onEscalate={(id) => {
-          escalateEventMutation.mutate(id);
+          escalateIncidentMutation.mutate(id);
         }}
       />
     </AppLayout>

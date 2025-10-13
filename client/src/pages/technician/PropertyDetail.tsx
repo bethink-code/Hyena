@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
+import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +58,25 @@ export default function TechnicianPropertyDetail() {
 
   // Filter incidents by selected property
   const incidents = allIncidents.filter(i => i.propertyId === propertyId);
+
+  // Calculate property status based on incidents
+  const getPropertyStatus = (): "healthy" | "degraded" | "critical" | "offline" => {
+    const activeIncidents = incidents.filter(i => i.status !== 'resolved');
+    const hasCritical = activeIncidents.some(i => i.priority === 'critical');
+    const activeCount = activeIncidents.length;
+
+    if (hasCritical) return "critical";
+    if (activeCount > 3) return "degraded";
+    if (activeCount > 0) return "degraded";
+    return "healthy";
+  };
+
+  const propertyStatus = getPropertyStatus();
+  const statusVariant = propertyStatus === "healthy" ? "default" : 
+                        propertyStatus === "degraded" ? "secondary" : 
+                        "destructive";
+  const statusLabel = propertyStatus.toUpperCase();
+  const activeIncidentCount = incidents.filter(i => i.status !== 'resolved').length;
 
   // Filter incidents for work queue (assigned or in_progress)
   const workQueue = incidents.filter(i => 
@@ -227,14 +247,23 @@ export default function TechnicianPropertyDetail() {
             <div className="flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold" data-testid="text-property-name">{property.name}</h1>
-                <Badge className={getStatusColor(property.status)} data-testid={`badge-status-${property.status}`}>
-                  {property.status}
+                <Badge variant={statusVariant} data-testid="badge-property-status">
+                  {statusLabel}
                 </Badge>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
                 <span data-testid="text-property-location">{property.location}</span>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <div className="text-sm text-muted-foreground">Active Incidents</div>
+                <div className="text-3xl font-bold" data-testid="text-active-incidents">
+                  {activeIncidentCount}
+                </div>
+              </div>
+              <ReportIncidentDialog />
             </div>
           </div>
         </div>

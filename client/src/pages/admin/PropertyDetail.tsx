@@ -5,6 +5,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
+import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +71,25 @@ export default function PropertyDetail() {
 
   // Filter incidents by selected property
   const incidents = allIncidents.filter(i => i.propertyId === propertyId);
+
+  // Calculate property status based on incidents
+  const getPropertyStatus = (): "healthy" | "degraded" | "critical" | "offline" => {
+    const activeIncidents = incidents.filter(i => i.status !== 'resolved');
+    const hasCritical = activeIncidents.some(i => i.priority === 'critical');
+    const activeCount = activeIncidents.length;
+
+    if (hasCritical) return "critical";
+    if (activeCount > 3) return "degraded";
+    if (activeCount > 0) return "degraded";
+    return "healthy";
+  };
+
+  const propertyStatus = getPropertyStatus();
+  const statusVariant = propertyStatus === "healthy" ? "default" : 
+                        propertyStatus === "degraded" ? "secondary" : 
+                        "destructive";
+  const statusLabel = propertyStatus.toUpperCase();
+  const activeIncidentCount = incidents.filter(i => i.status !== 'resolved').length;
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
@@ -270,21 +290,32 @@ export default function PropertyDetail() {
     >
       <div className="space-y-6">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild>
-            <Link href="/admin/properties">
+          <Button variant="ghost" size="icon" asChild data-testid="button-back">
+            <Link href="/admin">
               <ArrowLeft className="h-4 w-4" />
             </Link>
           </Button>
           <div className="flex-1">
-            <h1 className="text-3xl font-bold" data-testid="text-property-name">{property.name}</h1>
-            <div className="flex items-center gap-2 mt-1 text-muted-foreground">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold" data-testid="text-property-name">{property.name}</h1>
+              <Badge variant={statusVariant} data-testid="badge-property-status">
+                {statusLabel}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>{property.location}</span>
             </div>
           </div>
-          <Badge variant="outline" className="text-sm">
-            {property.region}
-          </Badge>
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <div className="text-sm text-muted-foreground">Active Incidents</div>
+              <div className="text-3xl font-bold" data-testid="text-active-incidents">
+                {activeIncidentCount}
+              </div>
+            </div>
+            <ReportIncidentDialog />
+          </div>
         </div>
 
         <SummaryMetrics metrics={metrics} />
