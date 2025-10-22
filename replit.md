@@ -55,13 +55,13 @@ Preferred communication style: Simple, everyday language.
 
 - **Dashboard Structure:**
   - **Summary Metric Cards:** Clickable KPI tiles (Manager/Technician use SummaryMetrics, Admin uses KPIWidget)
-  - **Property Status Cards:** Clickable property cards showing real-time incident counts
+  - **Property Status Cards:** Manager/Admin only - clickable property cards showing real-time incident counts
   - Both navigate to filtered incident list pages via URL query parameters
 
 - **Navigation Flow:**
   1. **Click Summary Metric** → Navigate to `/[role]/incidents?filter=...`
      - Examples: Critical Incidents, Active Incidents, In Progress, Completed Today
-  2. **Click Property Card** → Navigate to `/[role]/incidents?propertyId={id}`
+  2. **Click Property Card** → Navigate to `/[role]/incidents?propertyId={id}` (Manager/Admin only)
      - Filters incident list to show only incidents for that property
 
 - **Incident List Pages (Universal):**
@@ -70,13 +70,21 @@ Preferred communication style: Simple, everyday language.
   - **Features:** 
     - Filter description header showing active filters
     - Active filter badges (Property, Status, Priority)
-    - Full IncidentQueue component with search, filters, view modes
+    - IncidentQueue component with search and view modes (Cards/Table/Grid)
+    - Technician view: No client-side status/priority filters (uses URL params only)
+    - Manager/Admin view: Client-side filters available
     - Click incident → Detail panel slides in from right
     - Back to Dashboard button for easy navigation
   - **Benefits:** 
     - Shareable URLs with embedded filters
     - More dashboard space for additional summary cards
     - Consistent pattern across all roles (easier to learn)
+
+- **Technician Dashboard (October 2025):**
+  - **Shows:** Summary metrics only (My Queue, In Progress, Completed Today, Critical)
+  - **Removed:** Property cards (now only a filter option), Incident queue table, Incident actions section
+  - **Property Scope:** Properties 1, 2, 3 (The Table Bay Hotel, Umhlanga Sands, Saxon Hotel)
+  - **Metric Calculations:** Exclude terminal statuses (cancelled, duplicate, resolved) from active counts
 
 - **Property Detail Pages (Still Available):**
   - **Routes:** `/manager/properties/{id}`, `/admin/properties/{id}`, `/technician/properties/{id}`
