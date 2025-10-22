@@ -28,6 +28,10 @@ Preferred communication style: Simple, everyday language.
 - **Type Safety:** Drizzle-Zod for runtime validation, TypeScript interfaces shared via `@shared` alias.
 - **Extended Event Schema:** Includes `eventType` (reactive, proactive, environmental), `scheduledFor`, and `metadata` for SA-specific data (load shedding, ISP, weather).
 - **Comprehensive Event Categories:** Network, SA-specific (Load Shedding, ISP/Fibre, Weather), Operational (Guest Experience, Planned Maintenance).
+- **Incident Status Lifecycle:** 
+  - **Active Statuses:** new → assigned → in_progress → resolved
+  - **Alternative Paths:** cancelled (with reason), on_hold (with reason + optional resume date), duplicate (with reference to original)
+  - **Action Fields:** `cancelReason`, `holdReason`, `holdResumeDate`, `duplicateOfId`, `requestedInfo`
 
 ### Authentication & Authorization
 - **Planned Roles:** Guest, Manager, Admin, Technician with role-based access.
@@ -78,6 +82,52 @@ Preferred communication style: Simple, everyday language.
   - **Routes:** `/manager/properties/{id}`, `/admin/properties/{id}`, `/technician/properties/{id}`
   - **Purpose:** Deep-dive property-specific views (maintained for backward compatibility)
   - **Features:** Live status badges, active incident count, filtered incident queue
+
+### Comprehensive Incident Action System
+**Core Principle:** Full incident lifecycle management with audit trail tracking
+
+- **Available Actions:**
+  1. **Cancel Incident** - Mark incident as cancelled with required reason
+     - Component: `CancelIncidentDialog`
+     - Fields: `cancelReason` (required)
+     - Use cases: Duplicate reports, false alarms, resolved by other means
+  
+  2. **Put On Hold** - Pause work temporarily with optional resume date
+     - Component: `HoldIncidentDialog`
+     - Fields: `holdReason` (required), `holdResumeDate` (optional)
+     - Use cases: Waiting for vendor, parts on order, scheduled maintenance window
+  
+  3. **Request Info** - Log information requests from reporter or parties
+     - Component: `RequestInfoDialog`
+     - Fields: `requestedInfo` (required)
+     - Use cases: Need error messages, room numbers, additional context
+  
+  4. **Reassign** - Transfer incident to different technician/team
+     - Component: `ReassignDialog`
+     - Fields: `assignedTo` (required), reason (optional)
+     - Use cases: Specialist knowledge required, load balancing
+  
+  5. **Change Priority** - Escalate or de-escalate priority with reason
+     - Component: `ChangePriorityDialog`
+     - Fields: `priority` (low/medium/high/critical), reason (optional)
+     - Uses rank-based comparison (low=1, medium=2, high=3, critical=4)
+     - Timeline shows "escalated" vs "de-escalated" based on rank change
+
+- **Action Visibility:**
+  - All actions available for active incidents (new, assigned, in_progress)
+  - Actions hidden for terminal statuses (cancelled, resolved, duplicate)
+  - Change Priority always visible (allows both escalation and de-escalation)
+
+- **Audit Trail:**
+  - Every action creates timeline entry via POST `/api/incidents/:id/timeline`
+  - Timeline includes action description, reason (if provided), and timestamp
+  - Timeline entries visible in incident detail panel Activity tab
+
+- **Status Badge Styling:**
+  - `cancelled` - Gray/muted (bg-muted text-muted-foreground)
+  - `on_hold` - Amber (bg-amber-500/10 text-amber-700)
+  - `duplicate` - Muted (bg-muted/50 text-muted-foreground)
+  - All statuses included in IncidentQueue filter dropdown
 
 ## External Dependencies
 
