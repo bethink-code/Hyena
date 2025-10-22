@@ -31,9 +31,9 @@ export default function TechnicianIncidentQueue() {
   const priorityFilter = params.get('priority') || undefined;
   const propertyIdFilter = params.get('propertyId') || undefined;
 
-  // Use the last 3 properties for the technician's scope
-  const technicianProperties = PROPERTIES.slice(3, 6);
-  const technicianPropertyIds = technicianProperties.map(p => p.id);
+  // Technician works across these properties (matching dashboard scope)
+  const technicianPropertyIds = ["1", "2", "3"];
+  const technicianProperties = PROPERTIES.filter(p => technicianPropertyIds.includes(p.id));
 
   const navSections = [
     {
@@ -295,6 +295,8 @@ export default function TechnicianIncidentQueue() {
             timestamp: formatTimestamp(incident.createdAt),
           }))}
           onIncidentClick={(id) => setSelectedIncidentId(id)}
+          showStatusFilter={false}
+          showPriorityFilter={false}
         />
       </div>
 
