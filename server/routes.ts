@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertIncidentSchema, insertIncidentTimelineSchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema } from "@shared/schema";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -81,13 +81,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Update incident
   app.patch("/api/incidents/:id", async (req, res) => {
     try {
-      const incident = await storage.updateIncident(req.params.id, req.body);
+      const validatedUpdate = updateIncidentSchema.parse(req.body);
+      
+      // Normalize timestamp fields: convert ISO strings to Date objects
+      const normalizedUpdate = {
+        ...validatedUpdate,
+        ...(validatedUpdate.holdResumeDate && typeof validatedUpdate.holdResumeDate === 'string' 
+          ? { holdResumeDate: new Date(validatedUpdate.holdResumeDate) }
+          : {}),
+        ...(validatedUpdate.scheduledFor && typeof validatedUpdate.scheduledFor === 'string'
+          ? { scheduledFor: new Date(validatedUpdate.scheduledFor) }
+          : {}),
+      };
+      
+      const incident = await storage.updateIncident(req.params.id, normalizedUpdate);
       if (!incident) {
         return res.status(404).json({ error: "Incident not found" });
       }
       res.json(incident);
     } catch (error: any) {
-      res.status(500).json({ error: error.message });
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid update data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
     }
   });
 

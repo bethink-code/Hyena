@@ -61,12 +61,40 @@ export const insertIncidentSchema = createInsertSchema(incidents).omit({
   scheduledFor: z.union([z.date(), z.string().datetime()]).optional(),
 });
 
+export const updateIncidentSchema = insertIncidentSchema.partial().extend({
+  holdResumeDate: z.union([z.date(), z.string().datetime(), z.null()]).optional(),
+  scheduledFor: z.union([z.date(), z.string().datetime(), z.null()]).optional(),
+}).refine(
+  (data) => {
+    if (data.status === 'cancelled' && !data.cancelReason) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "cancelReason is required when status is 'cancelled'",
+    path: ["cancelReason"],
+  }
+).refine(
+  (data) => {
+    if (data.status === 'on_hold' && !data.holdReason) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "holdReason is required when status is 'on_hold'",
+    path: ["holdReason"],
+  }
+);
+
 export const insertIncidentTimelineSchema = createInsertSchema(incidentTimeline).omit({
   id: true,
   timestamp: true,
 });
 
 export type InsertIncident = z.infer<typeof insertIncidentSchema>;
+export type UpdateIncident = z.infer<typeof updateIncidentSchema>;
 export type Incident = typeof incidents.$inferSelect;
 export type InsertIncidentTimeline = z.infer<typeof insertIncidentTimelineSchema>;
 export type IncidentTimeline = typeof incidentTimeline.$inferSelect;
