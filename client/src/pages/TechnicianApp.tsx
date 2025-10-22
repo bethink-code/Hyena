@@ -48,19 +48,29 @@ export default function TechnicianApp() {
   }, [allIncidents]);
 
   // Calculate summary metrics
+  // Note: Currently showing all incidents from technician's properties
+  // TODO: Filter by assignedTo when authentication is implemented
   const metrics: MetricTile[] = useMemo(() => {
-    const myQueue = technicianIncidents.filter(i => 
+    // Active statuses only (exclude terminal states)
+    const activeIncidents = technicianIncidents.filter(i => 
+      i.status !== 'resolved' && 
+      i.status !== 'cancelled' && 
+      i.status !== 'duplicate'
+    );
+    
+    const myQueue = activeIncidents.filter(i => 
       i.status === 'assigned' || i.status === 'in_progress'
     ).length;
-    const inProgress = technicianIncidents.filter(i => i.status === 'in_progress').length;
+    
+    const inProgress = activeIncidents.filter(i => i.status === 'in_progress').length;
+    
     const completedToday = technicianIncidents.filter(i => {
       if (i.status !== 'resolved') return false;
       const today = new Date().toDateString();
       return new Date(i.updatedAt).toDateString() === today;
     }).length;
-    const criticalCount = technicianIncidents.filter(i => 
-      i.priority === 'critical' && i.status !== 'resolved'
-    ).length;
+    
+    const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
 
     return [
       {
