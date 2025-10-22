@@ -4,9 +4,14 @@ import {
   type Incident, 
   type InsertIncident,
   type IncidentTimeline,
-  type InsertIncidentTimeline 
+  type InsertIncidentTimeline,
+  users,
+  incidents,
+  incidentTimeline 
 } from "@shared/schema";
 import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -144,4 +149,77 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation using Drizzle ORM
+export class DbStorage implements IStorage {
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  // Incident operations
+  async createIncident(insertIncident: InsertIncident): Promise<Incident> {
+    const id = `inc-${Date.now()}-${randomUUID().substring(0, 8)}`;
+    const result = await db.insert(incidents).values({
+      id,
+      ...insertIncident,
+    }).returning();
+    return result[0];
+  }
+
+  async getIncident(id: string): Promise<Incident | undefined> {
+    const result = await db.select().from(incidents).where(eq(incidents.id, id));
+    return result[0];
+  }
+
+  async getAllIncidents(): Promise<Incident[]> {
+    return await db.select().from(incidents);
+  }
+
+  async getIncidentsByProperty(propertyId: string): Promise<Incident[]> {
+    return await db.select().from(incidents).where(eq(incidents.propertyId, propertyId));
+  }
+
+  async getIncidentsByStatus(status: string): Promise<Incident[]> {
+    return await db.select().from(incidents).where(eq(incidents.status, status));
+  }
+
+  async updateIncident(id: string, updates: Partial<Incident>): Promise<Incident | undefined> {
+    const result = await db.update(incidents)
+      .set({
+        ...updates,
+        updatedAt: new Date(),
+      })
+      .where(eq(incidents.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteIncident(id: string): Promise<boolean> {
+    const result = await db.delete(incidents).where(eq(incidents.id, id)).returning();
+    return result.length > 0;
+  }
+
+  // Incident timeline operations
+  async addIncidentTimelineEntry(insertEntry: InsertIncidentTimeline): Promise<IncidentTimeline> {
+    const result = await db.insert(incidentTimeline).values(insertEntry).returning();
+    return result[0];
+  }
+
+  async getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]> {
+    return await db.select().from(incidentTimeline).where(eq(incidentTimeline.incidentId, incidentId));
+  }
+}
+
+// Use Database storage instead of in-memory storage
+export const storage = new DbStorage();

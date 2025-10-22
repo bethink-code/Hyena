@@ -19,7 +19,7 @@ Preferred communication style: Simple, everyday language.
 ### Backend
 - **Framework:** Express.js with TypeScript on Node.js.
 - **Database:** PostgreSQL (Neon serverless) with Drizzle ORM for type-safe queries and schema management.
-- **Storage:** In-memory storage for development, abstract `IStorage` for database migration.
+- **Storage:** PostgreSQL database storage via `DbStorage` class implementing `IStorage` interface. All incidents and timeline entries persist to database across server restarts.
 - **API Design:** RESTful API with `/api` prefix, request/response logging, error handling, credential-based authentication preparation.
 - **Event Integration:** Shared event storage, RESTful CRUD for events and timelines, React Query for real-time updates. Event lifecycle integrated across all interfaces (Manager, Technician, Event Simulator) with timeline tracking and cache invalidation.
 
