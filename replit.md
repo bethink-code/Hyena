@@ -29,9 +29,11 @@ Preferred communication style: Simple, everyday language.
 - **Extended Event Schema:** Includes `eventType` (reactive, proactive, environmental), `scheduledFor`, and `metadata` for SA-specific data (load shedding, ISP, weather).
 - **Comprehensive Event Categories:** Network, SA-specific (Load Shedding, ISP/Fibre, Weather), Operational (Guest Experience, Planned Maintenance).
 - **Incident Status Lifecycle:** 
-  - **Active Statuses:** new → assigned → in_progress → resolved
+  - **Active Statuses:** new → assigned → in_progress → on_hold → resolved
+  - **Terminal Statuses:** resolved, cancelled, duplicate (excluded from active work queues)
   - **Alternative Paths:** cancelled (with reason), on_hold (with reason + optional resume date), duplicate (with reference to original)
   - **Action Fields:** `cancelReason`, `holdReason`, `holdResumeDate`, `duplicateOfId`, `requestedInfo`
+  - **Metric Definition:** Active incidents = ALL non-terminal statuses (new, assigned, in_progress, on_hold)
 
 ### Authentication & Authorization
 - **Planned Roles:** Guest, Manager, Admin, Technician with role-based access.
@@ -67,6 +69,8 @@ Preferred communication style: Simple, everyday language.
 - **Incident List Pages (Universal):**
   - **Routes:** `/manager/incidents`, `/admin/incidents`, `/technician/incidents`
   - **URL Parameters:** `status`, `priority`, `propertyId` for flexible filtering
+  - **Default Behavior:** Shows only active incidents (excludes terminal statuses: resolved, cancelled, duplicate)
+  - **Explicit Filtering:** URL parameters override default (e.g., `?status=cancelled` shows cancelled incidents)
   - **Features:** 
     - Filter description header showing active filters
     - Active filter badges (Property, Status, Priority)
@@ -76,6 +80,7 @@ Preferred communication style: Simple, everyday language.
     - Click incident → Detail panel slides in from right
     - Back to Dashboard button for easy navigation
   - **Benefits:** 
+    - Metrics match incident list counts (no mismatch between dashboard and list)
     - Shareable URLs with embedded filters
     - More dashboard space for additional summary cards
     - Consistent pattern across all roles (easier to learn)
@@ -84,7 +89,12 @@ Preferred communication style: Simple, everyday language.
   - **Shows:** Summary metrics only (My Queue, In Progress, Completed Today, Critical)
   - **Removed:** Property cards (now only a filter option), Incident queue table, Incident actions section
   - **Property Scope:** Properties 1, 2, 3 (The Table Bay Hotel, Umhlanga Sands, Saxon Hotel)
-  - **Metric Calculations:** Exclude terminal statuses (cancelled, duplicate, resolved) from active counts
+  - **Metric Calculations:** 
+    - My Queue: All active work items (new, assigned, in_progress, on_hold)
+    - In Progress: Only status='in_progress'
+    - Critical: Active incidents with priority='critical'
+    - Completed Today: Resolved today
+    - Terminal statuses excluded: cancelled, duplicate, resolved
 
 - **Property Detail Pages (Still Available):**
   - **Routes:** `/manager/properties/{id}`, `/admin/properties/{id}`, `/technician/properties/{id}`
