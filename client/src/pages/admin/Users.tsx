@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
+import { UserDetailPanel } from "@/components/UserDetailPanel";
 import type { User } from "@shared/schema";
 import { insertUserSchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +38,7 @@ type FormData = z.infer<typeof formSchema>;
 export default function Users() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const navSections = [
     {
@@ -303,7 +305,12 @@ export default function Users() {
             ) : (
               <div className="space-y-4">
                 {users.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-md" data-testid={`user-card-${user.id}`}>
+                  <div 
+                    key={user.id} 
+                    className="flex items-center justify-between p-4 border rounded-md hover-elevate cursor-pointer" 
+                    data-testid={`user-card-${user.id}`}
+                    onClick={() => setSelectedUserId(user.id)}
+                  >
                     <div className="space-y-1">
                       <div className="font-medium" data-testid={`text-name-${user.id}`}>{user.name}</div>
                       <div className="text-sm text-muted-foreground" data-testid={`text-email-${user.id}`}>{user.email}</div>
@@ -322,6 +329,31 @@ export default function Users() {
           </CardContent>
         </Card>
       </div>
+
+      <UserDetailPanel
+        user={users.find(u => u.id === selectedUserId) || null}
+        open={!!selectedUserId}
+        onClose={() => setSelectedUserId(null)}
+        propertyName={selectedUserId ? getPropertyName(users.find(u => u.id === selectedUserId)?.propertyId || null) : undefined}
+        onEdit={(userId) => {
+          toast({
+            title: "Edit User",
+            description: "Edit functionality will be implemented soon",
+          });
+        }}
+        onResetPassword={(userId) => {
+          toast({
+            title: "Reset Password",
+            description: "Password reset functionality will be implemented soon",
+          });
+        }}
+        onDeactivate={(userId) => {
+          toast({
+            title: "Deactivate User",
+            description: "User deactivation functionality will be implemented soon",
+          });
+        }}
+      />
     </AppLayout>
   );
 }
