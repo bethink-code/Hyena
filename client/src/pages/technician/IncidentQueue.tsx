@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
@@ -12,16 +12,15 @@ import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
+  Wrench,
+  Calendar,
+  CheckCircle2,
+  Package,
   ArrowLeft,
   Filter,
 } from "lucide-react";
 
-export default function IncidentQueuePage() {
+export default function TechnicianIncidentQueue() {
   const { toast } = useToast();
   const [location] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
@@ -32,30 +31,23 @@ export default function IncidentQueuePage() {
   const priorityFilter = params.get('priority') || undefined;
   const propertyIdFilter = params.get('propertyId') || undefined;
 
-  // Use the first 3 properties for the manager's scope
-  const managerProperties = PROPERTIES.slice(0, 3);
-  const managerPropertyIds = managerProperties.map(p => p.id);
+  // Use the last 3 properties for the technician's scope
+  const technicianProperties = PROPERTIES.slice(3, 6);
+  const technicianPropertyIds = technicianProperties.map(p => p.id);
 
   const navSections = [
     {
       label: "Main",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
+        { title: "My Work", href: "/technician", icon: LayoutDashboard },
+        { title: "Schedule", href: "/technician/schedule", icon: Calendar },
       ],
     },
     {
-      label: "Analysis",
+      label: "Tasks",
       items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/manager/reports", icon: FileText },
-      ],
-    },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
+        { title: "Completed Jobs", href: "/technician/completed", icon: CheckCircle2 },
+        { title: "Equipment", href: "/technician/equipment", icon: Package },
       ],
     },
   ];
@@ -65,9 +57,10 @@ export default function IncidentQueuePage() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for manager's properties and apply URL filters
+  // Filter incidents for technician's properties and apply URL filters
   const incidents = useMemo(() => {
-    let filtered = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    // Technician only sees incidents from their assigned properties
+    let filtered = allIncidents.filter(i => technicianPropertyIds.includes(i.propertyId || ''));
     
     // Apply status filter from URL
     if (statusFilter) {
@@ -85,7 +78,7 @@ export default function IncidentQueuePage() {
     }
     
     return filtered;
-  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, managerPropertyIds]);
+  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, technicianPropertyIds]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
@@ -93,18 +86,18 @@ export default function IncidentQueuePage() {
     enabled: !!selectedIncidentId,
   });
 
-  // Assign incident mutation
-  const assignIncidentMutation = useMutation({
-    mutationFn: async ({ incidentId, assignedTo }: { incidentId: string; assignedTo: string }) => {
+  // Start work mutation
+  const startWorkMutation = useMutation({
+    mutationFn: async (incidentId: string) => {
       const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
-        status: "assigned",
-        assignedTo,
+        status: "in_progress",
+        assignedTo: "Tech Team",
       });
       const incident = await response.json();
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
-        action: `Assigned to ${assignedTo}`,
-        actor: "Manager Dashboard",
+        action: "Started working on incident",
+        actor: "Technician App",
       });
       
       return incident;
@@ -113,14 +106,14 @@ export default function IncidentQueuePage() {
       queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Incident Assigned",
-        description: "Technician has been notified",
+        title: "Work Started",
+        description: "You're now working on this incident",
       });
     },
   });
 
-  // Resolve incident mutation
-  const resolveIncidentMutation = useMutation({
+  // Complete work mutation
+  const completeWorkMutation = useMutation({
     mutationFn: async (incidentId: string) => {
       const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
         status: "resolved",
@@ -128,8 +121,8 @@ export default function IncidentQueuePage() {
       const incident = await response.json();
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
-        action: "Incident marked as resolved",
-        actor: "Manager Dashboard",
+        action: "Incident resolved",
+        actor: "Technician App",
       });
       
       return incident;
@@ -138,8 +131,8 @@ export default function IncidentQueuePage() {
       queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       queryClient.invalidateQueries({ queryKey: ["/api/incidents", selectedIncidentId, "timeline"] });
       toast({
-        title: "Incident Resolved",
-        description: "Incident has been marked as resolved",
+        title: "Work Completed",
+        description: "Incident has been resolved",
       });
       setSelectedIncidentId(null);
     },
@@ -160,7 +153,7 @@ export default function IncidentQueuePage() {
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Priority escalated to ${newPriority}`,
-        actor: "Manager Dashboard",
+        actor: "Technician App",
       });
       
       return incident;
@@ -230,29 +223,29 @@ export default function IncidentQueuePage() {
       parts.push(`${priorityFilter} priority`);
     }
     
-    return parts.length > 0 ? parts.join(' • ') : 'All incidents';
+    return parts.length > 0 ? parts.join(' • ') : 'All my work queue items';
   };
 
   return (
     <AppLayout
-      title="Incident Queue"
-      homeRoute="/manager"
+      title="Technician Work Queue"
+      homeRoute="/technician"
       navSections={navSections}
       notificationCount={allIncidents.filter(i => 
-        managerPropertyIds.includes(i.propertyId || '') && i.status === 'new'
+        technicianPropertyIds.includes(i.propertyId || '') && i.status === 'new'
       ).length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <Link href="/manager">
+            <Link href="/technician">
               <Button variant="ghost" size="sm" className="mb-3" data-testid="button-back">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
             </Link>
-            <h2 className="text-2xl font-bold mb-1">Incident Queue</h2>
+            <h2 className="text-2xl font-bold mb-1">Work Queue</h2>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Filter className="h-4 w-4" />
               <span data-testid="text-filter-description">{getFilterDescription()}</span>
@@ -263,7 +256,7 @@ export default function IncidentQueuePage() {
             <div className="text-3xl font-bold" data-testid="text-incident-count">
               {incidents.length}
             </div>
-            <div className="text-sm text-muted-foreground">incidents</div>
+            <div className="text-sm text-muted-foreground">tasks</div>
           </div>
         </div>
 
@@ -311,13 +304,10 @@ export default function IncidentQueuePage() {
         open={!!selectedIncidentId}
         onClose={() => setSelectedIncidentId(null)}
         onAssign={(id) => {
-          assignIncidentMutation.mutate({
-            incidentId: id,
-            assignedTo: "John Smith",
-          });
+          startWorkMutation.mutate(id);
         }}
         onResolve={(id) => {
-          resolveIncidentMutation.mutate(id);
+          completeWorkMutation.mutate(id);
         }}
         onEscalate={(id) => {
           escalateIncidentMutation.mutate(id);

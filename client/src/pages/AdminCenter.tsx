@@ -111,13 +111,19 @@ export default function AdminCenter() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KPIWidget title="Total Properties" value={propertyDefinitions.length} icon={Building2} />
+          <KPIWidget 
+            title="Total Properties" 
+            value={propertyDefinitions.length} 
+            icon={Building2} 
+            onClick={() => setLocation('/admin/properties')}
+          />
           <KPIWidget
             title="Active Incidents"
             value={totalActiveIncidents}
             change={0}
             trend="down"
             icon={AlertTriangle}
+            onClick={() => setLocation('/admin/incidents')}
           />
           <KPIWidget
             title="Guest Satisfaction"
@@ -132,6 +138,7 @@ export default function AdminCenter() {
             change={5}
             trend="up"
             icon={UsersIcon}
+            onClick={() => setLocation('/admin/users')}
           />
         </div>
 
@@ -139,7 +146,7 @@ export default function AdminCenter() {
           <h3 className="text-xl font-semibold mb-4">Property Status</h3>
           <PropertyList
             properties={properties}
-            onPropertyClick={(property) => setLocation(`/admin/properties/${property.id}`)}
+            onPropertyClick={(property) => setLocation(`/admin/incidents?propertyId=${property.id}`)}
           />
         </div>
       </div>

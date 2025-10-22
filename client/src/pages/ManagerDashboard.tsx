@@ -80,10 +80,11 @@ export default function ManagerDashboard() {
 
   // Calculate summary metrics
   const metrics: MetricTile[] = useMemo(() => {
-    const criticalCount = incidents.filter(i => i.priority === 'critical' && i.status !== 'resolved').length;
-    const activeCount = incidents.filter(i => i.status !== 'resolved').length;
-    const assignedCount = incidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length;
-    const resolvedToday = incidents.filter(i => {
+    const managerIncidents = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    const criticalCount = managerIncidents.filter(i => i.priority === 'critical' && i.status !== 'resolved').length;
+    const activeCount = managerIncidents.filter(i => i.status !== 'resolved').length;
+    const assignedCount = managerIncidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length;
+    const resolvedToday = managerIncidents.filter(i => {
       if (i.status !== 'resolved') return false;
       const today = new Date().toDateString();
       return new Date(i.updatedAt).toDateString() === today;
@@ -96,6 +97,7 @@ export default function ManagerDashboard() {
         value: criticalCount,
         icon: AlertTriangle,
         variant: criticalCount > 0 ? "critical" : "default",
+        onClick: () => setLocation('/manager/incidents?priority=critical'),
       },
       {
         id: "active",
@@ -103,6 +105,7 @@ export default function ManagerDashboard() {
         value: activeCount,
         icon: LayoutDashboard,
         variant: activeCount > 5 ? "high" : "default",
+        onClick: () => setLocation('/manager/incidents'),
       },
       {
         id: "in-progress",
@@ -110,6 +113,7 @@ export default function ManagerDashboard() {
         value: assignedCount,
         icon: Clock,
         variant: "medium",
+        onClick: () => setLocation('/manager/incidents?status=in_progress'),
       },
       {
         id: "resolved-today",
@@ -117,9 +121,10 @@ export default function ManagerDashboard() {
         value: resolvedToday,
         icon: CheckCircle2,
         variant: "success",
+        onClick: () => setLocation('/manager/incidents?status=resolved'),
       },
     ];
-  }, [incidents]);
+  }, [allIncidents, managerPropertyIds, setLocation]);
 
   // Calculate property stats with critical and new counts
   const propertiesWithStats = useMemo(() => {
@@ -311,7 +316,7 @@ export default function ManagerDashboard() {
             properties={propertiesWithStats}
             onPropertyClick={(property) => {
               if (property.id) {
-                setLocation(`/manager/properties/${property.id}`);
+                setLocation(`/manager/incidents?propertyId=${property.id}`);
               }
             }}
           />

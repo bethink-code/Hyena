@@ -102,6 +102,7 @@ export default function TechnicianApp() {
         value: myQueue,
         icon: ClipboardList,
         variant: myQueue > 5 ? "high" : "default",
+        onClick: () => navigate('/technician/incidents'),
       },
       {
         id: "in-progress",
@@ -109,6 +110,7 @@ export default function TechnicianApp() {
         value: inProgress,
         icon: Play,
         variant: "medium",
+        onClick: () => navigate('/technician/incidents?status=in_progress'),
       },
       {
         id: "completed-today",
@@ -116,6 +118,7 @@ export default function TechnicianApp() {
         value: completedToday,
         icon: CheckCircle2,
         variant: "success",
+        onClick: () => navigate('/technician/incidents?status=resolved'),
       },
       {
         id: "critical",
@@ -123,9 +126,10 @@ export default function TechnicianApp() {
         value: criticalCount,
         icon: AlertTriangle,
         variant: criticalCount > 0 ? "critical" : "default",
+        onClick: () => navigate('/technician/incidents?priority=critical'),
       },
     ];
-  }, [technicianIncidents]);
+  }, [technicianIncidents, navigate]);
 
   // Start work mutation
   const startWorkMutation = useMutation({
@@ -247,7 +251,7 @@ export default function TechnicianApp() {
                 newCount,
               };
             })}
-            onPropertyClick={(property) => navigate(`/technician/properties/${property.id}`)}
+            onPropertyClick={(property) => navigate(`/technician/incidents?propertyId=${property.id}`)}
           />
         </div>
 

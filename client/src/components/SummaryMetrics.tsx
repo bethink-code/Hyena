@@ -12,6 +12,7 @@ export interface MetricTile {
     isPositive: boolean;
   };
   variant?: "default" | "critical" | "high" | "medium" | "success";
+  onClick?: () => void;
 }
 
 interface SummaryMetricsProps {
@@ -45,7 +46,12 @@ export function SummaryMetrics({ metrics, className }: SummaryMetricsProps) {
         return (
           <Card
             key={metric.id}
-            className={cn("border-l-4", variantClasses[variant])}
+            className={cn(
+              "border-l-4",
+              variantClasses[variant],
+              metric.onClick && "cursor-pointer hover-elevate active-elevate-2"
+            )}
+            onClick={metric.onClick}
             data-testid={`metric-${metric.id}`}
           >
             <CardContent className="p-6">

@@ -18,11 +18,13 @@ import ManagerReports from "@/pages/manager/Reports";
 import ManagerMessages from "@/pages/manager/Messages";
 import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
 
+import TechnicianIncidents from "@/pages/technician/IncidentQueue";
 import TechnicianPropertyDetail from "@/pages/technician/PropertyDetail";
 import TechnicianCompleted from "@/pages/technician/CompletedJobs";
 import TechnicianSchedule from "@/pages/technician/Schedule";
 import TechnicianEquipment from "@/pages/technician/Equipment";
 
+import AdminIncidents from "@/pages/admin/IncidentQueue";
 import AdminProperties from "@/pages/admin/Properties";
 import AdminPropertyDetail from "@/pages/admin/PropertyDetail";
 import AdminUsers from "@/pages/admin/Users";
@@ -49,12 +51,14 @@ function Router() {
       <Route path="/manager/messages" component={ManagerMessages} />
       
       <Route path="/technician" component={TechnicianApp} />
+      <Route path="/technician/incidents" component={TechnicianIncidents} />
       <Route path="/technician/properties/:id" component={TechnicianPropertyDetail} />
       <Route path="/technician/completed" component={TechnicianCompleted} />
       <Route path="/technician/schedule" component={TechnicianSchedule} />
       <Route path="/technician/equipment" component={TechnicianEquipment} />
       
       <Route path="/admin" component={AdminCenter} />
+      <Route path="/admin/incidents" component={AdminIncidents} />
       <Route path="/admin/properties/:id" component={AdminPropertyDetail} />
       <Route path="/admin/properties" component={AdminProperties} />
       <Route path="/admin/users" component={AdminUsers} />

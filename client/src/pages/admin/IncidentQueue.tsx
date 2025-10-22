@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
@@ -12,16 +12,18 @@ import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
-  AlertTriangle,
+  Building2,
+  Users,
+  Settings,
   BarChart3,
   FileText,
-  MessageSquare,
-  Wifi,
+  Puzzle,
+  Shield,
   ArrowLeft,
   Filter,
 } from "lucide-react";
 
-export default function IncidentQueuePage() {
+export default function AdminIncidentQueue() {
   const { toast } = useToast();
   const [location] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
@@ -32,42 +34,39 @@ export default function IncidentQueuePage() {
   const priorityFilter = params.get('priority') || undefined;
   const propertyIdFilter = params.get('propertyId') || undefined;
 
-  // Use the first 3 properties for the manager's scope
-  const managerProperties = PROPERTIES.slice(0, 3);
-  const managerPropertyIds = managerProperties.map(p => p.id);
-
   const navSections = [
     {
-      label: "Main",
+      label: "Overview",
       items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
+        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
       ],
     },
     {
-      label: "Analysis",
+      label: "Management",
       items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/manager/reports", icon: FileText },
+        { title: "Users & Roles", href: "/admin/users", icon: Users },
+        { title: "System Config", href: "/admin/config", icon: Settings },
+        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
       ],
     },
     {
-      label: "Communication",
+      label: "Reporting",
       items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
+        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
+        { title: "Reports", href: "/admin/reports", icon: FileText },
+        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
       ],
     },
   ];
 
-  // Fetch all incidents
+  // Fetch all incidents (admin sees all properties)
   const { data: allIncidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for manager's properties and apply URL filters
+  // Filter incidents based on URL filters
   const incidents = useMemo(() => {
-    let filtered = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    let filtered = allIncidents;
     
     // Apply status filter from URL
     if (statusFilter) {
@@ -85,7 +84,7 @@ export default function IncidentQueuePage() {
     }
     
     return filtered;
-  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, managerPropertyIds]);
+  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
@@ -104,7 +103,7 @@ export default function IncidentQueuePage() {
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Assigned to ${assignedTo}`,
-        actor: "Manager Dashboard",
+        actor: "Admin Center",
       });
       
       return incident;
@@ -129,7 +128,7 @@ export default function IncidentQueuePage() {
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: "Incident marked as resolved",
-        actor: "Manager Dashboard",
+        actor: "Admin Center",
       });
       
       return incident;
@@ -160,7 +159,7 @@ export default function IncidentQueuePage() {
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
         action: `Priority escalated to ${newPriority}`,
-        actor: "Manager Dashboard",
+        actor: "Admin Center",
       });
       
       return incident;
@@ -230,29 +229,27 @@ export default function IncidentQueuePage() {
       parts.push(`${priorityFilter} priority`);
     }
     
-    return parts.length > 0 ? parts.join(' • ') : 'All incidents';
+    return parts.length > 0 ? parts.join(' • ') : 'All incidents across all properties';
   };
 
   return (
     <AppLayout
-      title="Incident Queue"
-      homeRoute="/manager"
+      title="Platform Administration Center"
+      homeRoute="/admin"
       navSections={navSections}
-      notificationCount={allIncidents.filter(i => 
-        managerPropertyIds.includes(i.propertyId || '') && i.status === 'new'
-      ).length}
+      notificationCount={allIncidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div>
-            <Link href="/manager">
+            <Link href="/admin">
               <Button variant="ghost" size="sm" className="mb-3" data-testid="button-back">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
             </Link>
-            <h2 className="text-2xl font-bold mb-1">Incident Queue</h2>
+            <h2 className="text-2xl font-bold mb-1">Portfolio Incident Queue</h2>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Filter className="h-4 w-4" />
               <span data-testid="text-filter-description">{getFilterDescription()}</span>

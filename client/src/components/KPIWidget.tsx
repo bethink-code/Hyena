@@ -9,6 +9,7 @@ interface KPIWidgetProps {
   icon: LucideIcon;
   trend?: "up" | "down";
   className?: string;
+  onClick?: () => void;
 }
 
 export function KPIWidget({
@@ -18,12 +19,16 @@ export function KPIWidget({
   icon: Icon,
   trend,
   className,
+  onClick,
 }: KPIWidgetProps) {
   const isPositiveTrend = trend === "up";
   const trendColor = isPositiveTrend ? "text-event-success" : "text-event-critical";
 
   return (
-    <Card className={className}>
+    <Card 
+      className={cn(className, onClick && "cursor-pointer hover-elevate active-elevate-2")}
+      onClick={onClick}
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}

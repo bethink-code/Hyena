@@ -45,20 +45,39 @@ Preferred communication style: Simple, everyday language.
 ### UI/UX Decisions & Feature Specifications
 - **Manual Event Creation:** Managers and Technicians can create events with extended schema supporting `eventType`, `scheduledFor`, `metadata`, and comprehensive categories including SA-specific ones (Load Shedding, ISP, Weather). Implemented via `ReportIncidentDialog` (Manager) and `LogIssueDialog` (Technician) with dynamic SA-specific fields.
 - **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
-- **Property Card Navigation:** A unified pattern across Admin, Manager, and Technician interfaces. Property cards replace dropdowns, navigating to property-specific detail pages with filtered event queues. This includes a consistent slide-in panel for event details.
-- **Property Detail Pages (Universal Pattern):** All property detail pages (Admin, Manager, Technician) implement a consistent pattern with:
-  - **Live Status Badges:** Dynamically calculated from real-time incident data (Critical if any critical incidents exist, Degraded if >0 active incidents, Healthy otherwise)
-  - **Active Incident Count:** Real-time display of non-resolved incidents for the property
-  - **Report Incident Button:** `ReportIncidentDialog` positioned in header beside active incident count for easy access across all views
-  - **Data Flow:** All calculations use live `/api/incidents` query results, no static or placeholder data
-  - **Minimal Navigation:** Property detail sidebars show only a single "back to dashboard" link, enforcing the pattern that properties are accessed via dashboard cards
-- **Universal List Pattern (System-Wide):** All role-specific pages use PropertyList component with consistent controls:
-  - **Search:** Left-aligned search input for filtering properties by name/location
-  - **Filter Dropdown:** Center-positioned status filter (All, Healthy, Degraded, Critical, Offline)
-  - **View Mode Toggle:** Right-aligned view switcher (Card, Table, Grid)
-  - **Property Cards:** Display domain-specific metrics (network health, analytics, reports, messages, incidents, schedule, equipment)
-  - **Navigation:** Clicking property card navigates to `/[role]/properties/{id}` detail page
-  - **Applied to:** Manager (NetworkStatus, Analytics, Reports, Messages, IncidentQueue), Technician (Schedule, CompletedJobs, Equipment)
+
+### Universal Navigation Pattern (System-Wide)
+**Core Principle:** Summary Cards → Filtered Incident List (Consistent across all interfaces)
+
+- **Dashboard Structure:**
+  - **Summary Metric Cards:** Clickable KPI tiles (Manager/Technician use SummaryMetrics, Admin uses KPIWidget)
+  - **Property Status Cards:** Clickable property cards showing real-time incident counts
+  - Both navigate to filtered incident list pages via URL query parameters
+
+- **Navigation Flow:**
+  1. **Click Summary Metric** → Navigate to `/[role]/incidents?filter=...`
+     - Examples: Critical Incidents, Active Incidents, In Progress, Completed Today
+  2. **Click Property Card** → Navigate to `/[role]/incidents?propertyId={id}`
+     - Filters incident list to show only incidents for that property
+
+- **Incident List Pages (Universal):**
+  - **Routes:** `/manager/incidents`, `/admin/incidents`, `/technician/incidents`
+  - **URL Parameters:** `status`, `priority`, `propertyId` for flexible filtering
+  - **Features:** 
+    - Filter description header showing active filters
+    - Active filter badges (Property, Status, Priority)
+    - Full IncidentQueue component with search, filters, view modes
+    - Click incident → Detail panel slides in from right
+    - Back to Dashboard button for easy navigation
+  - **Benefits:** 
+    - Shareable URLs with embedded filters
+    - More dashboard space for additional summary cards
+    - Consistent pattern across all roles (easier to learn)
+
+- **Property Detail Pages (Still Available):**
+  - **Routes:** `/manager/properties/{id}`, `/admin/properties/{id}`, `/technician/properties/{id}`
+  - **Purpose:** Deep-dive property-specific views (maintained for backward compatibility)
+  - **Features:** Live status badges, active incident count, filtered incident queue
 
 ## External Dependencies
 
