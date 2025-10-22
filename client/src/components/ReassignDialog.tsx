@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import type { User } from "@shared/schema";
 import { UserCog } from "lucide-react";
 
 interface ReassignDialogProps {
@@ -29,6 +30,13 @@ export function ReassignDialog({ incidentId, currentAssignee, children, onSucces
   const [open, setOpen] = useState(false);
   const [newAssignee, setNewAssignee] = useState("");
   const [reason, setReason] = useState("");
+
+  // Fetch all users and filter to only technicians
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+  });
+
+  const technicians = users.filter(user => user.role === "technician");
 
   const reassignMutation = useMutation({
     mutationFn: async () => {
@@ -106,13 +114,27 @@ export function ReassignDialog({ incidentId, currentAssignee, children, onSucces
 
           <div className="space-y-2">
             <Label htmlFor="new-assignee">Assign To *</Label>
-            <Input
-              id="new-assignee"
+            <Select
               value={newAssignee}
-              onChange={(e) => setNewAssignee(e.target.value)}
-              placeholder="e.g., Network Team, John Smith, Level 2 Support..."
-              data-testid="input-new-assignee"
-            />
+              onValueChange={setNewAssignee}
+            >
+              <SelectTrigger data-testid="select-new-assignee">
+                <SelectValue placeholder="Select a technician..." />
+              </SelectTrigger>
+              <SelectContent>
+                {technicians.length === 0 ? (
+                  <SelectItem value="no-technicians" disabled>
+                    No technicians available
+                  </SelectItem>
+                ) : (
+                  technicians.map((tech) => (
+                    <SelectItem key={tech.id} value={tech.name}>
+                      {tech.name}
+                    </SelectItem>
+                  ))
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">
