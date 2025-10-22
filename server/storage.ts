@@ -17,6 +17,7 @@ export interface IStorage {
   // User operations
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   
   // Incident operations
@@ -55,9 +56,18 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return Array.from(this.users.values());
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
+    const user: User = { 
+      ...insertUser, 
+      id, 
+      propertyId: insertUser.propertyId ?? null,
+      createdAt: new Date() 
+    };
     this.users.set(id, user);
     return user;
   }
@@ -66,6 +76,12 @@ export class MemStorage implements IStorage {
   async createIncident(insertIncident: InsertIncident): Promise<Incident> {
     const now = new Date();
     const id = `inc-${Date.now()}-${randomUUID().substring(0, 8)}`;
+    const scheduledFor = insertIncident.scheduledFor 
+      ? (typeof insertIncident.scheduledFor === 'string' 
+          ? new Date(insertIncident.scheduledFor) 
+          : insertIncident.scheduledFor)
+      : null;
+    
     const incident: Incident = {
       id,
       ...insertIncident,
@@ -79,8 +95,13 @@ export class MemStorage implements IStorage {
       rootCause: insertIncident.rootCause ?? null,
       resolution: insertIncident.resolution ?? null,
       incidentType: insertIncident.incidentType ?? null,
-      scheduledFor: insertIncident.scheduledFor ?? null,
+      scheduledFor,
       metadata: insertIncident.metadata ?? null,
+      cancelReason: insertIncident.cancelReason ?? null,
+      holdReason: insertIncident.holdReason ?? null,
+      holdResumeDate: insertIncident.holdResumeDate ?? null,
+      duplicateOfId: insertIncident.duplicateOfId ?? null,
+      requestedInfo: insertIncident.requestedInfo ?? null,
       createdAt: now,
       updatedAt: now,
     };
@@ -162,6 +183,10 @@ export class DbStorage implements IStorage {
     return result[0];
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users);
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
     return result[0];
@@ -170,9 +195,23 @@ export class DbStorage implements IStorage {
   // Incident operations
   async createIncident(insertIncident: InsertIncident): Promise<Incident> {
     const id = `inc-${Date.now()}-${randomUUID().substring(0, 8)}`;
+    const scheduledFor = insertIncident.scheduledFor 
+      ? (typeof insertIncident.scheduledFor === 'string' 
+          ? new Date(insertIncident.scheduledFor) 
+          : insertIncident.scheduledFor)
+      : undefined;
+    
+    const holdResumeDate = insertIncident.holdResumeDate
+      ? (typeof insertIncident.holdResumeDate === 'string'
+          ? new Date(insertIncident.holdResumeDate)
+          : insertIncident.holdResumeDate)
+      : undefined;
+    
     const result = await db.insert(incidents).values({
-      id,
       ...insertIncident,
+      id,
+      scheduledFor,
+      holdResumeDate,
     }).returning();
     return result[0];
   }

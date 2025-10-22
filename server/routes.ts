@@ -1,10 +1,52 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcryptjs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Helper function to strip password from user objects
+  const sanitizeUser = (user: any) => {
+    const { password, ...sanitized } = user;
+    return sanitized;
+  };
+
+  // User routes
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      // Remove password field from all user objects
+      const sanitizedUsers = users.map(sanitizeUser);
+      res.json(sanitizedUsers);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/users", async (req, res) => {
+    try {
+      const validatedUser = insertUserSchema.parse(req.body);
+      
+      // Hash the password before storing
+      const hashedPassword = await bcrypt.hash(validatedUser.password, 10);
+      
+      const user = await storage.createUser({
+        ...validatedUser,
+        password: hashedPassword,
+      });
+      
+      // Remove password field from response
+      res.json(sanitizeUser(user));
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid user data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  });
+
   // Incident routes
   
   // Query parameter schema for incident filtering
