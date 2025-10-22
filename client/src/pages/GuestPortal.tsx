@@ -1,27 +1,31 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { HeroSection } from "@/components/HeroSection";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
-import { IssueReportForm } from "@/components/IssueReportForm";
+import { IssueReportForm, type IssueFormData } from "@/components/IssueReportForm";
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { AIChatInterface } from "@/components/AIChatInterface";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Event } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { PROPERTIES } from "@/lib/properties";
+import type { Incident, InsertIncident } from "@shared/schema";
 import heroImage from "@assets/stock_images/modern_hotel_lobby_w_9345d9d3.jpg";
 import step1 from "@assets/stock_images/wifi_troubleshooting_00ddfe0a.jpg";
 import step2 from "@assets/stock_images/wifi_troubleshooting_5279112e.jpg";
 import step3 from "@assets/stock_images/wifi_troubleshooting_4467e740.jpg";
 
 export default function GuestPortal() {
+  const { toast } = useToast();
   const [showFeedback, setShowFeedback] = useState(false);
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
   // Fetch all events (in a real app, would filter by guest ID)
-  const { data: allEvents = [] } = useQuery<Event[]>({
+  const { data: allEvents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/events"],
   });
 
@@ -29,6 +33,49 @@ export default function GuestPortal() {
   const guestEvents = allEvents.filter(event => 
     event.source === "guest_portal" || event.source === "front_desk"
   );
+
+  // Mutation to create incident from guest report
+  const createIncidentMutation = useMutation({
+    mutationFn: async (formData: IssueFormData) => {
+      // Map form data to incident format
+      const incidentData: InsertIncident = {
+        title: `${formData.category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${formData.location}`,
+        description: formData.description,
+        priority: "medium", // Default priority for guest reports
+        status: "new",
+        location: formData.location,
+        category: "Network Connectivity", // Map all guest issues to network category
+        source: "guest_portal", // Critical: must be guest_portal to appear in "My Issues"
+        propertyId: PROPERTIES[0].id, // Default to first property (in real app, would get from user session)
+      };
+
+      const response = await apiRequest("POST", "/api/incidents", incidentData);
+      const incident = await response.json();
+
+      // Add timeline entry
+      await apiRequest("POST", `/api/incidents/${incident.id}/timeline`, {
+        action: "Issue reported by guest via portal",
+        actor: "Guest Portal",
+      });
+
+      return incident;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      toast({
+        title: "Issue Reported Successfully",
+        description: "Your issue has been submitted. Our team will address it shortly.",
+      });
+      setShowFeedback(true);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to Submit Issue",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    },
+  });
 
   const formatTimestamp = (date: Date) => {
     const now = new Date();
@@ -115,8 +162,7 @@ export default function GuestPortal() {
           <TabsContent value="report" className="mt-6">
             <IssueReportForm
               onSubmit={(data) => {
-                console.log("Issue submitted:", data);
-                setShowFeedback(true);
+                createIncidentMutation.mutate(data);
               }}
             />
           </TabsContent>
