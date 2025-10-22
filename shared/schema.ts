@@ -23,7 +23,7 @@ export const incidents = pgTable("incidents", {
   title: text("title").notNull(),
   description: text("description").notNull(),
   priority: text("priority").notNull(), // 'low' | 'medium' | 'high' | 'critical'
-  status: text("status").notNull(), // 'new' | 'assigned' | 'in_progress' | 'resolved'
+  status: text("status").notNull(), // 'new' | 'assigned' | 'in_progress' | 'resolved' | 'cancelled' | 'on_hold' | 'duplicate'
   location: text("location"),
   category: text("category"),
   affectedGuests: integer("affected_guests"),
@@ -36,6 +36,11 @@ export const incidents = pgTable("incidents", {
   incidentType: text("incident_type"), // 'reactive' | 'proactive' | 'environmental'
   scheduledFor: timestamp("scheduled_for"), // For planned maintenance / incidents
   metadata: text("metadata"), // JSON string for SA-specific data (load shedding stage, ISP, weather type)
+  cancelReason: text("cancel_reason"), // Required when status is 'cancelled'
+  holdReason: text("hold_reason"), // Required when status is 'on_hold'
+  holdResumeDate: timestamp("hold_resume_date"), // Expected resume date for on_hold incidents
+  duplicateOfId: text("duplicate_of_id"), // Reference to original incident if status is 'duplicate'
+  requestedInfo: text("requested_info"), // Info requested from reporter or other parties
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow(),
 });

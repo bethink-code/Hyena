@@ -12,6 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CancelIncidentDialog } from "./CancelIncidentDialog";
+import { HoldIncidentDialog } from "./HoldIncidentDialog";
+import { RequestInfoDialog } from "./RequestInfoDialog";
+import { ReassignDialog } from "./ReassignDialog";
+import { ChangePriorityDialog } from "./ChangePriorityDialog";
 import {
   MapPin,
   User,
@@ -306,14 +311,35 @@ export function IncidentDetailPanel({
               </Button>
             )}
 
-            {incident.priority !== "critical" && onEscalate && (
-              <Button
-                onClick={() => onEscalate(incident.id)}
-                variant="outline"
-                data-testid="button-escalate"
-              >
-                Escalate Priority
-              </Button>
+            <ChangePriorityDialog
+              incidentId={incident.id}
+              currentPriority={incident.priority}
+              onSuccess={onClose}
+            />
+
+            {incident.status !== "cancelled" && incident.status !== "resolved" && incident.status !== "duplicate" && (
+              <>
+                <ReassignDialog
+                  incidentId={incident.id}
+                  currentAssignee={incident.assignedTo}
+                  onSuccess={onClose}
+                />
+
+                <RequestInfoDialog
+                  incidentId={incident.id}
+                  onSuccess={onClose}
+                />
+
+                <HoldIncidentDialog
+                  incidentId={incident.id}
+                  onSuccess={onClose}
+                />
+
+                <CancelIncidentDialog
+                  incidentId={incident.id}
+                  onSuccess={onClose}
+                />
+              </>
             )}
 
             <Button

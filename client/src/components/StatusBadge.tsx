@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { Circle } from "lucide-react";
 
-export type IncidentStatus = "new" | "assigned" | "in_progress" | "resolved" | "closed";
+export type IncidentStatus = "new" | "assigned" | "in_progress" | "resolved" | "closed" | "cancelled" | "on_hold" | "duplicate";
 
 interface StatusBadgeProps {
   status: IncidentStatus;
@@ -16,6 +16,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     in_progress: { bg: "bg-event-medium/10 text-event-medium", dot: "fill-event-medium text-event-medium" },
     resolved: { bg: "bg-event-success/10 text-event-success", dot: "fill-event-success text-event-success" },
     closed: { bg: "bg-muted text-muted-foreground", dot: "fill-muted-foreground text-muted-foreground" },
+    cancelled: { bg: "bg-muted text-muted-foreground", dot: "fill-muted-foreground text-muted-foreground" },
+    on_hold: { bg: "bg-amber-500/10 text-amber-700 dark:text-amber-500", dot: "fill-amber-700 text-amber-700 dark:fill-amber-500 dark:text-amber-500" },
+    duplicate: { bg: "bg-muted/50 text-muted-foreground", dot: "fill-muted-foreground text-muted-foreground" },
   };
 
   const labels = {
@@ -24,6 +27,9 @@ export function StatusBadge({ status, className }: StatusBadgeProps) {
     in_progress: "In Progress",
     resolved: "Resolved",
     closed: "Closed",
+    cancelled: "Cancelled",
+    on_hold: "On Hold",
+    duplicate: "Duplicate",
   };
 
   return (
