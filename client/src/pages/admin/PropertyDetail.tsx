@@ -318,12 +318,6 @@ export default function PropertyDetail() {
         incident={incidentDetailProps}
         open={!!selectedIncidentId}
         onClose={() => setSelectedIncidentId(null)}
-        onAssign={(id) => {
-          assignIncidentMutation.mutate({
-            incidentId: id,
-            assignedTo: "John Smith",
-          });
-        }}
         onResolve={(id) => {
           resolveIncidentMutation.mutate(id);
         }}

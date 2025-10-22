@@ -17,6 +17,7 @@ import { HoldIncidentDialog } from "./HoldIncidentDialog";
 import { RequestInfoDialog } from "./RequestInfoDialog";
 import { ReassignDialog } from "./ReassignDialog";
 import { ChangePriorityDialog } from "./ChangePriorityDialog";
+import { AssignTechnicianDialog } from "./AssignTechnicianDialog";
 import {
   MapPin,
   User,
@@ -56,7 +57,6 @@ interface IncidentDetailPanelProps {
   incident: IncidentDetailProps | null;
   open: boolean;
   onClose: () => void;
-  onAssign?: (incidentId: string) => void;
   onResolve?: (incidentId: string) => void;
   onEscalate?: (incidentId: string) => void;
 }
@@ -65,7 +65,6 @@ export function IncidentDetailPanel({
   incident,
   open,
   onClose,
-  onAssign,
   onResolve,
   onEscalate,
 }: IncidentDetailPanelProps) {
@@ -291,14 +290,11 @@ export function IncidentDetailPanel({
           </Tabs>
 
           <div className="border-t px-6 py-4 flex flex-wrap gap-2 bg-muted/10">
-            {incident.status === "new" && onAssign && (
-              <Button
-                onClick={() => onAssign(incident.id)}
-                variant="default"
-                data-testid="button-assign"
-              >
-                Assign to Technician
-              </Button>
+            {incident.status === "new" && (
+              <AssignTechnicianDialog
+                incidentId={incident.id}
+                onSuccess={onClose}
+              />
             )}
             
             {(incident.status === "assigned" || incident.status === "in_progress") && onResolve && (

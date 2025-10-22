@@ -313,9 +313,6 @@ export default function TechnicianIncidentQueue() {
         incident={incidentDetailProps}
         open={!!selectedIncidentId}
         onClose={() => setSelectedIncidentId(null)}
-        onAssign={(id) => {
-          startWorkMutation.mutate(id);
-        }}
         onResolve={(id) => {
           completeWorkMutation.mutate(id);
         }}
