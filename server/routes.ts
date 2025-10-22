@@ -2,9 +2,46 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertIncidentSchema, insertIncidentTimelineSchema } from "@shared/schema";
+import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Incident routes
+  
+  // Query parameter schema for incident filtering
+  const incidentQuerySchema = z.object({
+    propertyId: z.string().optional(),
+    status: z.string().optional(),
+  });
+  
+  // Shared handler for getting incidents (used by both /api/incidents and /api/events)
+  const getIncidentsHandler = async (req: any, res: any) => {
+    try {
+      // Validate query parameters
+      const { propertyId, status } = incidentQuerySchema.parse(req.query);
+      let incidents;
+      
+      // Get incidents based on filters (supports both individually or combined)
+      if (propertyId) {
+        incidents = await storage.getIncidentsByProperty(propertyId);
+        // Apply status filter to property-filtered results if both provided
+        if (status && incidents) {
+          incidents = incidents.filter(incident => incident.status === status);
+        }
+      } else if (status) {
+        incidents = await storage.getIncidentsByStatus(status);
+      } else {
+        incidents = await storage.getAllIncidents();
+      }
+      
+      res.json(incidents);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid query parameters', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  };
   
   // Create a new incident
   app.post("/api/incidents", async (req, res) => {
@@ -25,23 +62,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all incidents (with optional propertyId filter)
-  app.get("/api/incidents", async (req, res) => {
-    try {
-      const { propertyId } = req.query;
-      let incidents;
-      
-      if (propertyId && typeof propertyId === 'string') {
-        incidents = await storage.getIncidentsByProperty(propertyId);
-      } else {
-        incidents = await storage.getAllIncidents();
-      }
-      
-      res.json(incidents);
-    } catch (error: any) {
-      res.status(500).json({ error: error.message });
-    }
-  });
+  // Get all incidents (with optional propertyId or status filter)
+  app.get("/api/incidents", getIncidentsHandler);
 
   // Get single incident
   app.get("/api/incidents/:id", async (req, res) => {
@@ -125,6 +147,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
+
+  // Event routes (alias for incidents - system uses terms interchangeably)
+  // Uses shared handler to maintain full feature parity with /api/incidents
+  app.get("/api/events", getIncidentsHandler);
 
   const httpServer = createServer(app);
 
