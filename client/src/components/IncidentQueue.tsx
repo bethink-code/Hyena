@@ -101,7 +101,10 @@ export function IncidentQueue({
             <SelectItem value="new">New</SelectItem>
             <SelectItem value="assigned">Assigned</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
+            <SelectItem value="on_hold">On Hold</SelectItem>
             <SelectItem value="resolved">Resolved</SelectItem>
+            <SelectItem value="cancelled">Cancelled</SelectItem>
+            <SelectItem value="duplicate">Duplicate</SelectItem>
           </SelectContent>
         </Select>
         
