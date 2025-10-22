@@ -36,6 +36,13 @@ export function ChangePriorityDialog({ incidentId, currentPriority, children, on
   const [newPriority, setNewPriority] = useState(currentPriority);
   const [reason, setReason] = useState("");
 
+  const priorityRank = {
+    low: 1,
+    medium: 2,
+    high: 3,
+    critical: 4,
+  };
+
   const changePriorityMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("PATCH", `/api/incidents/${incidentId}`, {
@@ -43,8 +50,13 @@ export function ChangePriorityDialog({ incidentId, currentPriority, children, on
       });
       const incident = await response.json();
       
-      const action = newPriority > currentPriority 
+      const currentRank = priorityRank[currentPriority as keyof typeof priorityRank] || 0;
+      const newRank = priorityRank[newPriority as keyof typeof priorityRank] || 0;
+      
+      const action = newRank > currentRank 
         ? `Priority escalated from ${currentPriority} to ${newPriority}`
+        : newRank < currentRank
+        ? `Priority de-escalated from ${currentPriority} to ${newPriority}`
         : `Priority changed from ${currentPriority} to ${newPriority}`;
       
       await apiRequest("POST", `/api/incidents/${incidentId}/timeline`, {
