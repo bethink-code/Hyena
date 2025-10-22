@@ -68,8 +68,16 @@ export default function AdminIncidentQueue() {
   const incidents = useMemo(() => {
     let filtered = allIncidents;
     
-    // Apply status filter from URL
-    if (statusFilter) {
+    // If NO status filter provided, show only active work items (exclude terminal statuses)
+    // This ensures "Active Incidents" shows active work, not cancelled/duplicate/resolved incidents
+    if (!statusFilter) {
+      filtered = filtered.filter(i => 
+        i.status !== 'resolved' && 
+        i.status !== 'cancelled' && 
+        i.status !== 'duplicate'
+      );
+    } else {
+      // If status filter IS provided, respect it (allows viewing resolved/cancelled if needed)
       filtered = filtered.filter(i => i.status === statusFilter);
     }
     

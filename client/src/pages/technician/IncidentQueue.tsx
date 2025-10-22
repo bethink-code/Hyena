@@ -62,8 +62,16 @@ export default function TechnicianIncidentQueue() {
     // Technician only sees incidents from their assigned properties
     let filtered = allIncidents.filter(i => technicianPropertyIds.includes(i.propertyId || ''));
     
-    // Apply status filter from URL
-    if (statusFilter) {
+    // If NO status filter provided, show only active work items (exclude terminal statuses)
+    // This ensures "My Queue" shows active work, not cancelled/duplicate/resolved incidents
+    if (!statusFilter) {
+      filtered = filtered.filter(i => 
+        i.status !== 'resolved' && 
+        i.status !== 'cancelled' && 
+        i.status !== 'duplicate'
+      );
+    } else {
+      // If status filter IS provided, respect it (allows viewing resolved/cancelled if needed)
       filtered = filtered.filter(i => i.status === statusFilter);
     }
     

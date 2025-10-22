@@ -62,7 +62,13 @@ export default function AdminCenter() {
 
   // Determine property status based on incident count and priority
   const getPropertyStatus = (propertyId: string): "healthy" | "degraded" | "critical" | "offline" => {
-    const propertyIncidents = incidents.filter(i => i.propertyId === propertyId && i.status !== 'resolved');
+    // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
+    const propertyIncidents = incidents.filter(i => 
+      i.propertyId === propertyId && 
+      i.status !== 'resolved' && 
+      i.status !== 'cancelled' && 
+      i.status !== 'duplicate'
+    );
     const hasCritical = propertyIncidents.some(i => i.priority === 'critical');
     const activeCount = propertyIncidents.length;
 
@@ -75,7 +81,12 @@ export default function AdminCenter() {
   // Build properties array with real-time data including critical and new counts
   const properties = propertyDefinitions.map(prop => {
     const propertyIncidents = incidents.filter(i => i.propertyId === prop.id);
-    const activeIncidents = propertyIncidents.filter(i => i.status !== 'resolved');
+    // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
+    const activeIncidents = propertyIncidents.filter(i => 
+      i.status !== 'resolved' && 
+      i.status !== 'cancelled' && 
+      i.status !== 'duplicate'
+    );
     const incidentCount = activeIncidents.length;
     const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
     const newCount = activeIncidents.filter(i => i.status === 'new').length;
@@ -91,8 +102,12 @@ export default function AdminCenter() {
     };
   });
 
-  // Calculate total active incidents
-  const totalActiveIncidents = incidents.filter(i => i.status !== 'resolved').length;
+  // Calculate total active incidents (exclude terminal statuses: resolved, cancelled, duplicate)
+  const totalActiveIncidents = incidents.filter(i => 
+    i.status !== 'resolved' && 
+    i.status !== 'cancelled' && 
+    i.status !== 'duplicate'
+  ).length;
 
   return (
     <AppLayout

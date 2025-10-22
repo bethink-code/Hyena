@@ -51,16 +51,15 @@ export default function TechnicianApp() {
   // Note: Currently showing all incidents from technician's properties
   // TODO: Filter by assignedTo when authentication is implemented
   const metrics: MetricTile[] = useMemo(() => {
-    // Active statuses only (exclude terminal states)
+    // Active statuses only (exclude terminal states: resolved, cancelled, duplicate)
     const activeIncidents = technicianIncidents.filter(i => 
       i.status !== 'resolved' && 
       i.status !== 'cancelled' && 
       i.status !== 'duplicate'
     );
     
-    const myQueue = activeIncidents.filter(i => 
-      i.status === 'assigned' || i.status === 'in_progress'
-    ).length;
+    // My Queue = ALL active work items (new, assigned, in_progress, on_hold)
+    const myQueue = activeIncidents.length;
     
     const inProgress = activeIncidents.filter(i => i.status === 'in_progress').length;
     

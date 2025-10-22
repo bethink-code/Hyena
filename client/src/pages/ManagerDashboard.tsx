@@ -81,9 +81,17 @@ export default function ManagerDashboard() {
   // Calculate summary metrics
   const metrics: MetricTile[] = useMemo(() => {
     const managerIncidents = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
-    const criticalCount = managerIncidents.filter(i => i.priority === 'critical' && i.status !== 'resolved').length;
-    const activeCount = managerIncidents.filter(i => i.status !== 'resolved').length;
-    const assignedCount = managerIncidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length;
+    
+    // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
+    const activeIncidents = managerIncidents.filter(i => 
+      i.status !== 'resolved' && 
+      i.status !== 'cancelled' && 
+      i.status !== 'duplicate'
+    );
+    
+    const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
+    const activeCount = activeIncidents.length;
+    const inProgressCount = activeIncidents.filter(i => i.status === 'in_progress').length;
     const resolvedToday = managerIncidents.filter(i => {
       if (i.status !== 'resolved') return false;
       const today = new Date().toDateString();
@@ -110,7 +118,7 @@ export default function ManagerDashboard() {
       {
         id: "in-progress",
         label: "In Progress",
-        value: assignedCount,
+        value: inProgressCount,
         icon: Clock,
         variant: "medium",
         onClick: () => setLocation('/manager/incidents?status=in_progress'),
@@ -130,7 +138,12 @@ export default function ManagerDashboard() {
   const propertiesWithStats = useMemo(() => {
     return managerProperties.map(property => {
       const propertyIncidents = allIncidents.filter(i => i.propertyId === property.id);
-      const activeIncidents = propertyIncidents.filter(i => i.status !== 'resolved');
+      // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
+      const activeIncidents = propertyIncidents.filter(i => 
+        i.status !== 'resolved' && 
+        i.status !== 'cancelled' && 
+        i.status !== 'duplicate'
+      );
       const incidentCount = activeIncidents.length;
       const criticalCount = activeIncidents.filter(i => i.priority === 'critical').length;
       const newCount = activeIncidents.filter(i => i.status === 'new').length;
