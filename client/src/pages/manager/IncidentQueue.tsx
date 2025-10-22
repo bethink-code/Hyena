@@ -23,14 +23,36 @@ import {
 
 export default function IncidentQueuePage() {
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState(window.location.search);
   
-  // Parse URL query parameters
-  const params = new URLSearchParams(window.location.search);
-  const statusFilter = params.get('status') || undefined;
-  const priorityFilter = params.get('priority') || undefined;
-  const propertyIdFilter = params.get('propertyId') || undefined;
+  // Update search params when location changes
+  useEffect(() => {
+    setSearchParams(window.location.search);
+  }, [location]);
+  
+  // Parse URL query parameters - recompute when search params change
+  const statusFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('status') || undefined;
+  }, [searchParams]);
+  
+  const priorityFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('priority') || undefined;
+  }, [searchParams]);
+  
+  const propertyIdFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('propertyId') || undefined;
+  }, [searchParams]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchParams(''); // Clear search params state immediately
+    setLocation('/manager/incidents');
+  };
 
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
@@ -275,28 +297,6 @@ export default function IncidentQueuePage() {
           </div>
         </div>
 
-        {/* Active Filters Badge Display */}
-        {(statusFilter || priorityFilter || propertyIdFilter) && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
-            {propertyIdFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-property">
-                Property: {PROPERTIES.find(p => p.id === propertyIdFilter)?.name}
-              </Badge>
-            )}
-            {statusFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-status">
-                Status: {statusFilter.replace('_', ' ')}
-              </Badge>
-            )}
-            {priorityFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-priority">
-                Priority: {priorityFilter}
-              </Badge>
-            )}
-          </div>
-        )}
-
         {/* Incident Queue */}
         <IncidentQueue
           incidents={incidents.map((incident) => ({
@@ -310,6 +310,10 @@ export default function IncidentQueuePage() {
             timestamp: formatTimestamp(incident.createdAt),
           }))}
           onIncidentClick={(id) => setSelectedIncidentId(id)}
+          initialStatusFilter={statusFilter}
+          initialPriorityFilter={priorityFilter}
+          selectedPropertyId={propertyIdFilter}
+          onClearFilters={clearFilters}
         />
       </div>
 

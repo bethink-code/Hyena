@@ -73,12 +73,18 @@ Preferred communication style: Simple, everyday language.
   - **Explicit Filtering:** URL parameters override default (e.g., `?status=cancelled` shows cancelled incidents)
   - **Features:** 
     - Filter description header showing active filters
-    - Active filter badges (Property, Status, Priority)
+    - Clear Filters button (X icon) appears when any filter is active
     - IncidentQueue component with search and view modes (Cards/Table/Grid)
     - Technician view: No client-side status/priority filters (uses URL params only)
     - Manager/Admin view: Client-side filters available
     - Click incident → Detail panel slides in from right
     - Back to Dashboard button for easy navigation
+  - **Clear Filters Implementation:**
+    - Resets all active filters (status, priority, property) simultaneously
+    - Works for both URL-based filters and dropdown-selected filters
+    - State synchronization via searchParams state + useEffect (prevents race conditions)
+    - IncidentQueue handleClearFilters resets local state before calling parent handler
+    - Button visibility based on local filter state (statusFilter, priorityFilter, selectedPropertyId)
   - **Benefits:** 
     - Metrics match incident list counts (no mismatch between dashboard and list)
     - Shareable URLs with embedded filters

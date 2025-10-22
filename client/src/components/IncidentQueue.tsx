@@ -10,8 +10,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
-import { useState } from "react";
+import { Search, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 
 export interface Property {
   id: string;
@@ -28,6 +29,9 @@ interface IncidentQueueProps {
   showPropertyFilter?: boolean;
   showStatusFilter?: boolean;
   showPriorityFilter?: boolean;
+  initialStatusFilter?: string;
+  initialPriorityFilter?: string;
+  onClearFilters?: () => void;
 }
 
 export function IncidentQueue({ 
@@ -40,11 +44,37 @@ export function IncidentQueue({
   showPropertyFilter = false,
   showStatusFilter = true,
   showPriorityFilter = true,
+  initialStatusFilter,
+  initialPriorityFilter,
+  onClearFilters,
 }: IncidentQueueProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState(initialStatusFilter || "all");
+  const [priorityFilter, setPriorityFilter] = useState(initialPriorityFilter || "all");
   const [viewMode, setViewMode] = useState<ViewMode>("table");
+
+  // Sync filter state when URL changes
+  useEffect(() => {
+    setStatusFilter(initialStatusFilter || "all");
+  }, [initialStatusFilter]);
+
+  useEffect(() => {
+    setPriorityFilter(initialPriorityFilter || "all");
+  }, [initialPriorityFilter]);
+
+  // Check if any filters are active (use local state, not initial props)
+  const hasActiveFilters = onClearFilters && (
+    (statusFilter !== "all") ||
+    (priorityFilter !== "all") ||
+    (selectedPropertyId && selectedPropertyId !== "all")
+  );
+
+  // Handle clear filters - reset local state then call parent handler
+  const handleClearFilters = () => {
+    setStatusFilter("all");
+    setPriorityFilter("all");
+    onClearFilters?.();
+  };
 
   // Apply filters
   const filteredIncidents = incidents.filter(incident => {
@@ -66,6 +96,18 @@ export function IncidentQueue({
   return (
     <div className={className}>
       <div className="flex flex-col sm:flex-row gap-3 mb-6 items-start sm:items-center flex-wrap">
+        {hasActiveFilters && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClearFilters}
+            data-testid="button-clear-filters"
+            className="shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
+        
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input

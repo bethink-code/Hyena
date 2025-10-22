@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
@@ -22,14 +22,36 @@ import {
 
 export default function TechnicianIncidentQueue() {
   const { toast } = useToast();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState(window.location.search);
   
-  // Parse URL query parameters
-  const params = new URLSearchParams(window.location.search);
-  const statusFilter = params.get('status') || undefined;
-  const priorityFilter = params.get('priority') || undefined;
-  const propertyIdFilter = params.get('propertyId') || undefined;
+  // Update search params when location changes
+  useEffect(() => {
+    setSearchParams(window.location.search);
+  }, [location]);
+  
+  // Parse URL query parameters - recompute when search params change
+  const statusFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('status') || undefined;
+  }, [searchParams]);
+  
+  const priorityFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('priority') || undefined;
+  }, [searchParams]);
+  
+  const propertyIdFilter = useMemo(() => {
+    const params = new URLSearchParams(searchParams);
+    return params.get('propertyId') || undefined;
+  }, [searchParams]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchParams(''); // Clear search params state immediately
+    setLocation('/technician/incidents');
+  };
 
   // Technician works across these properties (matching dashboard scope)
   const technicianPropertyIds = ["1", "2", "3"];
@@ -268,28 +290,6 @@ export default function TechnicianIncidentQueue() {
           </div>
         </div>
 
-        {/* Active Filters Badge Display */}
-        {(statusFilter || priorityFilter || propertyIdFilter) && (
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-muted-foreground">Active filters:</span>
-            {propertyIdFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-property">
-                Property: {PROPERTIES.find(p => p.id === propertyIdFilter)?.name}
-              </Badge>
-            )}
-            {statusFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-status">
-                Status: {statusFilter.replace('_', ' ')}
-              </Badge>
-            )}
-            {priorityFilter && (
-              <Badge variant="secondary" data-testid="badge-filter-priority">
-                Priority: {priorityFilter}
-              </Badge>
-            )}
-          </div>
-        )}
-
         {/* Incident Queue */}
         <IncidentQueue
           incidents={incidents.map((incident) => ({
@@ -305,6 +305,10 @@ export default function TechnicianIncidentQueue() {
           onIncidentClick={(id) => setSelectedIncidentId(id)}
           showStatusFilter={false}
           showPriorityFilter={false}
+          initialStatusFilter={statusFilter}
+          initialPriorityFilter={priorityFilter}
+          selectedPropertyId={propertyIdFilter}
+          onClearFilters={clearFilters}
         />
       </div>
 
