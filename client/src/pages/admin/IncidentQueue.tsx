@@ -244,22 +244,41 @@ export default function AdminIncidentQueue() {
 
   // Get filter description for header
   const getFilterDescription = () => {
-    const parts: string[] = [];
+    const parts: JSX.Element[] = [];
     
     if (propertyIdFilter) {
       const property = PROPERTIES.find(p => p.id === propertyIdFilter);
-      if (property) parts.push(property.name);
+      if (property) {
+        parts.push(
+          <Badge key="property" variant="secondary" className="font-semibold">
+            {property.name}
+          </Badge>
+        );
+      }
     }
     
     if (statusFilter) {
-      parts.push(statusFilter.replace('_', ' '));
+      parts.push(<span key="status">{statusFilter.replace('_', ' ')}</span>);
     }
     
     if (priorityFilter) {
-      parts.push(`${priorityFilter} priority`);
+      parts.push(<span key="priority">{priorityFilter} priority</span>);
     }
     
-    return parts.length > 0 ? parts.join(' • ') : 'All incidents across all properties';
+    if (parts.length === 0) {
+      return <span>All incidents across all properties</span>;
+    }
+    
+    return (
+      <>
+        {parts.map((part, index) => (
+          <span key={index}>
+            {part}
+            {index < parts.length - 1 && <span className="mx-2">•</span>}
+          </span>
+        ))}
+      </>
+    );
   };
 
   return (
@@ -282,7 +301,9 @@ export default function AdminIncidentQueue() {
             <h2 className="text-2xl font-bold mb-1">Portfolio Incident Queue</h2>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Filter className="h-4 w-4" />
-              <span data-testid="text-filter-description">{getFilterDescription()}</span>
+              <div data-testid="text-filter-description" className="flex items-center">
+                {getFilterDescription()}
+              </div>
             </div>
           </div>
           <div className="text-right">
