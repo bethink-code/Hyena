@@ -250,7 +250,7 @@ export default function AdminIncidentQueue() {
       const property = PROPERTIES.find(p => p.id === propertyIdFilter);
       if (property) {
         parts.push(
-          <Badge key="property" variant="secondary" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal">
+          <Badge key="property" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal border-transparent">
             {property.name}
           </Badge>
         );

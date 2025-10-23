@@ -53,10 +53,6 @@ export default function TechnicianIncidentQueue() {
     setLocation('/technician/incidents');
   };
 
-  // Technician works across these properties (matching dashboard scope)
-  const technicianPropertyIds = ["1", "2", "3"];
-  const technicianProperties = PROPERTIES.filter(p => technicianPropertyIds.includes(p.id));
-
   const navSections = [
     {
       label: "Main",
@@ -245,7 +241,7 @@ export default function TechnicianIncidentQueue() {
       const property = PROPERTIES.find(p => p.id === propertyIdFilter);
       if (property) {
         parts.push(
-          <Badge key="property" variant="secondary" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal">
+          <Badge key="property" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal border-transparent">
             {property.name}
           </Badge>
         );
@@ -281,9 +277,7 @@ export default function TechnicianIncidentQueue() {
       title="Technician Work Queue"
       homeRoute="/technician"
       navSections={navSections}
-      notificationCount={allIncidents.filter(i => 
-        technicianPropertyIds.includes(i.propertyId || '') && i.status === 'new'
-      ).length}
+      notificationCount={allIncidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         {/* Header */}
