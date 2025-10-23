@@ -21,7 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import { EVENT_CATEGORY_OPTIONS, EVENT_CATEGORIES } from "@shared/eventCategories";
-import type { Incident, InsertIncident } from "@shared/schema";
+import type { Incident, InsertIncident, User } from "@shared/schema";
 import {
   Zap,
   Plus,
@@ -392,12 +392,20 @@ export default function EventSimulator() {
     source: "manual_report",
     rootCause: "",
     propertyId: "1", // Default to first property
+    assignedTo: "", // Optional technician assignment
   });
 
   // Fetch all incidents
   const { data: incidents = [], isLoading } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
+
+  // Fetch all users and filter to technicians
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ["/api/users"],
+  });
+
+  const technicians = users.filter(user => user.role === "technician");
 
   // Create incident mutation
   const createIncidentMutation = useMutation({
@@ -442,7 +450,13 @@ export default function EventSimulator() {
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    createIncidentMutation.mutate(formData as any);
+    // Prepare incident data, excluding assignedTo if empty
+    const incidentData = {
+      ...formData,
+      assignedTo: formData.assignedTo || undefined, // Exclude if empty
+    };
+    
+    createIncidentMutation.mutate(incidentData as any);
 
     // Reset form
     setFormData({
@@ -457,6 +471,7 @@ export default function EventSimulator() {
       source: "manual_report",
       rootCause: "",
       propertyId: "1", // Keep default property
+      assignedTo: "", // Reset technician assignment
     });
   };
 
@@ -624,6 +639,25 @@ export default function EventSimulator() {
                           <SelectItem value="assigned">Assigned</SelectItem>
                           <SelectItem value="in_progress">In Progress</SelectItem>
                           <SelectItem value="resolved">Resolved</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="assignedTo">Assign to Technician (Optional)</Label>
+                      <Select
+                        value={formData.assignedTo || undefined}
+                        onValueChange={(value) => setFormData({ ...formData, assignedTo: value })}
+                      >
+                        <SelectTrigger id="assignedTo" data-testid="select-assigned-to">
+                          <SelectValue placeholder="Select a technician" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {technicians.map((tech) => (
+                            <SelectItem key={tech.id} value={tech.name}>
+                              {tech.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
