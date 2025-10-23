@@ -72,7 +72,9 @@ Preferred communication style: Simple, everyday language.
   - **Default Behavior:** Shows only active incidents (excludes terminal statuses: resolved, cancelled, duplicate)
   - **Explicit Filtering:** URL parameters override default (e.g., `?status=cancelled` shows cancelled incidents)
   - **Features:** 
-    - Filter description header showing active filters
+    - Filter description header showing active filters with visual hierarchy
+    - Property names rendered in Badge components (variant="secondary", font-semibold) for visual prominence
+    - Status and priority displayed as regular text for contrast
     - Clear Filters button (X icon) appears when any filter is active
     - IncidentQueue component with search and view modes (Cards/Table/Grid)
     - Technician view: No client-side status/priority filters (uses URL params only)
