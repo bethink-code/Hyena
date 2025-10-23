@@ -50,6 +50,7 @@ Preferred communication style: Simple, everyday language.
 
 ### UI/UX Decisions & Feature Specifications
 - **Manual Event Creation:** Managers and Technicians can create events with extended schema supporting `eventType`, `scheduledFor`, `metadata`, and comprehensive categories including SA-specific ones (Load Shedding, ISP, Weather). Implemented via `ReportIncidentDialog` (Manager) and `LogIssueDialog` (Technician) with dynamic SA-specific fields.
+- **Event Simulator:** Testing interface (`/simulator`) for creating manual incidents and preset scenarios. Manual incident tab includes optional technician assignment field - fetches technicians from `/api/users`, dropdown shows technician names, field can be left unselected (assignedTo: null) or assigned to specific technician (assignedTo: "Name").
 - **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
 
 ### Universal Navigation Pattern (System-Wide)
