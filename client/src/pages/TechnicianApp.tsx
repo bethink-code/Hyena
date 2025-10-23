@@ -39,12 +39,10 @@ export default function TechnicianApp() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for technician's properties
-  const technicianPropertyIds = ["1", "2", "3"];
+  // TODO: Once authentication is implemented, filter by logged-in technician's property assignments
+  // For now, show all incidents across all properties so metrics are accurate
   const technicianIncidents = useMemo(() => {
-    return allIncidents.filter(i => 
-      technicianPropertyIds.includes(i.propertyId)
-    );
+    return allIncidents;
   }, [allIncidents]);
 
   // Calculate summary metrics

@@ -79,10 +79,11 @@ export default function TechnicianIncidentQueue() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for technician's properties and apply URL filters
+  // Filter incidents and apply URL filters
   const incidents = useMemo(() => {
-    // Technician only sees incidents from their assigned properties
-    let filtered = allIncidents.filter(i => technicianPropertyIds.includes(i.propertyId || ''));
+    // TODO: Once authentication is implemented, filter by logged-in technician's property assignments
+    // For now, show all incidents across all properties so assigned tasks appear regardless of property
+    let filtered = allIncidents;
     
     // If NO status filter provided, show only active work items (exclude terminal statuses)
     // This ensures "My Queue" shows active work, not cancelled/duplicate/resolved incidents
@@ -108,7 +109,7 @@ export default function TechnicianIncidentQueue() {
     }
     
     return filtered;
-  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, technicianPropertyIds]);
+  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
