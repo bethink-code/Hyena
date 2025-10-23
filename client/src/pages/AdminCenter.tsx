@@ -186,11 +186,17 @@ export default function AdminCenter() {
             <Button
               variant="outline"
               className="gap-2"
-              onClick={() => window.open('http://129.232.224.154:5101/', '_blank', 'noopener,noreferrer')}
-              data-testid="button-aruba-network-poc"
+              asChild
             >
-              Open Aruba Network POC
-              <ExternalLink className="h-4 w-4" />
+              <a
+                href="http://129.232.224.154:5101/"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-testid="button-aruba-network-poc"
+              >
+                Open Aruba Network POC
+                <ExternalLink className="h-4 w-4" />
+              </a>
             </Button>
           </CardContent>
         </Card>
