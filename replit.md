@@ -73,7 +73,7 @@ Preferred communication style: Simple, everyday language.
   - **Explicit Filtering:** URL parameters override default (e.g., `?status=cancelled` shows cancelled incidents)
   - **Features:** 
     - Filter description header showing active filters with visual hierarchy
-    - Property names rendered in Badge components (variant="secondary", font-semibold) for visual prominence
+    - Property names rendered in custom orange Badge components (bg-[#f29d00f5], text-[#fafafa], text-[16px], font-normal) for maximum visual prominence
     - Status and priority displayed as regular text for contrast
     - Clear Filters button (X icon) appears when any filter is active
     - IncidentQueue component with search and view modes (Cards/Table/Grid)
@@ -96,7 +96,8 @@ Preferred communication style: Simple, everyday language.
 - **Technician Dashboard (October 2025):**
   - **Shows:** Summary metrics only (My Queue, In Progress, Completed Today, Critical)
   - **Removed:** Property cards (now only a filter option), Incident queue table, Incident actions section
-  - **Property Scope:** Properties 1, 2, 3 (The Table Bay Hotel, Umhlanga Sands, Saxon Hotel)
+  - **Property Scope:** All properties (temporary: no property filter until authentication implemented)
+  - **Authentication Note:** Hardcoded property filters removed to ensure all assigned incidents appear. Will be replaced with user-based property assignments once authentication is implemented.
   - **Metric Calculations:** 
     - My Queue: All active work items (new, assigned, in_progress, on_hold)
     - In Progress: Only status='in_progress'
