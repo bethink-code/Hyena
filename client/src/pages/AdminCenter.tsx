@@ -2,6 +2,9 @@ import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import type { Incident } from "@shared/schema";
@@ -16,6 +19,8 @@ import {
   FileText,
   Puzzle,
   Shield,
+  ExternalLink,
+  Activity,
 } from "lucide-react";
 
 export default function AdminCenter() {
@@ -156,6 +161,39 @@ export default function AdminCenter() {
             onClick={() => setLocation('/admin/users')}
           />
         </div>
+
+        <Card className="border-primary/20 bg-card">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Activity className="h-5 w-5 text-primary" />
+                <div>
+                  <CardTitle className="text-lg">Live Network Infrastructure</CardTitle>
+                  <CardDescription className="mt-1">
+                    Real-time data from Aruba network devices and controllers
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="default" className="bg-primary text-primary-foreground">
+                LIVE DATA
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Access the technical proof-of-concept dashboard showing actual Aruba network monitoring data, device status, and connectivity metrics from production infrastructure.
+            </p>
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={() => window.open('http://129.232.224.154:5101/', '_blank', 'noopener,noreferrer')}
+              data-testid="button-aruba-network-poc"
+            >
+              Open Aruba Network POC
+              <ExternalLink className="h-4 w-4" />
+            </Button>
+          </CardContent>
+        </Card>
 
         <div>
           <h3 className="text-xl font-semibold mb-4">Property Status</h3>
