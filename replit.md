@@ -51,6 +51,7 @@ Preferred communication style: Simple, everyday language.
 ### UI/UX Decisions & Feature Specifications
 - **Manual Event Creation:** Managers and Technicians can create events with extended schema supporting `eventType`, `scheduledFor`, `metadata`, and comprehensive categories including SA-specific ones (Load Shedding, ISP, Weather). Implemented via `ReportIncidentDialog` (Manager) and `LogIssueDialog` (Technician) with dynamic SA-specific fields.
 - **Event Simulator:** Testing interface (`/simulator`) for creating manual incidents and preset scenarios. Manual incident tab includes optional technician assignment field - fetches technicians from `/api/users`, dropdown shows technician names, field can be left unselected (assignedTo: null) or assigned to specific technician (assignedTo: "Name").
+- **Aruba Network POC Integration:** Admin Center dashboard displays prominent card linking to live Aruba network infrastructure POC (http://129.232.224.154:5101/). Card features "LIVE DATA" badge, Activity icon, descriptive text, and secure external link with rel="noopener noreferrer" protection. Positioned between KPI widgets and Property Status section.
 - **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
 
 ### Universal Navigation Pattern (System-Wide)
