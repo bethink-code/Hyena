@@ -1,0 +1,176 @@
+<div class="spec-content">
+  <h1>Admin Center - Portfolio Dashboard</h1>
+  
+  <section>
+    <h2>Overview</h2>
+    <p>The Portfolio Dashboard provides system administrators with a comprehensive view of all properties, users, and platform-wide metrics. Admins have full access to configuration, user management, and cross-property analytics.</p>
+  </section>
+
+  <section>
+    <h2>Key Features</h2>
+    
+    <h3>1. Portfolio Overview KPIs</h3>
+    <p>Top-level metrics displayed in card widgets:</p>
+    <ul>
+      <li><strong>Total Properties:</strong> Count of all properties in the portfolio</li>
+      <li><strong>Active Incidents:</strong> Total active incidents across all properties (with percentage change)</li>
+      <li><strong>Guest Satisfaction:</strong> Average satisfaction score (4.2/5 scale)</li>
+      <li><strong>Total Users:</strong> Count of all platform users (1.2k format)</li>
+    </ul>
+    <p><em>Clicking metric cards navigates to filtered views.</em></p>
+
+    <h3>2. Live Network Infrastructure</h3>
+    <p>Special card featuring integration with Aruba Network POC:</p>
+    <ul>
+      <li><strong>LIVE DATA badge:</strong> Indicates real-time production data</li>
+      <li><strong>Activity icon:</strong> Visual indicator of live monitoring</li>
+      <li><strong>Description:</strong> Explains connection to Aruba network devices and controllers</li>
+      <li><strong>External Link:</strong> Opens Aruba Network POC in new tab with security protections (rel="noopener noreferrer")</li>
+    </ul>
+    <p><strong>Security:</strong> External link prevents reverse-tabnabbing and clearly indicates it opens outside the platform.</p>
+
+    <h3>3. Property Status Grid</h3>
+    <p>Visual grid showing all properties with real-time status indicators:</p>
+    <ul>
+      <li><strong>Healthy:</strong> 0 active incidents (green)</li>
+      <li><strong>Degraded:</strong> 1-2 active incidents (yellow)</li>
+      <li><strong>Critical:</strong> 3+ incidents or any critical-priority incident (red)</li>
+      <li><strong>Offline:</strong> Connectivity loss detected (gray)</li>
+    </ul>
+    <p>Each card shows:</p>
+    <ul>
+      <li>Property name and location</li>
+      <li>Status badge</li>
+      <li>Active incident count</li>
+      <li>Last updated timestamp</li>
+    </ul>
+    <p><em>Clicking a property card navigates to <code>/admin/incidents?propertyId={id}</code></em></p>
+
+    <h3>4. Report Incident</h3>
+    <p>Admins can create incidents for any property with full field access including:</p>
+    <ul>
+      <li>All categories (Network, SA-specific, Operational)</li>
+      <li>Property selection across entire portfolio</li>
+      <li>Technician assignment</li>
+      <li>Extended metadata fields</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Sidebar Navigation</h2>
+    
+    <h3>Overview Section</h3>
+    <ul>
+      <li><strong>Portfolio Dashboard:</strong> Main landing page</li>
+    </ul>
+
+    <h3>Management Section</h3>
+    <ul>
+      <li><strong>Users & Roles:</strong> User management, role assignments, property permissions</li>
+      <li><strong>System Config:</strong> Platform configuration settings</li>
+      <li><strong>Integrations:</strong> Third-party integrations and API connections</li>
+    </ul>
+
+    <h3>Reporting Section</h3>
+    <ul>
+      <li><strong>Regional Analytics:</strong> Cross-property performance analytics</li>
+      <li><strong>Reports:</strong> Generate and export reports</li>
+      <li><strong>Audit Logs:</strong> System-wide activity audit trail</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Admin Privileges</h2>
+    <p>Admin users have full platform access:</p>
+    <ul>
+      <li>View and manage all properties</li>
+      <li>Create, edit, delete users and roles</li>
+      <li>Access all incidents across all properties</li>
+      <li>Configure system settings</li>
+      <li>View audit logs and system analytics</li>
+      <li>Manage integrations and external connections</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>White-Label Considerations</h2>
+    <p>The platform is designed for white-label deployment:</p>
+    <ul>
+      <li>Property branding can be customized per deployment</li>
+      <li>Color schemes defined via CSS variables</li>
+      <li>South African localization (currency, dates, spelling)</li>
+      <li>Multi-property support with property-specific configurations</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>External Integrations</h2>
+    
+    <h3>Aruba Network POC</h3>
+    <p>Live integration with production Aruba network infrastructure:</p>
+    <ul>
+      <li><strong>URL:</strong> http://129.232.224.154:5101/</li>
+      <li><strong>Purpose:</strong> Real-time device monitoring and network metrics</li>
+      <li><strong>Access:</strong> Admin-only via secure external link</li>
+      <li><strong>Data:</strong> Live device status, connectivity metrics, controller data</li>
+    </ul>
+  </section>
+</div>
+
+<style>
+  .spec-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .spec-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+  }
+  .spec-content h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #2563eb;
+  }
+  .spec-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+  }
+  .spec-content ul, .spec-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .spec-content li {
+    margin-bottom: 0.5rem;
+  }
+  .spec-content p {
+    margin-bottom: 1rem;
+  }
+  .spec-content code {
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+  }
+  .spec-content em {
+    color: #6b7280;
+    font-style: italic;
+  }
+  .spec-content section {
+    margin-bottom: 2rem;
+  }
+  .spec-content strong {
+    font-weight: 600;
+    color: #111827;
+  }
+</style>

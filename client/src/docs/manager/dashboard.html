@@ -1,0 +1,134 @@
+<div class="spec-content">
+  <h1>Manager Dashboard - Functional Specification</h1>
+  
+  <section>
+    <h2>Overview</h2>
+    <p>The Manager Dashboard provides property managers with a comprehensive view of network incidents and property health across their assigned properties. Managers can monitor active issues, track resolution progress, and create new incident reports.</p>
+  </section>
+
+  <section>
+    <h2>Key Features</h2>
+    
+    <h3>1. Summary Metrics</h3>
+    <ul>
+      <li><strong>Active Incidents:</strong> Total count of all non-resolved incidents (new, assigned, in_progress, on_hold)</li>
+      <li><strong>Critical Priority:</strong> Count of critical-priority incidents requiring immediate attention</li>
+      <li><strong>In Progress:</strong> Incidents currently being worked on by technicians</li>
+      <li><strong>Completed Today:</strong> Incidents resolved during the current day</li>
+    </ul>
+    <p><em>Clicking any metric card navigates to the filtered incident list page.</em></p>
+
+    <h3>2. Property Status Cards</h3>
+    <p>Visual cards showing real-time status for each assigned property:</p>
+    <ul>
+      <li><strong>Healthy:</strong> No active incidents (green indicator)</li>
+      <li><strong>Degraded:</strong> 1-2 active incidents (yellow indicator)</li>
+      <li><strong>Critical:</strong> 3+ incidents or any critical-priority incident (red indicator)</li>
+      <li><strong>Offline:</strong> Property experiencing connectivity loss (gray indicator)</li>
+    </ul>
+    <p><em>Clicking a property card filters the incident list to that property.</em></p>
+
+    <h3>3. Report Incident</h3>
+    <p>Blue "Report Incident" button in top-right corner allows managers to create new incidents with:</p>
+    <ul>
+      <li>Title and description</li>
+      <li>Category (Network, Load Shedding, ISP/Fibre, Weather, Guest Experience, Maintenance)</li>
+      <li>Priority level (Low, Medium, High, Critical)</li>
+      <li>Property assignment</li>
+      <li>Optional technician assignment</li>
+      <li>Location details</li>
+      <li>Event type (Reactive, Proactive, Environmental)</li>
+      <li>Metadata for SA-specific incidents (load shedding stage, ISP provider, weather conditions)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Navigation Pattern</h2>
+    <p>The dashboard follows the Universal Navigation Pattern:</p>
+    <ol>
+      <li><strong>View Summary:</strong> Dashboard shows clickable metric cards and property cards</li>
+      <li><strong>Filter by Metric:</strong> Click metric card → Navigate to <code>/manager/incidents?status=...</code></li>
+      <li><strong>Filter by Property:</strong> Click property card → Navigate to <code>/manager/incidents?propertyId=...</code></li>
+      <li><strong>View Details:</strong> Click incident in list → Detail panel slides in from right</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>User Roles & Permissions</h2>
+    <ul>
+      <li>Managers can view incidents for their assigned properties only (typically 3 properties)</li>
+      <li>Managers can create, edit, and take actions on incidents</li>
+      <li>Managers can assign/reassign incidents to technicians</li>
+      <li>Managers cannot access system configuration or user management</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Data Refresh</h2>
+    <p>Dashboard data automatically refreshes when:</p>
+    <ul>
+      <li>New incidents are created</li>
+      <li>Incident status changes</li>
+      <li>Technicians update incident progress</li>
+      <li>User navigates back to dashboard from other pages</li>
+    </ul>
+  </section>
+</div>
+
+<style>
+  .spec-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .spec-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+  }
+  .spec-content h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #2563eb;
+  }
+  .spec-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+  }
+  .spec-content ul, .spec-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .spec-content li {
+    margin-bottom: 0.5rem;
+  }
+  .spec-content p {
+    margin-bottom: 1rem;
+  }
+  .spec-content code {
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+  }
+  .spec-content em {
+    color: #6b7280;
+    font-style: italic;
+  }
+  .spec-content section {
+    margin-bottom: 2rem;
+  }
+  .spec-content strong {
+    font-weight: 600;
+    color: #111827;
+  }
+</style>

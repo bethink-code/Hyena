@@ -1,0 +1,181 @@
+<div class="spec-content">
+  <h1>Incident Queue - Functional Specification</h1>
+  
+  <section>
+    <h2>Overview</h2>
+    <p>The Incident Queue page displays a filterable, searchable list of network incidents. It serves as the central hub for incident management, allowing managers to view, search, filter, and take action on incidents across their assigned properties.</p>
+  </section>
+
+  <section>
+    <h2>Page Structure</h2>
+    
+    <h3>1. Filter Description Header</h3>
+    <p>Shows currently active filters with visual hierarchy:</p>
+    <ul>
+      <li><strong>Property Name:</strong> Displayed in orange badge for maximum prominence</li>
+      <li><strong>Status/Priority:</strong> Shown as regular text</li>
+      <li><strong>Clear Filters:</strong> X icon button appears when filters are active</li>
+    </ul>
+
+    <h3>2. Search and View Controls</h3>
+    <ul>
+      <li><strong>Search Bar:</strong> Real-time search across incident titles, descriptions, and locations</li>
+      <li><strong>View Switcher:</strong> Toggle between Cards, Table, and Grid views</li>
+      <li><strong>Status Filter:</strong> Dropdown to filter by incident status</li>
+      <li><strong>Priority Filter:</strong> Dropdown to filter by priority level</li>
+    </ul>
+
+    <h3>3. Incident List</h3>
+    <p>Displays incidents in selected view mode (Cards/Table/Grid). Each incident shows:</p>
+    <ul>
+      <li>Title and description</li>
+      <li>Status badge (color-coded)</li>
+      <li>Priority indicator</li>
+      <li>Property name</li>
+      <li>Assigned technician (if any)</li>
+      <li>Location information</li>
+      <li>Timestamp</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Filtering Behavior</h2>
+    
+    <h3>URL-Based Filters</h3>
+    <p>Filters can be set via URL parameters for shareable links:</p>
+    <ul>
+      <li><code>?status=in_progress</code> - Shows only in-progress incidents</li>
+      <li><code>?priority=critical</code> - Shows only critical incidents</li>
+      <li><code>?propertyId=1</code> - Shows incidents for specific property</li>
+    </ul>
+
+    <h3>Default Behavior</h3>
+    <p>Without explicit filters, the page shows only <strong>active incidents</strong> (excludes terminal statuses: resolved, cancelled, duplicate).</p>
+
+    <h3>Clear Filters</h3>
+    <p>Clicking the X icon resets all active filters simultaneously and shows all active incidents.</p>
+  </section>
+
+  <section>
+    <h2>Incident Detail Panel</h2>
+    <p>Clicking any incident card/row opens a sliding panel from the right with three tabs:</p>
+    
+    <h3>1. Details Tab</h3>
+    <ul>
+      <li>Full incident information</li>
+      <li>Property and location details</li>
+      <li>Category and event type</li>
+      <li>Metadata (for SA-specific incidents)</li>
+    </ul>
+
+    <h3>2. Activity Tab</h3>
+    <ul>
+      <li>Timeline of all incident actions</li>
+      <li>Status changes with timestamps</li>
+      <li>Assignment history</li>
+      <li>Priority escalations/de-escalations</li>
+      <li>Information requests and responses</li>
+    </ul>
+
+    <h3>3. Actions Tab</h3>
+    <p>Available actions (for active incidents only):</p>
+    <ul>
+      <li><strong>Assign Technician:</strong> Assign or reassign to a technician</li>
+      <li><strong>Change Priority:</strong> Escalate or de-escalate priority level</li>
+      <li><strong>Request Info:</strong> Log information requests</li>
+      <li><strong>Put On Hold:</strong> Pause work with reason and optional resume date</li>
+      <li><strong>Cancel Incident:</strong> Mark as cancelled with required reason</li>
+      <li><strong>Resolve:</strong> Mark incident as resolved</li>
+    </ul>
+    <p><em>Note: Actions are hidden for terminal statuses (cancelled, resolved, duplicate).</em></p>
+  </section>
+
+  <section>
+    <h2>Status Lifecycle</h2>
+    <p>Incidents progress through these states:</p>
+    <ul>
+      <li><strong>New:</strong> Just created, not yet assigned</li>
+      <li><strong>Assigned:</strong> Assigned to technician, work not started</li>
+      <li><strong>In Progress:</strong> Technician actively working on it</li>
+      <li><strong>On Hold:</strong> Work paused (waiting for parts, vendor, etc.)</li>
+      <li><strong>Resolved:</strong> Work completed successfully (terminal)</li>
+      <li><strong>Cancelled:</strong> Incident cancelled with reason (terminal)</li>
+      <li><strong>Duplicate:</strong> Marked as duplicate of another incident (terminal)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Keyboard Shortcuts</h2>
+    <ul>
+      <li><kbd>Esc</kbd> - Close detail panel</li>
+      <li><kbd>/</kbd> - Focus search input</li>
+    </ul>
+  </section>
+</div>
+
+<style>
+  .spec-content {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: #333;
+  }
+  .spec-content h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #1a1a1a;
+    border-bottom: 2px solid #e5e7eb;
+    padding-bottom: 0.5rem;
+  }
+  .spec-content h2 {
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #2563eb;
+  }
+  .spec-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: #374151;
+  }
+  .spec-content ul, .spec-content ol {
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .spec-content li {
+    margin-bottom: 0.5rem;
+  }
+  .spec-content p {
+    margin-bottom: 1rem;
+  }
+  .spec-content code {
+    background: #f3f4f6;
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+  }
+  .spec-content kbd {
+    background: #1f2937;
+    color: #f9fafb;
+    padding: 0.125rem 0.5rem;
+    border-radius: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.875em;
+    border: 1px solid #374151;
+  }
+  .spec-content em {
+    color: #6b7280;
+    font-style: italic;
+  }
+  .spec-content section {
+    margin-bottom: 2rem;
+  }
+  .spec-content strong {
+    font-weight: 600;
+    color: #111827;
+  }
+</style>
