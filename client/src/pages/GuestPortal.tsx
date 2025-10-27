@@ -14,10 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, InsertIncident } from "@shared/schema";
-import heroImage from "@assets/stock_images/modern_luxury_hotel__84b97697.jpg";
-import step1 from "@assets/stock_images/smartphone_wifi_sett_6a2a707b.jpg";
-import step2 from "@assets/stock_images/smartphone_wifi_sett_f8eb245d.jpg";
-import step3 from "@assets/stock_images/smartphone_wifi_sett_43ee2f7e.jpg";
+import heroImage from "@assets/stock_images/Hotel_lobby.jpg";
+import step1 from "@assets/stock_images/Phone_use_1.jpg";
+import step2 from "@assets/stock_images/Phone_use_2.jpg";
+import step3 from "@assets/stock_images/Phone_use_3.jpg";
 
 export default function GuestPortal() {
   const { toast } = useToast();
