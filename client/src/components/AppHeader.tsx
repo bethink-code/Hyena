@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Home, User, Settings, LogOut, Bell } from "lucide-react";
+import { Home, User, Settings, LogOut, Bell, HelpCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useLocation } from "wouter";
 
@@ -17,6 +17,7 @@ interface AppHeaderProps {
   homeRoute: string;
   showNotifications?: boolean;
   notificationCount?: number;
+  onHelpClick?: () => void;
 }
 
 export function AppHeader({
@@ -24,6 +25,7 @@ export function AppHeader({
   homeRoute,
   showNotifications = true,
   notificationCount = 0,
+  onHelpClick,
 }: AppHeaderProps) {
   const [, setLocation] = useLocation();
 
@@ -58,6 +60,17 @@ export function AppHeader({
                   {notificationCount}
                 </Badge>
               )}
+            </Button>
+          )}
+
+          {onHelpClick && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onHelpClick}
+              data-testid="button-help"
+            >
+              <HelpCircle className="h-5 w-5" />
             </Button>
           )}
 

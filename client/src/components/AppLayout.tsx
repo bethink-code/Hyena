@@ -1,6 +1,7 @@
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { RoleNavigationHeader } from "@/components/RoleNavigationHeader";
 import { AppHeader } from "@/components/AppHeader";
+import { HelpPanel } from "@/components/HelpPanel";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +48,7 @@ export function AppLayout({
   showSidebar = true,
 }: AppLayoutProps) {
   const [location, setLocation] = useLocation();
+  const [helpPanelOpen, setHelpPanelOpen] = useState(false);
 
   const headerHeight = "3.5rem"; // ~56px for header with py-2 + button
   
@@ -65,8 +67,10 @@ export function AppLayout({
           title={title}
           homeRoute={homeRoute}
           notificationCount={notificationCount}
+          onHelpClick={() => setHelpPanelOpen(true)}
         />
         <main className="p-6">{children}</main>
+        <HelpPanel open={helpPanelOpen} onClose={() => setHelpPanelOpen(false)} />
       </div>
     );
   }
@@ -108,11 +112,13 @@ export function AppLayout({
               title={title}
               homeRoute={homeRoute}
               notificationCount={notificationCount}
+              onHelpClick={() => setHelpPanelOpen(true)}
             />
             <main className="flex-1 p-6">{children}</main>
           </div>
         </div>
       </SidebarProvider>
+      <HelpPanel open={helpPanelOpen} onClose={() => setHelpPanelOpen(false)} />
     </div>
   );
 }
