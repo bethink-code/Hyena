@@ -17,11 +17,11 @@ interface HelpPanelProps {
 }
 
 const routeToSpecMap: Record<string, string> = {
-  "/manager": "/src/docs/manager/dashboard.html",
-  "/manager/incidents": "/src/docs/manager/incidents.html",
-  "/admin": "/src/docs/admin/portfolio.html",
-  "/technician": "/src/docs/technician/work-queue.html",
-  "/technician/incidents": "/src/docs/technician/work-queue.html",
+  "/manager": "/docs/manager/dashboard.html",
+  "/manager/incidents": "/docs/manager/incidents.html",
+  "/admin": "/docs/admin/portfolio.html",
+  "/technician": "/docs/technician/work-queue.html",
+  "/technician/incidents": "/docs/technician/work-queue.html",
 };
 
 export function HelpPanel({ open, onClose }: HelpPanelProps) {
