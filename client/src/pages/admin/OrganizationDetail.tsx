@@ -73,6 +73,17 @@ const regionalFormSchema = z.object({
 
 type RegionalFormData = z.infer<typeof regionalFormSchema>;
 
+const userFormSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email"),
+  role: z.enum(["regional_manager", "property_manager"]),
+  propertyId: z.string().nullable().optional(),
+});
+
+type UserFormData = z.infer<typeof userFormSchema>;
+
 export default function OrganizationDetail() {
   const { toast } = useToast();
   const params = useParams<{ id: string }>();
@@ -81,6 +92,9 @@ export default function OrganizationDetail() {
   const [propertyDialogOpen, setPropertyDialogOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState<Property | null>(null);
   const [deletePropertyId, setDeletePropertyId] = useState<string | null>(null);
+  const [userDialogOpen, setUserDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deleteUserId, setDeleteUserId] = useState<string | null>(null);
   const [selectedTheme, setSelectedTheme] = useState<ThemeKey | null>(null);
   const [logoUrl, setLogoUrl] = useState("");
 
@@ -94,19 +108,15 @@ export default function OrganizationDetail() {
     queryKey: [`/api/organizations/${organizationId}/properties`],
   });
 
-  // Fetch all users and filter by organization
-  const { data: allUsers = [] } = useQuery<User[]>({
-    queryKey: ["/api/users"],
+  // Fetch organization users
+  const { data: organizationUsers = [] } = useQuery<User[]>({
+    queryKey: [`/api/users?organizationId=${organizationId}`],
   });
 
   // Get all properties for lookup
   const { data: allProperties = [] } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
   });
-
-  const organizationUsers = allUsers.filter(
-    (user) => user.organizationId === organizationId
-  );
 
   // Property form
   const propertyForm = useForm<PropertyFormData>({
@@ -137,6 +147,21 @@ export default function OrganizationDetail() {
     defaultValues: {
       timezone: organization?.timezone || "Africa/Johannesburg",
       language: (organization?.language as "en" | "af") || "en",
+    },
+  });
+
+  // User form
+  const userForm = useForm<UserFormData>({
+    resolver: zodResolver(userFormSchema.omit({ password: true }).extend({
+      password: z.string().min(6).optional(),
+    })),
+    defaultValues: {
+      username: "",
+      password: "",
+      name: "",
+      email: "",
+      role: "property_manager",
+      propertyId: null,
     },
   });
 
@@ -228,6 +253,61 @@ export default function OrganizationDetail() {
     },
   });
 
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (data: UserFormData) => {
+      const response = await apiRequest("POST", "/api/users", {
+        ...data,
+        userType: "organization",
+        organizationId,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users?organizationId=${organizationId}`] });
+      toast({
+        title: "User Created",
+        description: "New organization user has been added",
+      });
+      setUserDialogOpen(false);
+      userForm.reset();
+    },
+  });
+
+  // Update user mutation
+  const updateUserMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: Partial<UserFormData> }) => {
+      const response = await apiRequest("PATCH", `/api/users/${id}`, data);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users?organizationId=${organizationId}`] });
+      toast({
+        title: "User Updated",
+        description: "User has been updated",
+      });
+      setUserDialogOpen(false);
+      setEditingUser(null);
+      userForm.reset();
+    },
+  });
+
+  // Delete user mutation
+  const deleteUserMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await apiRequest("DELETE", `/api/users/${id}`);
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/users?organizationId=${organizationId}`] });
+      toast({
+        title: "User Deleted",
+        description: "User has been removed",
+      });
+      setDeleteUserId(null);
+    },
+  });
+
   // Update contact info mutation
   const updateContactMutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
@@ -297,6 +377,45 @@ export default function OrganizationDetail() {
       timezone: "Africa/Johannesburg",
     });
     setPropertyDialogOpen(true);
+  };
+
+  const handleUserSubmit = (data: UserFormData) => {
+    if (editingUser) {
+      // For edit, omit password if not provided
+      const updateData: Partial<UserFormData> = { ...data };
+      if (!updateData.password) {
+        delete updateData.password;
+      }
+      updateUserMutation.mutate({ id: editingUser.id, data: updateData });
+    } else {
+      createUserMutation.mutate(data);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUser(user);
+    userForm.reset({
+      username: user.username,
+      password: "", // Don't populate password for editing
+      name: user.name,
+      email: user.email,
+      role: user.role as "regional_manager" | "property_manager",
+      propertyId: user.propertyId || null,
+    });
+    setUserDialogOpen(true);
+  };
+
+  const handleAddUser = () => {
+    setEditingUser(null);
+    userForm.reset({
+      username: "",
+      password: "",
+      name: "",
+      email: "",
+      role: "property_manager",
+      propertyId: null,
+    });
+    setUserDialogOpen(true);
   };
 
   const navSections = [
@@ -650,15 +769,23 @@ export default function OrganizationDetail() {
           <TabsContent value="users" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Users</CardTitle>
-                <CardDescription>
-                  Users assigned to this organization
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Users</CardTitle>
+                    <CardDescription>
+                      Manage users for this organization
+                    </CardDescription>
+                  </div>
+                  <Button onClick={handleAddUser} data-testid="button-add-user">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add User
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 {organizationUsers.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground" data-testid="text-no-users">
-                    No users found for this organization.
+                    No users found. Add your first user to get started.
                   </div>
                 ) : (
                   <Table>
@@ -669,20 +796,44 @@ export default function OrganizationDetail() {
                         <TableHead>Email</TableHead>
                         <TableHead>Role</TableHead>
                         <TableHead>Property</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {organizationUsers.map((user) => {
                         const property = allProperties.find((p) => p.id === user.propertyId);
+                        const roleLabel = user.role === "regional_manager" 
+                          ? "Regional Manager" 
+                          : "Property Manager";
                         return (
                           <TableRow key={user.id} data-testid={`row-user-${user.id}`}>
                             <TableCell className="font-medium">{user.name}</TableCell>
                             <TableCell>{user.username}</TableCell>
                             <TableCell>{user.email}</TableCell>
                             <TableCell>
-                              <Badge variant="secondary">{user.role}</Badge>
+                              <Badge variant="secondary">{roleLabel}</Badge>
                             </TableCell>
                             <TableCell>{property?.name || "All Properties"}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => handleEditUser(user)}
+                                  data-testid={`button-edit-user-${user.id}`}
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => setDeleteUserId(user.id)}
+                                  data-testid={`button-delete-user-${user.id}`}
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -1116,14 +1267,189 @@ export default function OrganizationDetail() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogCancel data-testid="button-cancel-delete-property">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (deletePropertyId) {
                   deletePropertyMutation.mutate(deletePropertyId);
                 }
               }}
-              data-testid="button-confirm-delete"
+              data-testid="button-confirm-delete-property"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* User Dialog */}
+      <Dialog open={userDialogOpen} onOpenChange={setUserDialogOpen}>
+        <DialogContent data-testid="dialog-user">
+          <DialogHeader>
+            <DialogTitle>
+              {editingUser ? "Edit User" : "Add User"}
+            </DialogTitle>
+            <DialogDescription>
+              {editingUser
+                ? "Update user details"
+                : "Add a new user to this organization"}
+            </DialogDescription>
+          </DialogHeader>
+          <Form {...userForm}>
+            <form onSubmit={userForm.handleSubmit(handleUserSubmit)} className="space-y-4">
+              <FormField
+                control={userForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="John Doe" {...field} data-testid="input-user-name" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="johndoe" {...field} data-testid="input-user-username" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="john@example.com"
+                        {...field}
+                        data-testid="input-user-email"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Password {editingUser && "(Leave blank to keep unchanged)"}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder={editingUser ? "••••••••" : "Enter password"}
+                        {...field}
+                        data-testid="input-user-password"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="role"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger data-testid="select-user-role">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="regional_manager">Regional Manager</SelectItem>
+                        <SelectItem value="property_manager">Property Manager</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="propertyId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Property</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value === "all" ? null : value)}
+                      value={field.value || "all"}
+                    >
+                      <FormControl>
+                        <SelectTrigger data-testid="select-user-property">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="all">All Properties</SelectItem>
+                        {properties.map((property) => (
+                          <SelectItem key={property.id} value={property.id}>
+                            {property.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogFooter>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setUserDialogOpen(false)}
+                  data-testid="button-cancel-user"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={createUserMutation.isPending || updateUserMutation.isPending}
+                  data-testid="button-submit-user"
+                >
+                  {editingUser ? "Update" : "Add"} User
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete User Confirmation Dialog */}
+      <AlertDialog open={!!deleteUserId} onOpenChange={() => setDeleteUserId(null)}>
+        <AlertDialogContent data-testid="dialog-delete-user">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete User</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this user? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete-user">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (deleteUserId) {
+                  deleteUserMutation.mutate(deleteUserId);
+                }
+              }}
+              data-testid="button-confirm-delete-user"
             >
               Delete
             </AlertDialogAction>
