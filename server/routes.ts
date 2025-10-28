@@ -185,6 +185,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Platform logo upload endpoint
+  app.post("/api/platform/upload-logo", upload.single("logo"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      
+      // Store the platform logo path in a simple JSON file
+      const platformConfigPath = path.join(process.cwd(), "uploads", "platform-config.json");
+      await fs.writeFile(platformConfigPath, JSON.stringify({ logoUrl }));
+
+      res.json({ logoUrl });
+    } catch (error: any) {
+      if (req.file) {
+        await fs.unlink(req.file.path).catch(() => {});
+      }
+      console.error("Error uploading platform logo:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get platform logo
+  app.get("/api/platform/logo", async (req, res) => {
+    try {
+      const platformConfigPath = path.join(process.cwd(), "uploads", "platform-config.json");
+      try {
+        const data = await fs.readFile(platformConfigPath, "utf-8");
+        const config = JSON.parse(data);
+        res.json(config);
+      } catch {
+        // No logo uploaded yet
+        res.json({ logoUrl: null });
+      }
+    } catch (error: any) {
+      console.error("Error getting platform logo:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Serve uploaded logo files
   app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 

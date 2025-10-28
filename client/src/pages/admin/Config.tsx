@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,6 +22,7 @@ import {
   Puzzle,
   Shield,
   Palette,
+  Upload,
 } from "lucide-react";
 
 export default function Config() {
@@ -103,12 +105,83 @@ export default function Config() {
       title="System Configuration"
       homeRoute="/admin"
       navSections={navSections}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
         <div>
           <h2 className="text-2xl font-bold mb-1">System Configuration</h2>
           <p className="text-muted-foreground">Platform-wide settings and preferences</p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Platform Branding
+            </CardTitle>
+            <CardDescription>Upload your Hyena platform logo</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-3">
+              <Label>Platform Logo</Label>
+              <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
+                <div className="flex-1">
+                  <p className="text-sm font-medium mb-2">Upload Platform Logo</p>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    This logo will appear in Admin and Technician interfaces
+                  </p>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    id="platform-logo-upload"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+
+                      const formData = new FormData();
+                      formData.append("logo", file);
+
+                      try {
+                        const response = await fetch("/api/platform/upload-logo", {
+                          method: "POST",
+                          body: formData,
+                        });
+
+                        if (!response.ok) {
+                          throw new Error("Upload failed");
+                        }
+
+                        queryClient.invalidateQueries({ queryKey: ["/api/platform/logo"] });
+                        toast({
+                          title: "✓ Logo Uploaded",
+                          description: "Platform logo has been updated successfully",
+                        });
+                      } catch (error: any) {
+                        toast({
+                          title: "Upload Failed",
+                          description: error.message || "Failed to upload logo",
+                          variant: "destructive",
+                        });
+                      }
+
+                      e.target.value = "";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById("platform-logo-upload")?.click()}
+                    data-testid="button-upload-platform-logo"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Logo File
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
