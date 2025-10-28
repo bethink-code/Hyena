@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema, insertPropertySchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import multer from "multer";
@@ -242,6 +242,93 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Error searching for public object:", error);
       return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Property routes
+  app.get("/api/properties", async (req, res) => {
+    try {
+      const properties = await storage.getAllProperties();
+      res.json(properties);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/organizations/:id/properties", async (req, res) => {
+    try {
+      const properties = await storage.getPropertiesByOrganization(req.params.id);
+      res.json(properties);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/properties/:id", async (req, res) => {
+    try {
+      const property = await storage.getProperty(req.params.id);
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+      res.json(property);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/organizations/:id/properties", async (req, res) => {
+    try {
+      const validatedProperty = insertPropertySchema.parse({
+        ...req.body,
+        organizationId: req.params.id,
+      });
+      const property = await storage.createProperty(validatedProperty);
+      res.json(property);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid property data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  });
+
+  app.patch("/api/properties/:id", async (req, res) => {
+    try {
+      const updateSchema = z.object({
+        name: z.string().optional(),
+        location: z.string().optional(),
+        address: z.string().nullable().optional(),
+        status: z.enum(['active', 'inactive', 'maintenance'] as const).optional(),
+        timezone: z.string().optional(),
+      });
+      
+      const validatedData = updateSchema.parse(req.body);
+      const property = await storage.updateProperty(req.params.id, validatedData);
+      
+      if (!property) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+      
+      res.json(property);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid property data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  });
+
+  app.delete("/api/properties/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteProperty(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Property not found" });
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 
