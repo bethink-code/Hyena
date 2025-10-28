@@ -1,6 +1,5 @@
 import { db } from "./db";
-import { organizations, properties } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { organizations } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
@@ -34,46 +33,7 @@ export async function seedDatabase() {
       },
     ]).returning();
 
-    console.log(`Seeded ${orgs.length} organizations`);
-
-    // Seed properties for each organization
-    const props = await db.insert(properties).values([
-      // Sun International properties
-      {
-        id: "1",
-        name: "Sun City Resort",
-        location: "North West, South Africa",
-        organizationId: "org-sun-international",
-      },
-      {
-        id: "2",
-        name: "The Table Bay Hotel",
-        location: "Cape Town, South Africa",
-        organizationId: "org-sun-international",
-      },
-      // Tsogo Sun properties
-      {
-        id: "3",
-        name: "Southern Sun Waterfront",
-        location: "Cape Town, South Africa",
-        organizationId: "org-tsogo-sun",
-      },
-      {
-        id: "4",
-        name: "Garden Court Umhlanga",
-        location: "Durban, South Africa",
-        organizationId: "org-tsogo-sun",
-      },
-      // Protea Hotels properties
-      {
-        id: "5",
-        name: "Protea Hotel Fire & Ice",
-        location: "Johannesburg, South Africa",
-        organizationId: "org-protea-hotels",
-      },
-    ]).returning();
-
-    console.log(`Seeded ${props.length} properties`);
+    console.log(`✅ Seeded ${orgs.length} demo organizations (Sun International, Tsogo Sun, Protea Hotels)`);
     console.log("Database seeding completed successfully");
   } catch (error) {
     console.error("Error seeding database:", error);
