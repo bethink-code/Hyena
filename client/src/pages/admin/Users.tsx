@@ -67,7 +67,7 @@ export default function Users() {
   ];
 
   const { data: users = [], isLoading } = useQuery<User[]>({
-    queryKey: ["/api/users"],
+    queryKey: ["/api/users?type=platform"],
   });
 
   const form = useForm<FormData>({
@@ -78,20 +78,25 @@ export default function Users() {
       name: "",
       email: "",
       role: "technician",
-      propertyId: "1",
+      userType: "platform",
+      propertyId: null,
+      organizationId: null,
     },
   });
 
   const createUserMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const response = await apiRequest("POST", "/api/users", data);
+      const response = await apiRequest("POST", "/api/users", {
+        ...data,
+        userType: "platform",
+      });
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/users?type=platform"] });
       toast({
         title: "User Created",
-        description: "New user has been added successfully",
+        description: "New Hyena platform user has been added successfully",
       });
       setIsDialogOpen(false);
       form.reset();
@@ -111,18 +116,31 @@ export default function Users() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case "admin":
+      case "super_user":
         return "default";
-      case "regional_manager":
+      case "hyena_manager":
         return "default";
-      case "hotel_manager":
-        return "default";
-      case "manager":
+      case "hyena_user":
         return "default";
       case "technician":
         return "default";
       default:
         return "secondary";
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "super_user":
+        return "Super User";
+      case "hyena_manager":
+        return "Hyena Manager";
+      case "hyena_user":
+        return "Hyena User";
+      case "technician":
+        return "Technician";
+      default:
+        return role;
     }
   };
 
@@ -141,8 +159,8 @@ export default function Users() {
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold mb-1">Users & Roles</h2>
-            <p className="text-muted-foreground">Manage user access and permissions</p>
+            <h2 className="text-2xl font-bold mb-1">Hyena Platform Users</h2>
+            <p className="text-muted-foreground">Manage Hyena platform user access and permissions</p>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
@@ -153,9 +171,9 @@ export default function Users() {
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New User</DialogTitle>
+                <DialogTitle>Add Hyena Platform User</DialogTitle>
                 <DialogDescription>
-                  Create a new user account with role and property assignment
+                  Create a new Hyena platform user (Super user, Manager, User, or Technician)
                 </DialogDescription>
               </DialogHeader>
               <Form {...form}>
@@ -235,48 +253,18 @@ export default function Users() {
                     name="role"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Role</FormLabel>
+                        <FormLabel>Platform Role</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger data-testid="select-role">
-                              <SelectValue placeholder="Select a role" />
+                              <SelectValue placeholder="Select a platform role" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
+                            <SelectItem value="super_user">Super User</SelectItem>
+                            <SelectItem value="hyena_manager">Hyena Manager</SelectItem>
+                            <SelectItem value="hyena_user">Hyena User</SelectItem>
                             <SelectItem value="technician">Technician</SelectItem>
-                            <SelectItem value="hotel_manager">Hotel Manager</SelectItem>
-                            <SelectItem value="regional_manager">Regional Manager</SelectItem>
-                            <SelectItem value="admin">Admin</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="propertyId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Property Assignment</FormLabel>
-                        <Select 
-                          onValueChange={(value) => {
-                            field.onChange(value === "all" ? null : value);
-                          }} 
-                          defaultValue={field.value || "1"}
-                        >
-                          <FormControl>
-                            <SelectTrigger data-testid="select-property">
-                              <SelectValue placeholder="Select a property" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="all">All Properties (Admin only)</SelectItem>
-                            {PROPERTIES.map((property) => (
-                              <SelectItem key={property.id} value={property.id}>
-                                {property.name}
-                              </SelectItem>
-                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -325,9 +313,7 @@ export default function Users() {
                       data-testid={`badge-role-${user.id}`}
                       variant={getRoleBadgeVariant(user.role)}
                     >
-                      {user.role === 'hotel_manager' ? 'Hotel Manager' : 
-                       user.role === 'regional_manager' ? 'Regional Manager' :
-                       user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                      {getRoleLabel(user.role)}
                     </Badge>
                   </div>
                 ))}
