@@ -434,3 +434,6 @@
     inset: -1px;
   }
 }
+
+@import '@uppy/core/dist/style.min.css';
+@import '@uppy/dashboard/dist/style.min.css';
