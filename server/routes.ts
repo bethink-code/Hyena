@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema, insertPropertySchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, baseUserInsertSchema, insertOrganizationSchema, insertPropertySchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import multer from "multer";
@@ -43,6 +43,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedUser = insertUserSchema.parse(req.body);
       
+      // Enforce role/type separation
+      const platformRoles = ['super_user', 'hyena_manager', 'hyena_user', 'technician'];
+      const organizationRoles = ['regional_manager', 'property_manager'];
+      
+      if (validatedUser.userType === 'platform') {
+        if (!platformRoles.includes(validatedUser.role)) {
+          return res.status(400).json({ 
+            error: 'Invalid role for platform user. Must be: super_user, hyena_manager, hyena_user, or technician' 
+          });
+        }
+      } else if (validatedUser.userType === 'organization') {
+        if (!organizationRoles.includes(validatedUser.role)) {
+          return res.status(400).json({ 
+            error: 'Invalid role for organization user. Must be: regional_manager or property_manager' 
+          });
+        }
+        if (!validatedUser.organizationId) {
+          return res.status(400).json({ 
+            error: 'organizationId is required for organization users' 
+          });
+        }
+      } else {
+        return res.status(400).json({ 
+          error: 'userType must be either "platform" or "organization"' 
+        });
+      }
+      
       // Hash the password before storing
       const hashedPassword = await bcrypt.hash(validatedUser.password, 10);
       
@@ -64,16 +91,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/users/:id", async (req, res) => {
     try {
-      const updateSchema = insertUserSchema.partial().omit({ password: true });
+      const updateSchema = baseUserInsertSchema.partial().omit({ password: true });
       const validatedData = updateSchema.parse(req.body);
       
-      const user = await storage.updateUser(req.params.id, validatedData);
-      
-      if (!user) {
+      // Get existing user to check constraints
+      const existingUser = await storage.getUser(req.params.id);
+      if (!existingUser) {
         return res.status(404).json({ error: "User not found" });
       }
       
-      res.json(sanitizeUser(user));
+      // Enforce role/type separation if either is being updated
+      const platformRoles = ['super_user', 'hyena_manager', 'hyena_user', 'technician'];
+      const organizationRoles = ['regional_manager', 'property_manager'];
+      
+      const finalUserType = validatedData.userType ?? existingUser.userType;
+      const finalRole = validatedData.role ?? existingUser.role;
+      
+      if (finalUserType === 'platform') {
+        if (!platformRoles.includes(finalRole)) {
+          return res.status(400).json({ 
+            error: 'Invalid role for platform user. Must be: super_user, hyena_manager, hyena_user, or technician' 
+          });
+        }
+      } else if (finalUserType === 'organization') {
+        if (!organizationRoles.includes(finalRole)) {
+          return res.status(400).json({ 
+            error: 'Invalid role for organization user. Must be: regional_manager or property_manager' 
+          });
+        }
+        const finalOrgId = validatedData.organizationId ?? existingUser.organizationId;
+        if (!finalOrgId) {
+          return res.status(400).json({ 
+            error: 'organizationId is required for organization users' 
+          });
+        }
+      }
+      
+      const user = await storage.updateUser(req.params.id, validatedData);
+      
+      res.json(sanitizeUser(user!));
     } catch (error: any) {
       if (error.name === 'ZodError') {
         res.status(400).json({ error: 'Invalid user data', details: error.errors });

@@ -13,7 +13,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import { UserDetailPanel } from "@/components/UserDetailPanel";
 import type { User } from "@shared/schema";
-import { insertUserSchema } from "@shared/schema";
+import { baseUserInsertSchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -29,7 +29,7 @@ import {
   UserPlus,
 } from "lucide-react";
 
-const formSchema = insertUserSchema.extend({
+const formSchema = baseUserInsertSchema.extend({
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 

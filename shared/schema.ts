@@ -59,12 +59,53 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).omit({
+const platformRoles = ["super_user", "hyena_manager", "hyena_user", "technician"] as const;
+const organizationRoles = ["regional_manager", "property_manager"] as const;
+
+// Base schema without refinements (for use with .partial(), .extend(), etc.)
+const baseUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
 }).extend({
+  userType: z.enum(["platform", "organization"]),
+  role: z.enum(["super_user", "hyena_manager", "hyena_user", "technician", "regional_manager", "property_manager"]),
   propertyId: z.string().nullable().optional(),
+  organizationId: z.string().nullable().optional(),
 });
+
+// Export base schema for partial/extended operations
+export { baseUserSchema as baseUserInsertSchema };
+
+// Insert schema with validation refinements
+export const insertUserSchema = baseUserSchema.refine(
+  (data) => {
+    // Platform users can only have platform roles
+    if (data.userType === "platform" && !platformRoles.includes(data.role as any)) {
+      return false;
+    }
+    // Organization users can only have organization roles
+    if (data.userType === "organization" && !organizationRoles.includes(data.role as any)) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "Role must match userType (platform roles for platform users, organization roles for organization users)",
+    path: ["role"],
+  }
+).refine(
+  (data) => {
+    // Organization users must have an organizationId
+    if (data.userType === "organization" && !data.organizationId) {
+      return false;
+    }
+    return true;
+  },
+  {
+    message: "organizationId is required for organization users",
+    path: ["organizationId"],
+  }
+);
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
