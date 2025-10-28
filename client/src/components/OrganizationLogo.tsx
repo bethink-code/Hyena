@@ -24,16 +24,16 @@ export function OrganizationLogo({ organizationId }: OrganizationLogoProps) {
   }
 
   return (
-    <div className="flex items-center justify-center py-2" data-testid="organization-logo-container">
+    <div className="flex items-center justify-center py-6" data-testid="organization-logo-container">
       {organization.logoUrl ? (
         <img
           src={organization.logoUrl}
           alt={`${organization.name} logo`}
-          className="h-12 w-auto object-contain"
+          className="h-32 w-auto max-w-full object-contain"
           data-testid="organization-logo-image"
         />
       ) : (
-        <div className="text-lg font-semibold text-foreground" data-testid="organization-logo-text">
+        <div className="text-2xl font-semibold text-foreground" data-testid="organization-logo-text">
           {organization.name}
         </div>
       )}
