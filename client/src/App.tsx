@@ -40,6 +40,8 @@ import AdminIntegrations from "@/pages/admin/Integrations";
 import AdminAnalytics from "@/pages/admin/Analytics";
 import AdminReports from "@/pages/admin/Reports";
 import AdminAudit from "@/pages/admin/Audit";
+import Organizations from "@/pages/admin/Organizations";
+import OrganizationDetail from "@/pages/admin/OrganizationDetail";
 
 import NotFound from "@/pages/not-found";
 
@@ -81,6 +83,8 @@ function Router() {
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/reports" component={AdminReports} />
       <Route path="/admin/audit" component={AdminAudit} />
+      <Route path="/admin/organizations/:id" component={OrganizationDetail} />
+      <Route path="/admin/organizations" component={Organizations} />
       
       <Route path="/simulator" component={EventSimulator} />
       <Route component={NotFound} />
