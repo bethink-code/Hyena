@@ -77,11 +77,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/organizations/:id", async (req, res) => {
     try {
       // Restrict theme to known keys for security
-      const ALLOWED_THEMES = ['table_mountain_blue', 'kalahari_gold', 'kruger_green', 'jacaranda_purple', 'protea_red'];
+      const ALLOWED_THEMES = ['table_mountain_blue', 'kalahari_gold', 'sunset_yellow', 'jacaranda_purple', 'protea_red'];
       
       const updateSchema = z.object({
         name: z.string().optional(),
-        theme: z.enum(['table_mountain_blue', 'kalahari_gold', 'kruger_green', 'jacaranda_purple', 'protea_red'] as const).optional(),
+        theme: z.enum(['table_mountain_blue', 'kalahari_gold', 'sunset_yellow', 'jacaranda_purple', 'protea_red'] as const).optional(),
         logoUrl: z.string().nullable().optional(),
       });
       

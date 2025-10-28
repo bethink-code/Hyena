@@ -268,19 +268,21 @@
   --sidebar-ring: 43 39% 45%;
 }
 
-/* Theme 3: Kruger Green - Rich forest emerald greens */
-.theme-kruger-green {
-  --primary: 142 76% 50%;
-  --sidebar-primary: 142 76% 50%;
-  --ring: 142 76% 50%;
-  --sidebar-ring: 142 76% 50%;
+/* Theme 3: Sunset Yellow - Bright golden yellow (Sun International) */
+.theme-sunset-yellow {
+  --primary: 43 98% 53%;
+  --sidebar-primary: 43 98% 53%;
+  --ring: 43 98% 53%;
+  --sidebar-ring: 43 98% 53%;
 }
 
-.theme-kruger-green:not(.dark) {
-  --primary: 142 71% 40%;
-  --sidebar-primary: 142 71% 40%;
-  --ring: 142 71% 40%;
-  --sidebar-ring: 142 71% 40%;
+.theme-sunset-yellow:not(.dark) {
+  --primary: 43 98% 46%;
+  --sidebar-primary: 43 98% 46%;
+  --ring: 43 98% 46%;
+  --sidebar-ring: 43 98% 46%;
+  --primary-foreground: 0 0% 10%;
+  --sidebar-primary-foreground: 0 0% 10%;
 }
 
 /* Theme 4: Jacaranda Purple - Royal purple/violet (Pretoria's iconic trees) */

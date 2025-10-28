@@ -2,7 +2,7 @@
 export const THEME_MAP = {
   table_mountain_blue: 'theme-table-mountain-blue',
   kalahari_gold: 'theme-kalahari-gold',
-  kruger_green: 'theme-kruger-green',
+  sunset_yellow: 'theme-sunset-yellow',
   jacaranda_purple: 'theme-jacaranda-purple',
   protea_red: 'theme-protea-red',
 } as const;
@@ -12,7 +12,7 @@ export type ThemeKey = keyof typeof THEME_MAP;
 export const THEME_LABELS = {
   table_mountain_blue: 'Table Mountain Blue',
   kalahari_gold: 'Kalahari Gold',
-  kruger_green: 'Kruger Green',
+  sunset_yellow: 'Sunset Yellow',
   jacaranda_purple: 'Jacaranda Purple',
   protea_red: 'Protea Red',
 } as const;

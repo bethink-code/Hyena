@@ -270,9 +270,9 @@ export default function Config() {
                     <div 
                       className="w-4 h-4 rounded-full mr-2" 
                       style={{
-                        backgroundColor: key === 'table_mountain_blue' ? 'hsl(210 100% 55%)' :
-                                       key === 'kalahari_gold' ? 'hsl(38 92% 55%)' :
-                                       key === 'kruger_green' ? 'hsl(142 76% 50%)' :
+                        backgroundColor: key === 'table_mountain_blue' ? 'hsl(212 84% 32%)' :
+                                       key === 'kalahari_gold' ? 'hsl(43 39% 52%)' :
+                                       key === 'sunset_yellow' ? 'hsl(43 98% 53%)' :
                                        key === 'jacaranda_purple' ? 'hsl(280 70% 60%)' :
                                        'hsl(0 84% 60%)'
                       }}
