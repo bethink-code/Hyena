@@ -5,9 +5,12 @@ import {
   type InsertIncident,
   type IncidentTimeline,
   type InsertIncidentTimeline,
+  type Organization,
+  type InsertOrganization,
   users,
   incidents,
-  incidentTimeline 
+  incidentTimeline,
+  organizations
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -19,6 +22,11 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
+  
+  // Organization operations
+  getAllOrganizations(): Promise<Organization[]>;
+  getOrganization(id: string): Promise<Organization | undefined>;
+  updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined>;
   
   // Incident operations
   createIncident(incident: InsertIncident): Promise<Incident>;
@@ -38,11 +46,13 @@ export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private incidents: Map<string, Incident>;
   private incidentTimelines: Map<string, IncidentTimeline[]>;
+  private organizations: Map<string, Organization>;
 
   constructor() {
     this.users = new Map();
     this.incidents = new Map();
     this.incidentTimelines = new Map();
+    this.organizations = new Map();
   }
 
   // User operations
@@ -66,10 +76,29 @@ export class MemStorage implements IStorage {
       ...insertUser, 
       id, 
       propertyId: insertUser.propertyId ?? null,
+      organizationId: insertUser.organizationId ?? null,
       createdAt: new Date() 
     };
     this.users.set(id, user);
     return user;
+  }
+
+  // Organization operations
+  async getAllOrganizations(): Promise<Organization[]> {
+    return Array.from(this.organizations.values());
+  }
+
+  async getOrganization(id: string): Promise<Organization | undefined> {
+    return this.organizations.get(id);
+  }
+
+  async updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined> {
+    const existing = this.organizations.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...updates };
+    this.organizations.set(id, updated);
+    return updated;
   }
 
   // Incident operations
@@ -189,6 +218,24 @@ export class DbStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const result = await db.insert(users).values(insertUser).returning();
+    return result[0];
+  }
+
+  // Organization operations
+  async getAllOrganizations(): Promise<Organization[]> {
+    return await db.select().from(organizations);
+  }
+
+  async getOrganization(id: string): Promise<Organization | undefined> {
+    const result = await db.select().from(organizations).where(eq(organizations.id, id));
+    return result[0];
+  }
+
+  async updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined> {
+    const result = await db.update(organizations)
+      .set(updates)
+      .where(eq(organizations.id, id))
+      .returning();
     return result[0];
   }
 

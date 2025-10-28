@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 
@@ -41,6 +41,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       if (error.name === 'ZodError') {
         res.status(400).json({ error: 'Invalid user data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  });
+
+  // Organization routes
+  app.get("/api/organizations", async (req, res) => {
+    try {
+      const organizations = await storage.getAllOrganizations();
+      res.json(organizations);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/organizations/:id", async (req, res) => {
+    try {
+      // Restrict theme to known keys for security
+      const ALLOWED_THEMES = ['table_mountain_blue', 'kalahari_gold', 'kruger_green', 'jacaranda_purple', 'protea_red'];
+      
+      const updateSchema = z.object({
+        name: z.string().optional(),
+        theme: z.enum(['table_mountain_blue', 'kalahari_gold', 'kruger_green', 'jacaranda_purple', 'protea_red'] as const).optional(),
+        logoUrl: z.string().nullable().optional(),
+      });
+      
+      const validatedData = updateSchema.parse(req.body);
+      const organization = await storage.updateOrganization(req.params.id, validatedData);
+      
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+      
+      res.json(organization);
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid organization data', details: error.errors });
       } else {
         res.status(500).json({ error: error.message });
       }

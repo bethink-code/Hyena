@@ -1,9 +1,16 @@
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { THEME_LABELS, THEME_MAP, applyTheme, type ThemeKey } from "@/lib/themes";
+import type { Organization } from "@shared/schema";
 import {
   LayoutDashboard,
   Building2,
@@ -13,9 +20,53 @@ import {
   FileText,
   Puzzle,
   Shield,
+  Palette,
 } from "lucide-react";
 
 export default function Config() {
+  const { toast } = useToast();
+  const [previewTheme, setPreviewTheme] = useState<ThemeKey | null>(null);
+  const [originalTheme] = useState<ThemeKey>('table_mountain_blue'); // Store Hyena's default
+  
+  // Fetch organizations for theme management
+  const { data: organizations = [] } = useQuery<Organization[]>({
+    queryKey: ["/api/organizations"],
+  });
+
+  // Update organization theme
+  const updateThemeMutation = useMutation({
+    mutationFn: async ({ orgId, theme }: { orgId: string; theme: ThemeKey }) => {
+      const response = await apiRequest("PATCH", `/api/organizations/${orgId}`, { theme });
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+      toast({
+        title: "Theme Updated",
+        description: "Organization theme has been changed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update theme",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Apply preview theme
+  const handlePreviewTheme = (theme: ThemeKey) => {
+    setPreviewTheme(theme);
+    applyTheme(theme);
+  };
+
+  // Reset preview - restore administrator's original theme (Hyena branding)
+  const handleResetPreview = () => {
+    setPreviewTheme(null);
+    applyTheme(originalTheme);
+  };
+  
   const navSections = [
     {
       label: "Overview",
@@ -81,6 +132,98 @@ export default function Config() {
                 <p className="text-sm text-muted-foreground">Automatically assign new incidents</p>
               </div>
               <Switch id="auto-assign" defaultChecked data-testid="switch-auto-assign" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Palette className="h-5 w-5" />
+              Organization Themes
+            </CardTitle>
+            <CardDescription>
+              Configure white-label themes for each hotel chain
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Theme Preview Section */}
+            <div className="space-y-3">
+              <Label>Preview Themes</Label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {Object.entries(THEME_LABELS).map(([key, label]) => (
+                  <Button
+                    key={key}
+                    variant={previewTheme === key ? "default" : "outline"}
+                    onClick={() => handlePreviewTheme(key as ThemeKey)}
+                    className="justify-start"
+                    data-testid={`button-preview-${key}`}
+                  >
+                    <div 
+                      className="w-4 h-4 rounded-full mr-2" 
+                      style={{
+                        backgroundColor: key === 'table_mountain_blue' ? 'hsl(210 100% 55%)' :
+                                       key === 'kalahari_gold' ? 'hsl(38 92% 55%)' :
+                                       key === 'kruger_green' ? 'hsl(142 76% 50%)' :
+                                       key === 'jacaranda_purple' ? 'hsl(280 70% 60%)' :
+                                       'hsl(0 84% 60%)'
+                      }}
+                    />
+                    {label}
+                  </Button>
+                ))}
+              </div>
+              {previewTheme && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={handleResetPreview}
+                  data-testid="button-reset-preview"
+                >
+                  Reset Preview
+                </Button>
+              )}
+            </div>
+
+            {/* Organization Theme Assignment */}
+            <div className="space-y-4">
+              <Label>Assign Themes to Organizations</Label>
+              {organizations.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No organizations found</p>
+              ) : (
+                <div className="space-y-3">
+                  {organizations.map((org) => (
+                    <div key={org.id} className="flex items-center justify-between p-3 border rounded-md">
+                      <div className="flex-1">
+                        <p className="font-medium">{org.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Current: {THEME_LABELS[org.theme as ThemeKey]}
+                        </p>
+                      </div>
+                      <Select
+                        value={org.theme}
+                        onValueChange={(theme) => {
+                          updateThemeMutation.mutate({ 
+                            orgId: org.id, 
+                            theme: theme as ThemeKey 
+                          });
+                        }}
+                      >
+                        <SelectTrigger className="w-48" data-testid={`select-theme-${org.id}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(THEME_LABELS).map(([key, label]) => (
+                            <SelectItem key={key} value={key}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

@@ -3,14 +3,32 @@ import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core"
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Organizations table for multi-tenancy and white-labeling
+export const organizations = pgTable("organizations", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: text("name").notNull(),
+  theme: text("theme").notNull().default("table_mountain_blue"), // 'table_mountain_blue' | 'kalahari_gold' | 'kruger_green' | 'jacaranda_purple' | 'protea_red'
+  logoUrl: text("logo_url"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+export type Organization = typeof organizations.$inferSelect;
+
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  role: text("role").notNull(), // 'manager' | 'admin' | 'technician' | 'guest'
+  role: text("role").notNull(), // 'manager' | 'admin' | 'technician' | 'guest' | 'hotel_manager' | 'regional_manager'
   propertyId: text("property_id"), // null for admin (all properties)
+  organizationId: text("organization_id"), // link to organization
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
