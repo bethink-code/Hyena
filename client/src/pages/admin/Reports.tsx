@@ -11,6 +11,7 @@ import {
   Puzzle,
   Shield,
   Download,
+  Building,
 } from "lucide-react";
 
 export default function Reports() {
@@ -25,6 +26,7 @@ export default function Reports() {
     {
       label: "Management",
       items: [
+        { title: "Organizations", href: "/admin/organizations", icon: Building },
         { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
         { title: "System Config", href: "/admin/config", icon: Settings },
         { title: "Integrations", href: "/admin/integrations", icon: Puzzle },

@@ -20,6 +20,14 @@ import {
   Clock,
   CheckCircle2,
   TrendingUp,
+  Building2,
+  Users,
+  Settings,
+  BarChart3,
+  FileText,
+  Puzzle,
+  Shield,
+  Building,
 } from "lucide-react";
 
 export default function PropertyDetail() {
@@ -33,9 +41,27 @@ export default function PropertyDetail() {
 
   const navSections = [
     {
-      label: "Navigation",
+      label: "Overview",
       items: [
         { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
+        { title: "All Properties", href: "/admin/properties", icon: Building2 },
+      ],
+    },
+    {
+      label: "Management",
+      items: [
+        { title: "Organizations", href: "/admin/organizations", icon: Building },
+        { title: "Users & Roles", href: "/admin/users", icon: Users },
+        { title: "System Config", href: "/admin/config", icon: Settings },
+        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
+      ],
+    },
+    {
+      label: "Reporting",
+      items: [
+        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
+        { title: "Reports", href: "/admin/reports", icon: FileText },
+        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
       ],
     },
   ];

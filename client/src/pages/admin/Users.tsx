@@ -27,6 +27,7 @@ import {
   Puzzle,
   Shield,
   UserPlus,
+  Building,
 } from "lucide-react";
 
 const formSchema = baseUserInsertSchema.extend({
@@ -51,6 +52,7 @@ export default function Users() {
     {
       label: "Management",
       items: [
+        { title: "Organizations", href: "/admin/organizations", icon: Building },
         { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
         { title: "System Config", href: "/admin/config", icon: Settings },
         { title: "Integrations", href: "/admin/integrations", icon: Puzzle },

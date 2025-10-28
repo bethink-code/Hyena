@@ -1,10 +1,22 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Building2, ChevronRight, Settings } from "lucide-react";
+import { 
+  Building2, 
+  ChevronRight, 
+  Settings, 
+  LayoutDashboard, 
+  Users, 
+  BarChart3, 
+  FileText, 
+  Puzzle, 
+  Shield,
+  Building
+} from "lucide-react";
 import type { Organization } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 
@@ -22,21 +34,58 @@ export default function Organizations() {
     },
   });
 
+  const navSections = [
+    {
+      label: "Overview",
+      items: [
+        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
+        { title: "All Properties", href: "/admin/properties", icon: Building2 },
+      ],
+    },
+    {
+      label: "Management",
+      items: [
+        { title: "Organizations", href: "/admin/organizations", icon: Building },
+        { title: "Users & Roles", href: "/admin/users", icon: Users },
+        { title: "System Config", href: "/admin/config", icon: Settings },
+        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
+      ],
+    },
+    {
+      label: "Reporting",
+      items: [
+        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
+        { title: "Reports", href: "/admin/reports", icon: FileText },
+        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
+      ],
+    },
+  ];
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Loading organizations...</div>
-      </div>
+      <AppLayout
+        title="Organizations"
+        homeRoute="/admin"
+        navSections={navSections}
+      >
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-muted-foreground">Loading organizations...</div>
+        </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div className="h-full overflow-auto">
-      <div className="container mx-auto p-6 max-w-7xl">
+    <AppLayout
+      title="Organizations"
+      homeRoute="/admin"
+      navSections={navSections}
+    >
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold">Organizations</h1>
-            <p className="text-muted-foreground mt-1">
+            <h2 className="text-2xl font-bold mb-1">Organizations</h2>
+            <p className="text-muted-foreground">
               Manage hotel chains, their branding, properties, and settings
             </p>
           </div>
@@ -117,6 +166,6 @@ export default function Organizations() {
           </Card>
         )}
       </div>
-    </div>
+    </AppLayout>
   );
 }
