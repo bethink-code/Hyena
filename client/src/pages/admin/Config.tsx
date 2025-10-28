@@ -234,7 +234,7 @@ export default function Config() {
                             </div>
                             
                             <div className="space-y-2">
-                              <Label htmlFor={`logo-${org.id}`}>Organization Logo URL</Label>
+                              <Label htmlFor={`logo-${org.id}`}>Organization Logo</Label>
                               <div className="flex gap-2">
                                 <Input
                                   id={`logo-${org.id}`}
@@ -264,9 +264,66 @@ export default function Config() {
                                   }}
                                   data-testid={`input-logo-${org.id}`}
                                 />
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  className="hidden"
+                                  id={`file-${org.id}`}
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (!file) return;
+
+                                    if (file.size > 5242880) {
+                                      toast({
+                                        title: "File too large",
+                                        description: "Please select an image under 5MB",
+                                        variant: "destructive",
+                                      });
+                                      return;
+                                    }
+
+                                    const formData = new FormData();
+                                    formData.append("logo", file);
+                                    formData.append("orgId", org.id);
+
+                                    try {
+                                      const response = await fetch("/api/organizations/upload-logo", {
+                                        method: "POST",
+                                        body: formData,
+                                      });
+
+                                      if (!response.ok) {
+                                        throw new Error("Upload failed");
+                                      }
+
+                                      const data = await response.json();
+                                      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+                                      toast({
+                                        title: "✓ Logo Uploaded",
+                                        description: `Logo uploaded successfully for ${org.name}`,
+                                      });
+                                    } catch (error: any) {
+                                      toast({
+                                        title: "Upload Failed",
+                                        description: error.message || "Failed to upload logo",
+                                        variant: "destructive",
+                                      });
+                                    }
+
+                                    e.target.value = "";
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  onClick={() => document.getElementById(`file-${org.id}`)?.click()}
+                                  data-testid={`button-upload-logo-${org.id}`}
+                                >
+                                  Upload File
+                                </Button>
                               </div>
                               <p className="text-xs text-muted-foreground">
-                                Enter a publicly accessible image URL - changes save automatically when you click away
+                                Enter a URL or upload a file (PNG, JPG, SVG - max 5MB)
                               </p>
                             </div>
                           </div>

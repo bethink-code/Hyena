@@ -1,9 +1,13 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import express from "express";
 import { storage } from "./storage";
 import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import multer from "multer";
+import path from "path";
+import fs from "fs/promises";
 import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -86,7 +90,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Logo URL update (simpler approach - store any valid URL)
+  // Configure multer for file uploads
+  const uploadDir = path.join(process.cwd(), "uploads", "logos");
+  await fs.mkdir(uploadDir, { recursive: true });
+  
+  const logoStorage = multer.diskStorage({
+    destination: uploadDir,
+    filename: (req, file, cb) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      cb(null, `logo-${uniqueSuffix}${path.extname(file.originalname)}`);
+    },
+  });
+
+  const upload = multer({
+    storage: logoStorage,
+    limits: { fileSize: 5242880 }, // 5MB
+    fileFilter: (req, file, cb) => {
+      const allowedTypes = /jpeg|jpg|png|gif|svg|webp/;
+      const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+      const mimetype = allowedTypes.test(file.mimetype);
+      if (extname && mimetype) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only image files are allowed"));
+      }
+    },
+  });
+
+  // Logo file upload endpoint
+  app.post("/api/organizations/upload-logo", upload.single("logo"), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const orgId = req.body.orgId;
+      if (!orgId) {
+        await fs.unlink(req.file.path);
+        return res.status(400).json({ error: "Organization ID is required" });
+      }
+
+      const logoUrl = `/uploads/logos/${req.file.filename}`;
+      
+      const organization = await storage.updateOrganization(orgId, {
+        logoUrl,
+      });
+
+      if (!organization) {
+        await fs.unlink(req.file.path);
+        return res.status(404).json({ error: "Organization not found" });
+      }
+
+      res.json({ logoUrl, organization });
+    } catch (error: any) {
+      if (req.file) {
+        await fs.unlink(req.file.path).catch(() => {});
+      }
+      console.error("Error uploading logo:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Logo URL update endpoint
   app.patch("/api/organizations/:id/logo", async (req, res) => {
     try {
       if (!req.body.logoUrl) {
@@ -108,7 +173,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Serve public objects (logos)
+  // Serve uploaded logo files
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+
+  // Serve public objects (logos) from object storage
   app.get("/public-objects/:filePath(*)", async (req, res) => {
     const filePath = req.params.filePath;
     const objectStorageService = new ObjectStorageService();
