@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { PropertyList } from "@/components/PropertyList";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
@@ -311,6 +312,7 @@ export default function ManagerDashboard() {
       navSections={navSections}
       homeRoute="/manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
+      sidebarHeader={<OrganizationLogo organizationId="org-sun-international" />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div className="flex items-center justify-between">
