@@ -54,6 +54,10 @@ Preferred communication style: Simple, everyday language.
 - **Aruba Network POC Integration:** Admin Center dashboard displays prominent card linking to live Aruba network infrastructure POC (http://129.232.224.154:5101/). Card features "LIVE DATA" badge, Activity icon, descriptive text, and secure external link with rel="noopener noreferrer" protection. Positioned between KPI widgets and Property Status section.
 - **Context-Aware Help Panel:** HelpCircle icon button in AppHeader opens sliding Sheet panel (700px wide) from right side displaying functional specifications for current page. Route detection automatically loads relevant HTML documentation from `client/public/docs/` (Manager Dashboard, Incident Queue, Admin Center, Technician Work Queue). Graceful fallback shows informative message for pages without documentation. Production-ready implementation serves docs as static assets from public directory.
 - **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
+- **White-Label Branding System:** 
+  - **Organization Logos:** Hotel Manager (`/hotel-manager`) and Regional Manager (`/manager`) display organization branding via `OrganizationLogo` component in sidebar header. Fetches logo from `GET /api/organizations/:id`, supports URL input and file upload (multer → `/uploads/logos/`), displays at 128px height with loading states and fallback to organization name.
+  - **Platform Branding:** Admin (`/admin`) and Technician (`/technician`) display Hyena platform branding via `HyenaLogo` component in sidebar header. Shows "Project Hyena" text with Shield icon and tagline "Network Monitoring Platform".
+  - **Logo Management:** Admin Config page (`/admin/config`) provides organization-level logo upload interface with both URL input and file upload options. Organizations use predictable IDs (`org-sun-international`, `org-tsogo-sun`, `org-protea-hotels`) for stable references.
 
 ### Universal Navigation Pattern (System-Wide)
 **Core Principle:** Summary Cards → Filtered Incident List (Consistent across all interfaces)

@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { PropertyList } from "@/components/PropertyList";
 import { KPIWidget } from "@/components/KPIWidget";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
@@ -120,6 +121,7 @@ export default function AdminCenter() {
       homeRoute="/admin"
       notificationCount={2}
       navSections={navSections}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div className="flex items-center justify-between">

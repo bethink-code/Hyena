@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { LogIssueDialog } from "@/components/LogIssueDialog";
 import { PROPERTIES } from "@/lib/properties";
@@ -112,6 +113,7 @@ export default function TechnicianApp() {
       homeRoute="/technician"
       notificationCount={technicianIncidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length}
       navSections={navSections}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         {/* Summary Metrics */}
