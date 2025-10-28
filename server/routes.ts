@@ -179,6 +179,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const updateSchema = z.object({
         name: z.string().optional(),
+        active: z.boolean().optional(),
         theme: z.enum(['table_mountain_blue', 'kalahari_gold', 'sunset_yellow', 'jacaranda_purple', 'protea_red'] as const).optional(),
         logoUrl: z.string().nullable().optional(),
         contactEmail: z.string().email().nullable().optional(),

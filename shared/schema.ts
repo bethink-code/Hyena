@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,6 +7,7 @@ import { z } from "zod";
 export const organizations = pgTable("organizations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
+  active: boolean("active").notNull().default(true),
   theme: text("theme").notNull().default("table_mountain_blue"), // 'table_mountain_blue' | 'kalahari_gold' | 'sunset_yellow' | 'jacaranda_purple' | 'protea_red'
   logoUrl: text("logo_url"),
   contactEmail: text("contact_email"),

@@ -29,42 +29,10 @@ export default function Config() {
   const { toast } = useToast();
   const [previewTheme, setPreviewTheme] = useState<ThemeKey | null>(null);
   const [originalTheme] = useState<ThemeKey>('table_mountain_blue'); // Store Hyena's default
-  
-  // Fetch organizations for theme management
-  const { data: organizations = [] } = useQuery<Organization[]>({
-    queryKey: ["/api/organizations"],
-  });
 
   // Fetch platform logo
   const { data: platformLogo } = useQuery<{ logoUrl: string | null }>({
     queryKey: ["/api/platform/logo"],
-  });
-
-  // Update organization theme or logo
-  const updateThemeMutation = useMutation({
-    mutationFn: async ({ orgId, theme, logoUrl }: { orgId: string; theme?: ThemeKey; logoUrl?: string | null }) => {
-      const updates: any = {};
-      if (theme !== undefined) updates.theme = theme;
-      if (logoUrl !== undefined) updates.logoUrl = logoUrl;
-      
-      const response = await apiRequest("PATCH", `/api/organizations/${orgId}`, updates);
-      return await response.json();
-    },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
-      const updateType = variables.theme ? "Theme" : "Logo";
-      toast({
-        title: `${updateType} Updated`,
-        description: `Organization ${updateType.toLowerCase()} has been changed`,
-      });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to update organization",
-        variant: "destructive",
-      });
-    },
   });
 
   // Apply preview theme
@@ -293,163 +261,12 @@ export default function Config() {
               )}
             </div>
 
-            {/* Organization Theme & Logo Assignment */}
-            <div className="space-y-4">
-              <Label>Assign Themes & Logos to Organizations</Label>
-              {organizations.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No organizations found</p>
-              ) : (
-                <div className="space-y-4">
-                  {organizations.map((org) => (
-                    <Card key={org.id}>
-                      <CardContent className="pt-6">
-                        <div className="space-y-4">
-                          <div>
-                            <p className="font-semibold text-lg mb-1">{org.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              Organization ID: {org.id}
-                            </p>
-                          </div>
-                          
-                          <div className="grid gap-4 sm:grid-cols-2">
-                            <div className="space-y-2">
-                              <Label htmlFor={`theme-${org.id}`}>Theme</Label>
-                              <Select
-                                value={org.theme}
-                                onValueChange={(theme) => {
-                                  updateThemeMutation.mutate({ 
-                                    orgId: org.id, 
-                                    theme: theme as ThemeKey 
-                                  });
-                                }}
-                              >
-                                <SelectTrigger id={`theme-${org.id}`} data-testid={`select-theme-${org.id}`}>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {Object.entries(THEME_LABELS).map(([key, label]) => (
-                                    <SelectItem key={key} value={key}>
-                                      {label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor={`logo-${org.id}`}>Organization Logo</Label>
-                              <div className="flex gap-2">
-                                <Input
-                                  id={`logo-${org.id}`}
-                                  type="url"
-                                  placeholder="https://example.com/logo.png"
-                                  defaultValue={org.logoUrl || ""}
-                                  onBlur={async (e) => {
-                                    const newLogoUrl = e.target.value.trim();
-                                    if (newLogoUrl !== (org.logoUrl || "")) {
-                                      try {
-                                        await apiRequest("PATCH", `/api/organizations/${org.id}/logo`, {
-                                          logoUrl: newLogoUrl || null,
-                                        });
-                                        queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
-                                        toast({
-                                          title: "✓ Logo Updated",
-                                          description: `Logo URL saved for ${org.name}`,
-                                        });
-                                      } catch (error: any) {
-                                        toast({
-                                          title: "Error",
-                                          description: error.message || "Failed to update logo",
-                                          variant: "destructive",
-                                        });
-                                      }
-                                    }
-                                  }}
-                                  data-testid={`input-logo-${org.id}`}
-                                />
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  className="hidden"
-                                  id={`file-${org.id}`}
-                                  onChange={async (e) => {
-                                    const file = e.target.files?.[0];
-                                    if (!file) return;
-
-                                    if (file.size > 5242880) {
-                                      toast({
-                                        title: "File too large",
-                                        description: "Please select an image under 5MB",
-                                        variant: "destructive",
-                                      });
-                                      return;
-                                    }
-
-                                    const formData = new FormData();
-                                    formData.append("logo", file);
-                                    formData.append("orgId", org.id);
-
-                                    try {
-                                      const response = await fetch("/api/organizations/upload-logo", {
-                                        method: "POST",
-                                        body: formData,
-                                      });
-
-                                      if (!response.ok) {
-                                        throw new Error("Upload failed");
-                                      }
-
-                                      const data = await response.json();
-                                      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
-                                      toast({
-                                        title: "✓ Logo Uploaded",
-                                        description: `Logo uploaded successfully for ${org.name}`,
-                                      });
-                                    } catch (error: any) {
-                                      toast({
-                                        title: "Upload Failed",
-                                        description: error.message || "Failed to upload logo",
-                                        variant: "destructive",
-                                      });
-                                    }
-
-                                    e.target.value = "";
-                                  }}
-                                />
-                                <Button
-                                  type="button"
-                                  variant="outline"
-                                  onClick={() => document.getElementById(`file-${org.id}`)?.click()}
-                                  data-testid={`button-upload-logo-${org.id}`}
-                                >
-                                  Upload File
-                                </Button>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                Enter a URL or upload a file (PNG, JPG, SVG - max 5MB)
-                              </p>
-                            </div>
-                          </div>
-                          
-                          {org.logoUrl && (
-                            <div className="flex items-center gap-2 p-2 border rounded-md bg-muted/50">
-                              <img 
-                                src={org.logoUrl} 
-                                alt={`${org.name} logo`}
-                                className="h-8 w-auto object-contain"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).style.display = 'none';
-                                }}
-                              />
-                              <span className="text-xs text-muted-foreground">Current logo</span>
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+            {/* Note: Organization theme and logo assignment has been moved to Organizations → Branding tab */}
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Organization-specific themes and logos are now managed in the <strong>Organizations</strong> section, 
+                under each organization's <strong>Branding</strong> tab.
+              </p>
             </div>
           </CardContent>
         </Card>

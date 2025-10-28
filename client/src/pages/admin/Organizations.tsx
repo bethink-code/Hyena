@@ -1,14 +1,25 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Building2, ChevronRight, Settings } from "lucide-react";
 import type { Organization } from "@shared/schema";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 export default function Organizations() {
   const { data: organizations, isLoading } = useQuery<Organization[]>({
     queryKey: ["/api/organizations"],
+  });
+
+  const toggleActiveMutation = useMutation({
+    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
+      return await apiRequest("PATCH", `/api/organizations/${id}`, { active });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+    },
   });
 
   if (isLoading) {
@@ -53,13 +64,18 @@ export default function Organizations() {
                     </div>
                     <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                   </div>
-                  <CardDescription className="flex items-center gap-2">
+                  <CardDescription className="flex items-center gap-2 flex-wrap">
                     <Badge variant="secondary" className="capitalize">
                       {org.theme.replace(/_/g, ' ')}
                     </Badge>
+                    {!org.active && (
+                      <Badge variant="destructive" data-testid={`badge-inactive-${org.id}`}>
+                        Inactive
+                      </Badge>
+                    )}
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-3">
                   <div className="text-sm text-muted-foreground space-y-1">
                     {org.headquarters && (
                       <div className="truncate">📍 {org.headquarters}</div>
@@ -67,6 +83,22 @@ export default function Organizations() {
                     {org.contactEmail && (
                       <div className="truncate">✉️ {org.contactEmail}</div>
                     )}
+                  </div>
+                  <div 
+                    className="flex items-center gap-2 pt-2 border-t"
+                    onClick={(e) => e.preventDefault()}
+                  >
+                    <Switch
+                      checked={org.active}
+                      onCheckedChange={(checked) => {
+                        toggleActiveMutation.mutate({ id: org.id, active: checked });
+                      }}
+                      disabled={toggleActiveMutation.isPending}
+                      data-testid={`switch-active-${org.id}`}
+                    />
+                    <span className="text-sm text-muted-foreground">
+                      {org.active ? "Active" : "Inactive"}
+                    </span>
                   </div>
                 </CardContent>
               </Card>
