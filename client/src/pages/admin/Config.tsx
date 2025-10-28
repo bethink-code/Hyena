@@ -35,6 +35,11 @@ export default function Config() {
     queryKey: ["/api/organizations"],
   });
 
+  // Fetch platform logo
+  const { data: platformLogo } = useQuery<{ logoUrl: string | null }>({
+    queryKey: ["/api/platform/logo"],
+  });
+
   // Update organization theme or logo
   const updateThemeMutation = useMutation({
     mutationFn: async ({ orgId, theme, logoUrl }: { orgId: string; theme?: ThemeKey; logoUrl?: string | null }) => {
@@ -124,9 +129,34 @@ export default function Config() {
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <Label>Platform Logo</Label>
+              
+              {/* Current Logo Preview */}
+              {platformLogo?.logoUrl && (
+                <div className="flex items-center gap-4 p-4 border rounded-lg bg-card">
+                  <div className="flex items-center justify-center w-32 h-32 border rounded-md bg-muted/30">
+                    <img
+                      src={platformLogo.logoUrl}
+                      alt="Platform Logo"
+                      className="max-w-full max-h-full object-contain"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-green-600 dark:text-green-400 mb-1">
+                      ✓ Logo Uploaded
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      This logo is currently displayed in Admin and Technician interfaces
+                    </p>
+                  </div>
+                </div>
+              )}
+              
+              {/* Upload Section */}
               <div className="flex items-center gap-4 p-4 border rounded-lg bg-muted/30">
                 <div className="flex-1">
-                  <p className="text-sm font-medium mb-2">Upload Platform Logo</p>
+                  <p className="text-sm font-medium mb-2">
+                    {platformLogo?.logoUrl ? "Replace Platform Logo" : "Upload Platform Logo"}
+                  </p>
                   <p className="text-xs text-muted-foreground mb-3">
                     This logo will appear in Admin and Technician interfaces
                   </p>
@@ -175,7 +205,7 @@ export default function Config() {
                     data-testid="button-upload-platform-logo"
                   >
                     <Upload className="h-4 w-4 mr-2" />
-                    Upload Logo File
+                    {platformLogo?.logoUrl ? "Replace Logo" : "Upload Logo File"}
                   </Button>
                 </div>
               </div>
