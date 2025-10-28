@@ -9,6 +9,7 @@ import { FeedbackModal } from "@/components/FeedbackModal";
 import { EventQueue } from "@/components/EventQueue";
 import { EventDetailPanel } from "@/components/EventDetailPanel";
 import { AIChatInterface } from "@/components/AIChatInterface";
+import { PoweredByFooter } from "@/components/PoweredByFooter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -197,6 +198,8 @@ export default function GuestPortal() {
             </div>
           </TabsContent>
         </Tabs>
+
+        <PoweredByFooter />
       </div>
 
       <FeedbackModal

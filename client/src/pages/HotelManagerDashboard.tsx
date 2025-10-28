@@ -6,6 +6,7 @@ import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
+import { PoweredByFooter } from "@/components/PoweredByFooter";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
@@ -332,6 +333,8 @@ export default function HotelManagerDashboard() {
             }}
           />
         </div>
+
+        <PoweredByFooter />
       </div>
 
       <IncidentDetailPanel
