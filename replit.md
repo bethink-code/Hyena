@@ -1,209 +1,80 @@
 # Project Hyena - Network Monitoring Platform
 
 ## Overview
-Project Hyena is an event-driven network monitoring platform tailored for hospitality networks (hotels). It offers real-time incident detection, troubleshooting workflows, and multi-role communication across four interfaces: Guest Portal, Manager Dashboard, Admin Center, and Technician App. The platform is a full-stack web application with a React frontend and Express backend, designed for scalability and white-label deployment across multiple properties. The project adheres to South African localization standards for currency, dates, times, spelling, and number formats.
+Project Hyena is an event-driven network monitoring platform designed for hospitality networks (hotels). It provides real-time incident detection, troubleshooting workflows, and multi-role communication across Guest Portal, Manager Dashboard, Admin Center, and Technician App interfaces. It's a full-stack web application with a React frontend and Express backend, built for scalability and white-label deployment, adhering to South African localization standards.
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend
-- **Framework:** React 18+ with TypeScript, Vite for bundling and HMR.
-- **Routing:** Wouter for client-side navigation.
-- **UI Components:** Radix UI primitives, shadcn/ui with "new-york" style, Material Design 3 principles.
+### UI/UX Decisions
+- **Framework & UI:** React 18+ with TypeScript, Radix UI primitives, shadcn/ui ("new-york" style), Material Design 3 principles.
 - **Styling:** Tailwind CSS for utility-first styling, CSS variables for white-label theming.
-- **State Management:** TanStack Query for server state, local React state for UI.
-- **Design System:** Custom dark mode color palette, priority-based visual hierarchy, Inter font for data, JetBrains Mono for technical data, mobile-optimized.
+- **Theming:** Custom dark mode color palette, priority-based visual hierarchy, Inter font for data, JetBrains Mono for technical data, mobile-optimized.
+- **Global Navigation:** Universal pattern for summary cards leading to filtered incident lists, consistent across all interfaces with URL parameter-based filtering.
+- **White-Label Branding:** Organization-specific logos and themes managed in Admin Center, displayed in Manager/Regional Manager interfaces. Platform branding for Admin/Technician.
+- **Context-Aware Help:** Help panel in AppHeader displays functional specifications for the current page, loading documentation from static HTML files.
 
-### Backend
-- **Framework:** Express.js with TypeScript on Node.js.
-- **Database:** PostgreSQL (Neon serverless) with Drizzle ORM for type-safe queries and schema management.
-- **Storage:** PostgreSQL database storage via `DbStorage` class implementing `IStorage` interface. All incidents and timeline entries persist to database across server restarts.
-- **API Design:** RESTful API with `/api` prefix, request/response logging, error handling, credential-based authentication preparation.
-- **Event Integration:** Shared event storage, RESTful CRUD for events and timelines, React Query for real-time updates. Event lifecycle integrated across all interfaces (Manager, Technician, Event Simulator) with timeline tracking and cache invalidation.
+### Technical Implementations
+- **Frontend:** Vite for bundling, Wouter for routing, TanStack Query for server state.
+- **Backend:** Express.js with TypeScript on Node.js, RESTful API design (`/api` prefix), request/response logging, error handling.
+- **Database:** PostgreSQL (Neon serverless) with Drizzle ORM for type-safe queries and schema management, persistent storage for incidents and timeline entries.
+- **Authentication (Planned):** Role-based access for Guest, Manager, Admin, Technician. User schema and session store configured.
+- **File Structure:** Path aliases (`@/`, `@shared/`, `@assets/`) for organized codebase.
 
-### Data Models
-- **Core Entities:** Events (ID, title, description, priority, status, location, etc.), EventTimeline (tracks state changes), Properties (static configuration for prototyping).
-- **Type Safety:** Drizzle-Zod for runtime validation, TypeScript interfaces shared via `@shared` alias.
-- **Extended Event Schema:** Includes `eventType` (reactive, proactive, environmental), `scheduledFor`, and `metadata` for SA-specific data (load shedding, ISP, weather).
-- **Comprehensive Event Categories:** Network, SA-specific (Load Shedding, ISP/Fibre, Weather), Operational (Guest Experience, Planned Maintenance).
-- **Incident Status Lifecycle:** 
-  - **Active Statuses:** new → assigned → in_progress → on_hold → resolved
-  - **Terminal Statuses:** resolved, cancelled, duplicate (excluded from active work queues)
-  - **Alternative Paths:** cancelled (with reason), on_hold (with reason + optional resume date), duplicate (with reference to original)
-  - **Action Fields:** `cancelReason`, `holdReason`, `holdResumeDate`, `duplicateOfId`, `requestedInfo`
-  - **Metric Definition:** Active incidents = ALL non-terminal statuses (new, assigned, in_progress, on_hold)
+### Feature Specifications
+- **Manual Event Creation:** Managers and Technicians can create events with extended schema including `eventType`, `scheduledFor`, `metadata`, and SA-specific categories (Load Shedding, ISP, Weather).
+- **Event Simulator:** A `/simulator` interface for testing, allowing manual incident creation and preset scenarios, including optional technician assignment.
+- **Aruba Network POC Integration:** Admin Dashboard includes a prominent card linking to a live Aruba network infrastructure proof-of-concept.
+- **Comprehensive Incident Action System:** Allows various actions (Cancel, Put On Hold, Request Info, Reassign, Change Priority) with associated dialogs and required fields. All actions create timeline entries for auditing.
+- **Incident Status Lifecycle:** Defines active (new, assigned, in_progress, on_hold) and terminal (resolved, cancelled, duplicate) statuses, with specific fields for reasons and dates (`cancelReason`, `holdReason`, `holdResumeDate`, `duplicateOfId`, `requestedInfo`).
+- **Organizations Admin Section:** CRUD interface for managing organizations (name, logo, theme, contact, regional settings), properties (hotels), and listing associated users. Includes API routes for managing organizations and properties.
+- **Technician Dashboard:** Displays summary metrics (My Queue, In Progress, Completed Today, Critical) with incident counts, removing property cards and client-side filters for a focused view on assigned work.
 
-### Authentication & Authorization
-- **Planned Roles:** Guest, Manager, Admin, Technician with role-based access.
-- **Current Implementation:** User schema with password field, session store configured (connect-pg-simple) but not yet active.
-
-### File Structure & Organization
-- **Path Aliases:** `@/` (client/src), `@shared/` (shared), `@assets/` (attached_assets).
-- **Key Directories:** `client/src/components`, `client/src/pages`, `server/`, `shared/`, `migrations/`.
-
-### Development & Deployment
-- **Development:** `npm run dev` (Vite + Express), `npm run check` (TypeScript), `npm run db:push` (Drizzle).
-- **Production:** `npm run build` (Vite + esbuild), `npm start`.
-- **Environment:** `DATABASE_URL` for PostgreSQL, Replit-specific plugins.
-
-### UI/UX Decisions & Feature Specifications
-- **Manual Event Creation:** Managers and Technicians can create events with extended schema supporting `eventType`, `scheduledFor`, `metadata`, and comprehensive categories including SA-specific ones (Load Shedding, ISP, Weather). Implemented via `ReportIncidentDialog` (Manager) and `LogIssueDialog` (Technician) with dynamic SA-specific fields.
-- **Event Simulator:** Testing interface (`/simulator`) for creating manual incidents and preset scenarios. Manual incident tab includes optional technician assignment field - fetches technicians from `/api/users`, dropdown shows technician names, field can be left unselected (assignedTo: null) or assigned to specific technician (assignedTo: "Name").
-- **Aruba Network POC Integration:** Admin Center dashboard displays prominent card linking to live Aruba network infrastructure POC (http://129.232.224.154:5101/). Card features "LIVE DATA" badge, Activity icon, descriptive text, and secure external link with rel="noopener noreferrer" protection. Positioned between KPI widgets and Property Status section.
-- **Context-Aware Help Panel:** HelpCircle icon button in AppHeader opens sliding Sheet panel (700px wide) from right side displaying functional specifications for current page. Route detection automatically loads relevant HTML documentation from `client/public/docs/` (Manager Dashboard, Incident Queue, Admin Center, Technician Work Queue). Graceful fallback shows informative message for pages without documentation. Production-ready implementation serves docs as static assets from public directory.
-- **Global Layout:** `RoleNavigationHeader` positioned above `shadcn` sidebar using CSS variables (`--sidebar-top`, `--sidebar-height`, etc.) for seamless integration without overlap.
-- **White-Label Branding System:** 
-  - **Organization Logos:** Hotel Manager (`/hotel-manager`) and Regional Manager (`/manager`) display organization branding via `OrganizationLogo` component in sidebar header. Fetches logo from `GET /api/organizations/:id`, supports URL input and file upload (multer → `/uploads/logos/`), displays at 128px height with loading states and fallback to organization name.
-  - **Platform Branding:** Admin (`/admin`) and Technician (`/technician`) display Hyena platform branding via `HyenaLogo` component in sidebar header. Shows "Project Hyena" text with Shield icon and tagline "Network Monitoring Platform".
-  - **Logo Management:** Admin Config page (`/admin/config`) provides organization-level logo upload interface with both URL input and file upload options. Organizations use predictable IDs (`org-sun-international`, `org-tsogo-sun`, `org-protea-hotels`) for stable references.
-
-### Universal Navigation Pattern (System-Wide)
-**Core Principle:** Summary Cards → Filtered Incident List (Consistent across all interfaces)
-
-- **Dashboard Structure:**
-  - **Summary Metric Cards:** Clickable KPI tiles (Manager/Technician use SummaryMetrics, Admin uses KPIWidget)
-  - **Property Status Cards:** Manager/Admin only - clickable property cards showing real-time incident counts
-  - Both navigate to filtered incident list pages via URL query parameters
-
-- **Navigation Flow:**
-  1. **Click Summary Metric** → Navigate to `/[role]/incidents?filter=...`
-     - Examples: Critical Incidents, Active Incidents, In Progress, Completed Today
-  2. **Click Property Card** → Navigate to `/[role]/incidents?propertyId={id}` (Manager/Admin only)
-     - Filters incident list to show only incidents for that property
-
-- **Incident List Pages (Universal):**
-  - **Routes:** `/manager/incidents`, `/admin/incidents`, `/technician/incidents`
-  - **URL Parameters:** `status`, `priority`, `propertyId` for flexible filtering
-  - **Default Behavior:** Shows only active incidents (excludes terminal statuses: resolved, cancelled, duplicate)
-  - **Explicit Filtering:** URL parameters override default (e.g., `?status=cancelled` shows cancelled incidents)
-  - **Features:** 
-    - Filter description header showing active filters with visual hierarchy
-    - Property names rendered in custom orange Badge components (bg-[#f29d00f5], text-[#fafafa], text-[16px], font-normal) for maximum visual prominence
-    - Status and priority displayed as regular text for contrast
-    - Clear Filters button (X icon) appears when any filter is active
-    - IncidentQueue component with search and view modes (Cards/Table/Grid)
-    - Technician view: No client-side status/priority filters (uses URL params only)
-    - Manager/Admin view: Client-side filters available
-    - Click incident → Detail panel slides in from right
-    - Back to Dashboard button for easy navigation
-  - **Clear Filters Implementation:**
-    - Resets all active filters (status, priority, property) simultaneously
-    - Works for both URL-based filters and dropdown-selected filters
-    - State synchronization via searchParams state + useEffect (prevents race conditions)
-    - IncidentQueue handleClearFilters resets local state before calling parent handler
-    - Button visibility based on local filter state (statusFilter, priorityFilter, selectedPropertyId)
-  - **Benefits:** 
-    - Metrics match incident list counts (no mismatch between dashboard and list)
-    - Shareable URLs with embedded filters
-    - More dashboard space for additional summary cards
-    - Consistent pattern across all roles (easier to learn)
-
-- **Technician Dashboard (October 2025):**
-  - **Shows:** Summary metrics only (My Queue, In Progress, Completed Today, Critical)
-  - **Removed:** Property cards (now only a filter option), Incident queue table, Incident actions section
-  - **Property Scope:** All properties (temporary: no property filter until authentication implemented)
-  - **Authentication Note:** Hardcoded property filters removed to ensure all assigned incidents appear. Will be replaced with user-based property assignments once authentication is implemented.
-  - **Metric Calculations:** 
-    - My Queue: All active work items (new, assigned, in_progress, on_hold)
-    - In Progress: Only status='in_progress'
-    - Critical: Active incidents with priority='critical'
-    - Completed Today: Resolved today
-    - Terminal statuses excluded: cancelled, duplicate, resolved
-
-- **Property Detail Pages (Still Available):**
-  - **Routes:** `/manager/properties/{id}`, `/admin/properties/{id}`, `/technician/properties/{id}`
-  - **Purpose:** Deep-dive property-specific views (maintained for backward compatibility)
-  - **Features:** Live status badges, active incident count, filtered incident queue
-
-### Comprehensive Incident Action System
-**Core Principle:** Full incident lifecycle management with audit trail tracking
-
-- **Available Actions:**
-  1. **Cancel Incident** - Mark incident as cancelled with required reason
-     - Component: `CancelIncidentDialog`
-     - Fields: `cancelReason` (required)
-     - Use cases: Duplicate reports, false alarms, resolved by other means
-  
-  2. **Put On Hold** - Pause work temporarily with optional resume date
-     - Component: `HoldIncidentDialog`
-     - Fields: `holdReason` (required), `holdResumeDate` (optional)
-     - Use cases: Waiting for vendor, parts on order, scheduled maintenance window
-  
-  3. **Request Info** - Log information requests from reporter or parties
-     - Component: `RequestInfoDialog`
-     - Fields: `requestedInfo` (required)
-     - Use cases: Need error messages, room numbers, additional context
-  
-  4. **Reassign** - Transfer incident to different technician/team
-     - Component: `ReassignDialog`
-     - Fields: `assignedTo` (required), reason (optional)
-     - Use cases: Specialist knowledge required, load balancing
-  
-  5. **Change Priority** - Escalate or de-escalate priority with reason
-     - Component: `ChangePriorityDialog`
-     - Fields: `priority` (low/medium/high/critical), reason (optional)
-     - Uses rank-based comparison (low=1, medium=2, high=3, critical=4)
-     - Timeline shows "escalated" vs "de-escalated" based on rank change
-
-- **Action Visibility:**
-  - All actions available for active incidents (new, assigned, in_progress)
-  - Actions hidden for terminal statuses (cancelled, resolved, duplicate)
-  - Change Priority always visible (allows both escalation and de-escalation)
-
-- **Audit Trail:**
-  - Every action creates timeline entry via POST `/api/incidents/:id/timeline`
-  - Timeline includes action description, reason (if provided), and timestamp
-  - Timeline entries visible in incident detail panel Activity tab
-
-- **Status Badge Styling:**
-  - `cancelled` - Gray/muted (bg-muted text-muted-foreground)
-  - `on_hold` - Amber (bg-amber-500/10 text-amber-700)
-  - `duplicate` - Muted (bg-muted/50 text-muted-foreground)
-  - All statuses included in IncidentQueue filter dropdown
+### System Design Choices
+- **Event-Driven Architecture:** Core around events and timelines, with real-time updates via React Query.
+- **Multi-Tenant Support:** White-label deployment across multiple organizations with customizable branding and regional settings.
+- **Data Models:** Core entities include Organizations, Properties, Events, EventTimeline, and Users, with Drizzle-Zod for runtime validation and shared TypeScript interfaces.
+- **SA Localization:** Specific support for South African currency, dates, times, spelling, number formats, and event categories.
 
 ## External Dependencies
 
 ### Database & ORM
-- **Neon Serverless PostgreSQL**
-- **Drizzle ORM**
-- **Drizzle-Zod**
+- Neon Serverless PostgreSQL
+- Drizzle ORM
+- Drizzle-Zod
 
 ### UI Framework & Components
-- **Radix UI** (Accordion, Alert Dialog, Avatar, Checkbox, Dialog, Dropdown Menu, Hover Card, Label, Menubar, Navigation Menu, Popover, Progress, Radio Group, Scroll Area, Select, Separator, Slider, Switch, Tabs, Toast, Toggle, Tooltip)
-- **shadcn/ui**
-- **Tailwind CSS**
-- **class-variance-authority (CVA)**
-- **cmdk** (Command Palette)
-- **Lucide React** (Icons)
+- Radix UI (various components)
+- shadcn/ui
+- Tailwind CSS
+- class-variance-authority (CVA)
+- cmdk (Command Palette)
+- Lucide React (Icons)
 
 ### State & Data Management
-- **TanStack Query (React Query)**
-- **React Hook Form** (@hookform/resolvers)
-- **Zod**
+- TanStack Query (React Query)
+- React Hook Form
+- Zod
 
 ### Build Tools & Development
-- **Vite**
-- **esbuild**
-- **TypeScript**
-- **PostCSS + Autoprefixer**
+- Vite
+- esbuild
+- TypeScript
+- PostCSS + Autoprefixer
 
 ### Utilities
-- **date-fns**
-- **clsx + tailwind-merge**
-- **Wouter**
-- **nanoid**
-
-### Fonts
-- **Inter** (Google Fonts CDN)
-- **JetBrains Mono** (Google Fonts CDN)
+- date-fns
+- clsx + tailwind-merge
+- Wouter
+- nanoid
 
 ### Session Management
-- **connect-pg-simple**
-- **express-session**
+- connect-pg-simple
+- express-session
 
 ### Replit Development Tools
-- **@replit/vite-plugin-runtime-error-modal**
-- **@replit/vite-plugin-cartographer**
-- **@replit/vite-plugin-dev-banner**
+- @replit/vite-plugin-runtime-error-modal
+- @replit/vite-plugin-cartographer
+- @replit/vite-plugin-dev-banner

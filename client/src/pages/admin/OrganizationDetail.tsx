@@ -86,12 +86,12 @@ export default function OrganizationDetail() {
 
   // Fetch organization
   const { data: organization, isLoading: orgLoading } = useQuery<Organization>({
-    queryKey: ["/api/organizations", organizationId],
+    queryKey: [`/api/organizations/${organizationId}`],
   });
 
   // Fetch properties
   const { data: properties = [] } = useQuery<Property[]>({
-    queryKey: ["/api/organizations", organizationId, "properties"],
+    queryKey: [`/api/organizations/${organizationId}/properties`],
   });
 
   // Fetch all users and filter by organization
@@ -149,7 +149,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}`] });
       toast({
         title: "Theme Updated",
         description: "Organization theme has been changed",
@@ -166,7 +166,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}`] });
       toast({
         title: "Logo Updated",
         description: "Organization logo has been changed",
@@ -181,7 +181,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId, "properties"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}/properties`] });
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       toast({
         title: "Property Created",
@@ -199,7 +199,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId, "properties"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}/properties`] });
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       toast({
         title: "Property Updated",
@@ -218,7 +218,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId, "properties"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}/properties`] });
       queryClient.invalidateQueries({ queryKey: ["/api/properties"] });
       toast({
         title: "Property Deleted",
@@ -235,7 +235,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}`] });
       toast({
         title: "Contact Information Updated",
         description: "Organization contact details have been saved",
@@ -250,7 +250,7 @@ export default function OrganizationDetail() {
       return await response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/organizations", organizationId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/organizations/${organizationId}`] });
       toast({
         title: "Regional Settings Updated",
         description: "Organization regional settings have been saved",
@@ -520,7 +520,7 @@ export default function OrganizationDetail() {
                             }
 
                             queryClient.invalidateQueries({
-                              queryKey: ["/api/organizations", organizationId],
+                              queryKey: [`/api/organizations/${organizationId}`],
                             });
                             toast({
                               title: "✓ Logo Uploaded",
