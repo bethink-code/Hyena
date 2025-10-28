@@ -8,7 +8,8 @@ export function RoleNavigationHeader() {
 
   const roles = [
     { path: "/guest", icon: User, label: "Guest" },
-    { path: "/manager", icon: Building2, label: "Manager" },
+    { path: "/hotel-manager", icon: Building2, label: "Hotel Manager" },
+    { path: "/manager", icon: Building2, label: "Regional Manager" },
     { path: "/admin", icon: Settings, label: "Admin" },
     { path: "/technician", icon: Wrench, label: "Technician" },
   ];

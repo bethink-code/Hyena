@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import LandingPage from "@/pages/LandingPage";
 import GuestPortal from "@/pages/GuestPortal";
 import ManagerDashboard from "@/pages/ManagerDashboard";
+import HotelManagerDashboard from "@/pages/HotelManagerDashboard";
 import AdminCenter from "@/pages/AdminCenter";
 import TechnicianApp from "@/pages/TechnicianApp";
 import EventSimulator from "@/pages/EventSimulator";
@@ -17,6 +18,12 @@ import ManagerAnalytics from "@/pages/manager/Analytics";
 import ManagerReports from "@/pages/manager/Reports";
 import ManagerMessages from "@/pages/manager/Messages";
 import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
+
+import HotelManagerIncidents from "@/pages/hotel-manager/IncidentQueue";
+import HotelManagerNetwork from "@/pages/hotel-manager/NetworkStatus";
+import HotelManagerAnalytics from "@/pages/hotel-manager/Analytics";
+import HotelManagerReports from "@/pages/hotel-manager/Reports";
+import HotelManagerMessages from "@/pages/hotel-manager/Messages";
 
 import TechnicianIncidents from "@/pages/technician/IncidentQueue";
 import TechnicianPropertyDetail from "@/pages/technician/PropertyDetail";
@@ -49,6 +56,13 @@ function Router() {
       <Route path="/manager/analytics" component={ManagerAnalytics} />
       <Route path="/manager/reports" component={ManagerReports} />
       <Route path="/manager/messages" component={ManagerMessages} />
+      
+      <Route path="/hotel-manager" component={HotelManagerDashboard} />
+      <Route path="/hotel-manager/incidents" component={HotelManagerIncidents} />
+      <Route path="/hotel-manager/network" component={HotelManagerNetwork} />
+      <Route path="/hotel-manager/analytics" component={HotelManagerAnalytics} />
+      <Route path="/hotel-manager/reports" component={HotelManagerReports} />
+      <Route path="/hotel-manager/messages" component={HotelManagerMessages} />
       
       <Route path="/technician" component={TechnicianApp} />
       <Route path="/technician/incidents" component={TechnicianIncidents} />

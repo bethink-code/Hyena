@@ -113,6 +113,10 @@ export default function Users() {
     switch (role) {
       case "admin":
         return "default";
+      case "regional_manager":
+        return "default";
+      case "hotel_manager":
+        return "default";
       case "manager":
         return "default";
       case "technician":
@@ -240,7 +244,8 @@ export default function Users() {
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="technician">Technician</SelectItem>
-                            <SelectItem value="manager">Manager</SelectItem>
+                            <SelectItem value="hotel_manager">Hotel Manager</SelectItem>
+                            <SelectItem value="regional_manager">Regional Manager</SelectItem>
                             <SelectItem value="admin">Admin</SelectItem>
                           </SelectContent>
                         </Select>
@@ -320,7 +325,9 @@ export default function Users() {
                       data-testid={`badge-role-${user.id}`}
                       variant={getRoleBadgeVariant(user.role)}
                     >
-                      {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                      {user.role === 'hotel_manager' ? 'Hotel Manager' : 
+                       user.role === 'regional_manager' ? 'Regional Manager' :
+                       user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                     </Badge>
                   </div>
                 ))}
