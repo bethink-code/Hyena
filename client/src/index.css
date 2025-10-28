@@ -253,19 +253,19 @@
   --sidebar-ring: 210 100% 45%;
 }
 
-/* Theme 2: Kalahari Gold - Warm desert amber/gold tones */
+/* Theme 2: Kalahari Gold - Warm desert amber/gold tones (#B59A55) */
 .theme-kalahari-gold {
-  --primary: 38 92% 55%;
-  --sidebar-primary: 38 92% 55%;
-  --ring: 38 92% 55%;
-  --sidebar-ring: 38 92% 55%;
+  --primary: 38 42% 52%;
+  --sidebar-primary: 38 42% 52%;
+  --ring: 38 42% 52%;
+  --sidebar-ring: 38 42% 52%;
 }
 
 .theme-kalahari-gold:not(.dark) {
-  --primary: 38 92% 45%;
-  --sidebar-primary: 38 92% 45%;
-  --ring: 38 92% 45%;
-  --sidebar-ring: 38 92% 45%;
+  --primary: 38 42% 45%;
+  --sidebar-primary: 38 42% 45%;
+  --ring: 38 42% 45%;
+  --sidebar-ring: 38 42% 45%;
 }
 
 /* Theme 3: Kruger Green - Rich forest emerald greens */
