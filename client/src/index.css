@@ -238,19 +238,19 @@
    SOUTH AFRICAN-THEMED COLOR PALETTES
    ======================================== */
 
-/* Theme 1: Table Mountain Blue (Default) - Deep ocean blues */
+/* Theme 1: Table Mountain Blue (Default) - Deep ocean blues (#0D4D96) */
 .theme-table-mountain-blue {
-  --primary: 210 100% 55%;
-  --sidebar-primary: 210 100% 55%;
-  --ring: 210 100% 55%;
-  --sidebar-ring: 210 100% 55%;
+  --primary: 212 84% 32%;
+  --sidebar-primary: 212 84% 32%;
+  --ring: 212 84% 32%;
+  --sidebar-ring: 212 84% 32%;
 }
 
 .theme-table-mountain-blue:not(.dark) {
-  --primary: 210 100% 45%;
-  --sidebar-primary: 210 100% 45%;
-  --ring: 210 100% 45%;
-  --sidebar-ring: 210 100% 45%;
+  --primary: 212 84% 28%;
+  --sidebar-primary: 212 84% 28%;
+  --ring: 212 84% 28%;
+  --sidebar-ring: 212 84% 28%;
 }
 
 /* Theme 2: Kalahari Gold - Warm desert amber/gold tones (#B59A55) */
