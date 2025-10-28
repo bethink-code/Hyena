@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, insertOrganizationSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
+import { ObjectStorageService } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Helper function to strip password from user objects
@@ -82,6 +83,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ error: error.message });
       }
+    }
+  });
+
+  // Object storage routes for logo uploads
+  app.post("/api/logos/upload-url", async (req, res) => {
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getLogoUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error("Error getting upload URL:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.put("/api/organizations/:id/logo", async (req, res) => {
+    try {
+      if (!req.body.logoUrl) {
+        return res.status(400).json({ error: "logoUrl is required" });
+      }
+
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = objectStorageService.normalizeLogoPath(req.body.logoUrl);
+      
+      const organization = await storage.updateOrganization(req.params.id, {
+        logoUrl: normalizedPath,
+      });
+
+      if (!organization) {
+        return res.status(404).json({ error: "Organization not found" });
+      }
+
+      res.json(organization);
+    } catch (error: any) {
+      console.error("Error updating organization logo:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Serve public objects (logos)
+  app.get("/public-objects/:filePath(*)", async (req, res) => {
+    const filePath = req.params.filePath;
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const file = await objectStorageService.searchPublicObject(filePath);
+      if (!file) {
+        return res.status(404).json({ error: "File not found" });
+      }
+      objectStorageService.downloadObject(file, res);
+    } catch (error: any) {
+      console.error("Error searching for public object:", error);
+      return res.status(500).json({ error: "Internal server error" });
     }
   });
 

@@ -7,10 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ObjectUploader } from "@/components/ObjectUploader";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { THEME_LABELS, THEME_MAP, applyTheme, type ThemeKey } from "@/lib/themes";
 import type { Organization } from "@shared/schema";
+import type { UploadResult } from "@uppy/core";
 import {
   LayoutDashboard,
   Building2,
@@ -21,6 +23,7 @@ import {
   Puzzle,
   Shield,
   Palette,
+  Upload,
 } from "lucide-react";
 
 export default function Config() {
@@ -234,27 +237,52 @@ export default function Config() {
                             </div>
                             
                             <div className="space-y-2">
-                              <Label htmlFor={`logo-${org.id}`}>Logo URL</Label>
+                              <Label htmlFor={`logo-${org.id}`}>Organization Logo</Label>
                               <div className="flex gap-2">
-                                <Input
-                                  id={`logo-${org.id}`}
-                                  type="url"
-                                  placeholder="https://example.com/logo.png"
-                                  defaultValue={org.logoUrl || ""}
-                                  onBlur={(e) => {
-                                    const newLogoUrl = e.target.value.trim();
-                                    if (newLogoUrl !== (org.logoUrl || "")) {
-                                      updateThemeMutation.mutate({
-                                        orgId: org.id,
-                                        logoUrl: newLogoUrl || null,
-                                      } as any);
+                                <ObjectUploader
+                                  maxNumberOfFiles={1}
+                                  maxFileSize={5242880}
+                                  allowedFileTypes={["image/*"]}
+                                  onGetUploadParameters={async () => {
+                                    const response = await apiRequest("POST", "/api/logos/upload-url", {});
+                                    const data = await response.json();
+                                    return {
+                                      method: "PUT" as const,
+                                      url: data.uploadURL,
+                                    };
+                                  }}
+                                  onComplete={async (result: UploadResult) => {
+                                    if (result.successful && result.successful.length > 0) {
+                                      const uploadedFile = result.successful[0];
+                                      const logoUrl = uploadedFile.uploadURL;
+                                      
+                                      try {
+                                        await apiRequest("PUT", `/api/organizations/${org.id}/logo`, {
+                                          logoUrl,
+                                        });
+                                        queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+                                        toast({
+                                          title: "Logo Uploaded",
+                                          description: "Organization logo has been updated successfully",
+                                        });
+                                      } catch (error: any) {
+                                        toast({
+                                          title: "Error",
+                                          description: error.message || "Failed to update logo",
+                                          variant: "destructive",
+                                        });
+                                      }
                                     }
                                   }}
-                                  data-testid={`input-logo-${org.id}`}
-                                />
+                                  buttonVariant="outline"
+                                  buttonClassName="w-full"
+                                >
+                                  <Upload className="h-4 w-4 mr-2" />
+                                  Upload Logo
+                                </ObjectUploader>
                               </div>
                               <p className="text-xs text-muted-foreground">
-                                Enter a publicly accessible image URL
+                                Upload an image file (PNG, JPG, SVG) - max 5MB
                               </p>
                             </div>
                           </div>
