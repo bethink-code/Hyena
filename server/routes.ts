@@ -86,29 +86,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Object storage routes for logo uploads
-  app.post("/api/logos/upload-url", async (req, res) => {
-    try {
-      const objectStorageService = new ObjectStorageService();
-      const uploadURL = await objectStorageService.getLogoUploadURL();
-      res.json({ uploadURL });
-    } catch (error: any) {
-      console.error("Error getting upload URL:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-
-  app.put("/api/organizations/:id/logo", async (req, res) => {
+  // Logo URL update (simpler approach - store any valid URL)
+  app.patch("/api/organizations/:id/logo", async (req, res) => {
     try {
       if (!req.body.logoUrl) {
         return res.status(400).json({ error: "logoUrl is required" });
       }
 
-      const objectStorageService = new ObjectStorageService();
-      const normalizedPath = objectStorageService.normalizeLogoPath(req.body.logoUrl);
-      
       const organization = await storage.updateOrganization(req.params.id, {
-        logoUrl: normalizedPath,
+        logoUrl: req.body.logoUrl,
       });
 
       if (!organization) {
