@@ -52,9 +52,10 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   name: text("name").notNull(),
   email: text("email").notNull().unique(),
-  role: text("role").notNull(), // 'manager' | 'admin' | 'technician' | 'guest' | 'hotel_manager' | 'regional_manager'
-  propertyId: text("property_id"), // null for admin (all properties)
-  organizationId: text("organization_id"), // link to organization
+  userType: text("user_type").notNull().default("platform"), // 'platform' | 'organization'
+  role: text("role").notNull(), // Platform: 'super_user' | 'hyena_manager' | 'hyena_user' | 'technician' | Organization: 'regional_manager' | 'property_manager'
+  propertyId: text("property_id"), // For property_manager role
+  organizationId: text("organization_id"), // For organization users
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

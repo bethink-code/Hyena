@@ -20,7 +20,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User routes
   app.get("/api/users", async (req, res) => {
     try {
-      const users = await storage.getAllUsers();
+      const { type, organizationId } = req.query;
+      
+      let users;
+      if (type) {
+        users = await storage.getUsersByType(type as string);
+      } else if (organizationId) {
+        users = await storage.getUsersByOrganization(organizationId as string);
+      } else {
+        users = await storage.getAllUsers();
+      }
+      
       // Remove password field from all user objects
       const sanitizedUsers = users.map(sanitizeUser);
       res.json(sanitizedUsers);
@@ -49,6 +59,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ error: error.message });
       }
+    }
+  });
+
+  app.patch("/api/users/:id", async (req, res) => {
+    try {
+      const updateSchema = insertUserSchema.partial().omit({ password: true });
+      const validatedData = updateSchema.parse(req.body);
+      
+      const user = await storage.updateUser(req.params.id, validatedData);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      res.json(sanitizeUser(user));
+    } catch (error: any) {
+      if (error.name === 'ZodError') {
+        res.status(400).json({ error: 'Invalid user data', details: error.errors });
+      } else {
+        res.status(500).json({ error: error.message });
+      }
+    }
+  });
+
+  app.delete("/api/users/:id", async (req, res) => {
+    try {
+      const deleted = await storage.deleteUser(req.params.id);
+      
+      if (!deleted) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 
