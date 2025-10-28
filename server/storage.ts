@@ -7,10 +7,13 @@ import {
   type InsertIncidentTimeline,
   type Organization,
   type InsertOrganization,
+  type Property,
+  type InsertProperty,
   users,
   incidents,
   incidentTimeline,
-  organizations
+  organizations,
+  properties
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -27,6 +30,14 @@ export interface IStorage {
   getAllOrganizations(): Promise<Organization[]>;
   getOrganization(id: string): Promise<Organization | undefined>;
   updateOrganization(id: string, updates: Partial<Organization>): Promise<Organization | undefined>;
+  
+  // Property operations
+  getPropertiesByOrganization(organizationId: string): Promise<Property[]>;
+  getAllProperties(): Promise<Property[]>;
+  getProperty(id: string): Promise<Property | undefined>;
+  createProperty(property: InsertProperty): Promise<Property>;
+  updateProperty(id: string, updates: Partial<Property>): Promise<Property | undefined>;
+  deleteProperty(id: string): Promise<boolean>;
   
   // Incident operations
   createIncident(incident: InsertIncident): Promise<Incident>;
@@ -47,12 +58,14 @@ export class MemStorage implements IStorage {
   private incidents: Map<string, Incident>;
   private incidentTimelines: Map<string, IncidentTimeline[]>;
   private organizations: Map<string, Organization>;
+  private properties: Map<string, Property>;
 
   constructor() {
     this.users = new Map();
     this.incidents = new Map();
     this.incidentTimelines = new Map();
     this.organizations = new Map();
+    this.properties = new Map();
   }
 
   // User operations
@@ -99,6 +112,48 @@ export class MemStorage implements IStorage {
     const updated = { ...existing, ...updates };
     this.organizations.set(id, updated);
     return updated;
+  }
+
+  // Property operations
+  async getPropertiesByOrganization(organizationId: string): Promise<Property[]> {
+    return Array.from(this.properties.values()).filter(
+      (property) => property.organizationId === organizationId
+    );
+  }
+
+  async getAllProperties(): Promise<Property[]> {
+    return Array.from(this.properties.values());
+  }
+
+  async getProperty(id: string): Promise<Property | undefined> {
+    return this.properties.get(id);
+  }
+
+  async createProperty(insertProperty: InsertProperty): Promise<Property> {
+    const id = randomUUID();
+    const property: Property = {
+      ...insertProperty,
+      id,
+      status: insertProperty.status ?? "active",
+      timezone: insertProperty.timezone ?? "Africa/Johannesburg",
+      address: insertProperty.address ?? null,
+      createdAt: new Date(),
+    };
+    this.properties.set(id, property);
+    return property;
+  }
+
+  async updateProperty(id: string, updates: Partial<Property>): Promise<Property | undefined> {
+    const existing = this.properties.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, ...updates };
+    this.properties.set(id, updated);
+    return updated;
+  }
+
+  async deleteProperty(id: string): Promise<boolean> {
+    return this.properties.delete(id);
   }
 
   // Incident operations
@@ -237,6 +292,38 @@ export class DbStorage implements IStorage {
       .where(eq(organizations.id, id))
       .returning();
     return result[0];
+  }
+
+  // Property operations
+  async getPropertiesByOrganization(organizationId: string): Promise<Property[]> {
+    return await db.select().from(properties).where(eq(properties.organizationId, organizationId));
+  }
+
+  async getAllProperties(): Promise<Property[]> {
+    return await db.select().from(properties);
+  }
+
+  async getProperty(id: string): Promise<Property | undefined> {
+    const result = await db.select().from(properties).where(eq(properties.id, id));
+    return result[0];
+  }
+
+  async createProperty(insertProperty: InsertProperty): Promise<Property> {
+    const result = await db.insert(properties).values(insertProperty).returning();
+    return result[0];
+  }
+
+  async updateProperty(id: string, updates: Partial<Property>): Promise<Property | undefined> {
+    const result = await db.update(properties)
+      .set(updates)
+      .where(eq(properties.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteProperty(id: string): Promise<boolean> {
+    const result = await db.delete(properties).where(eq(properties.id, id)).returning();
+    return result.length > 0;
   }
 
   // Incident operations

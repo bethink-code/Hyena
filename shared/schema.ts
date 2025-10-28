@@ -7,8 +7,14 @@ import { z } from "zod";
 export const organizations = pgTable("organizations", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
-  theme: text("theme").notNull().default("table_mountain_blue"), // 'table_mountain_blue' | 'kalahari_gold' | 'kruger_green' | 'jacaranda_purple' | 'protea_red'
+  theme: text("theme").notNull().default("table_mountain_blue"), // 'table_mountain_blue' | 'kalahari_gold' | 'sunset_yellow' | 'jacaranda_purple' | 'protea_red'
   logoUrl: text("logo_url"),
+  contactEmail: text("contact_email"),
+  contactPhone: text("contact_phone"),
+  contactPerson: text("contact_person"),
+  headquarters: text("headquarters"),
+  timezone: text("timezone").notNull().default("Africa/Johannesburg"),
+  language: text("language").notNull().default("en"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -19,6 +25,26 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
 
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 export type Organization = typeof organizations.$inferSelect;
+
+// Properties table for hotel/property management
+export const properties = pgTable("properties", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  organizationId: text("organization_id").notNull(),
+  name: text("name").notNull(),
+  location: text("location").notNull(), // City/region
+  address: text("address"),
+  status: text("status").notNull().default("active"), // 'active' | 'inactive' | 'maintenance'
+  timezone: text("timezone").notNull().default("Africa/Johannesburg"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertPropertySchema = createInsertSchema(properties).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertProperty = z.infer<typeof insertPropertySchema>;
+export type Property = typeof properties.$inferSelect;
 
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
