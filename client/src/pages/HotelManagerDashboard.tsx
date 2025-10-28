@@ -328,9 +328,6 @@ export default function HotelManagerDashboard() {
                 assignedTo: incident.assignedTo || undefined,
               }))}
             onIncidentClick={(id) => setSelectedIncidentId(id)}
-            onAssign={(id: string, technicianId: string) => {
-              assignIncidentMutation.mutate({ incidentId: id, assignedTo: technicianId });
-            }}
           />
         </div>
 
