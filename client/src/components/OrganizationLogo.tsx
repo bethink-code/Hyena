@@ -7,8 +7,10 @@ interface OrganizationLogoProps {
 }
 
 export function OrganizationLogo({ organizationId }: OrganizationLogoProps) {
-  const { data: organization, isLoading } = useQuery<Organization>({
-    queryKey: ["/api/organizations", organizationId],
+  // Use the same query key as the organizations list to leverage caching
+  const { data: organization, isLoading } = useQuery<Organization[], Error, Organization | undefined>({
+    queryKey: ["/api/organizations"],
+    select: (organizations) => organizations.find(org => org.id === organizationId),
   });
 
   if (isLoading) {
