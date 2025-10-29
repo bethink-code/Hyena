@@ -9,6 +9,7 @@ import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
@@ -29,6 +30,9 @@ export default function ManagerDashboard() {
   const [, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
+  
+  // Fetch active organization
+  const { data: activeOrg } = useActiveOrganization();
   
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
@@ -312,7 +316,7 @@ export default function ManagerDashboard() {
       navSections={navSections}
       homeRoute="/manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
-      sidebarHeader={<OrganizationLogo organizationId="org-sun-international" />}
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div className="flex items-center justify-between">
