@@ -2,6 +2,8 @@ import { useState, useMemo, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { Button } from "@/components/ui/button";
@@ -20,6 +22,7 @@ import {
 } from "lucide-react";
 
 export default function IncidentQueuePage() {
+  const { data: activeOrg } = useActiveOrganization();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
@@ -215,6 +218,7 @@ export default function IncidentQueuePage() {
       navSections={navSections}
       homeRoute="/hotel-manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">

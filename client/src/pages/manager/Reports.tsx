@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
 import {
@@ -12,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default function Reports() {
+  const { data: activeOrg } = useActiveOrganization();
   const [, setLocation] = useLocation();
   
   // Use the first 3 properties for the manager's scope
@@ -121,6 +124,7 @@ export default function Reports() {
       title="Reports"
       homeRoute="/manager"
       navSections={navSections}
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

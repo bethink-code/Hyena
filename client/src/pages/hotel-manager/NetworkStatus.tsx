@@ -1,4 +1,6 @@
 import { AppLayout } from "@/components/AppLayout";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LayoutDashboard,
@@ -10,6 +12,8 @@ import {
 } from "lucide-react";
 
 export default function NetworkStatus() {
+  const { data: activeOrg } = useActiveOrganization();
+
   const navSections = [
     {
       label: "Main",
@@ -39,6 +43,7 @@ export default function NetworkStatus() {
       title="Network Status"
       navSections={navSections}
       homeRoute="/hotel-manager"
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <h2 className="text-2xl font-bold mb-6">Network Status</h2>

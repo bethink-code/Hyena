@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { OrganizationLogo } from "@/components/OrganizationLogo";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
@@ -18,6 +20,7 @@ import {
 } from "lucide-react";
 
 export default function PropertyDetail() {
+  const { data: activeOrg } = useActiveOrganization();
   const { toast } = useToast();
   const params = useParams<{ id: string }>();
   const propertyId = params.id;
@@ -194,6 +197,7 @@ export default function PropertyDetail() {
         title="Property Management Dashboard"
         homeRoute="/manager"
         navSections={navSections}
+        sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
       >
         <div className="container mx-auto px-4 py-8 max-w-7xl">
           <div className="text-center py-12">
@@ -216,6 +220,7 @@ export default function PropertyDetail() {
       title="Property Management Dashboard"
       homeRoute="/manager"
       navSections={navSections}
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Property Header */}
