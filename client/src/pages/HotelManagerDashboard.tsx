@@ -9,6 +9,7 @@ import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/Inci
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { PoweredByFooter } from "@/components/PoweredByFooter";
 import { useToast } from "@/hooks/use-toast";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
@@ -31,6 +32,9 @@ export default function HotelManagerDashboard() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
+  
+  // Fetch active organization
+  const { data: activeOrg } = useActiveOrganization();
   
   // PROTOTYPE NOTE: In production, propertyId would be loaded from authenticated user session
   // For demonstration, this shows the hotel manager experience for property "1" (The Table Bay Hotel)
@@ -288,7 +292,7 @@ export default function HotelManagerDashboard() {
       navSections={navSections}
       homeRoute="/hotel-manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
-      sidebarHeader={<OrganizationLogo organizationId="org-sun-international" />}
+      sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         {/* Property Header */}
