@@ -126,11 +126,6 @@ export default function Organizations() {
                     <Badge variant="secondary" className="capitalize">
                       {org.theme.replace(/_/g, ' ')}
                     </Badge>
-                    {!org.active && (
-                      <Badge variant="destructive" data-testid={`badge-inactive-${org.id}`}>
-                        Inactive
-                      </Badge>
-                    )}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -157,6 +152,7 @@ export default function Organizations() {
                       }}
                       disabled={toggleActiveMutation.isPending}
                       data-testid={`switch-active-${org.id}`}
+                      className="scale-75 origin-left"
                     />
                     <span className="text-sm text-muted-foreground">
                       {org.active ? "Active" : "Inactive"}
