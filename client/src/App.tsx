@@ -1,9 +1,12 @@
 import { Switch, Route } from "wouter";
+import { useEffect } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { applyTheme, type ThemeKey } from "@/lib/themes";
+import type { Organization } from "@shared/schema";
 import LandingPage from "@/pages/LandingPage";
 import GuestPortal from "@/pages/GuestPortal";
 import ManagerDashboard from "@/pages/ManagerDashboard";
@@ -93,6 +96,25 @@ function Router() {
 }
 
 function App() {
+  useEffect(() => {
+    // Fetch and apply active organization theme on app load
+    const loadActiveOrganizationTheme = async () => {
+      try {
+        const response = await fetch('/api/organizations');
+        const organizations: Organization[] = await response.json();
+        const activeOrg = organizations.find(org => org.active);
+        
+        if (activeOrg && activeOrg.theme) {
+          applyTheme(activeOrg.theme as ThemeKey);
+        }
+      } catch (error) {
+        console.error('Failed to load active organization theme:', error);
+      }
+    };
+    
+    loadActiveOrganizationTheme();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="dark">

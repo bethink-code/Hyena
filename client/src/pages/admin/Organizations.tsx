@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import type { Organization } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { applyTheme, type ThemeKey } from "@/lib/themes";
 
 export default function Organizations() {
   const { data: organizations, isLoading } = useQuery<Organization[]>({
@@ -26,11 +27,16 @@ export default function Organizations() {
   });
 
   const toggleActiveMutation = useMutation({
-    mutationFn: async ({ id, active }: { id: string; active: boolean }) => {
-      return await apiRequest("PATCH", `/api/organizations/${id}`, { active });
+    mutationFn: async ({ id, active, theme }: { id: string; active: boolean; theme?: ThemeKey }) => {
+      const response = await apiRequest("PATCH", `/api/organizations/${id}`, { active });
+      return { response, theme };
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+      // Apply theme if organization was activated
+      if (data.theme) {
+        applyTheme(data.theme);
+      }
     },
   });
 
@@ -88,6 +94,9 @@ export default function Organizations() {
             <p className="text-muted-foreground">
               Manage hotel chains, their branding, properties, and settings
             </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              <strong>Note:</strong> Only one organization can be active at a time. Activating an organization applies its theme and makes its data visible system-wide.
+            </p>
           </div>
         </div>
 
@@ -140,7 +149,11 @@ export default function Organizations() {
                     <Switch
                       checked={org.active}
                       onCheckedChange={(checked) => {
-                        toggleActiveMutation.mutate({ id: org.id, active: checked });
+                        toggleActiveMutation.mutate({ 
+                          id: org.id, 
+                          active: checked,
+                          theme: checked ? org.theme as ThemeKey : undefined
+                        });
                       }}
                       disabled={toggleActiveMutation.isPending}
                       data-testid={`switch-active-${org.id}`}

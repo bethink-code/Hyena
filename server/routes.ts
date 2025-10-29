@@ -191,6 +191,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       
       const validatedData = updateSchema.parse(req.body);
+      
+      // If setting this organization to active, deactivate all others first (exclusive selection)
+      if (validatedData.active === true) {
+        const allOrganizations = await storage.getAllOrganizations();
+        for (const org of allOrganizations) {
+          if (org.id !== req.params.id && org.active) {
+            await storage.updateOrganization(org.id, { active: false });
+          }
+        }
+      }
+      
       const organization = await storage.updateOrganization(req.params.id, validatedData);
       
       if (!organization) {
