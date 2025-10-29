@@ -17,7 +17,7 @@ import {
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, asc } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -128,7 +128,7 @@ export class MemStorage implements IStorage {
 
   // Organization operations
   async getAllOrganizations(): Promise<Organization[]> {
-    return Array.from(this.organizations.values());
+    return Array.from(this.organizations.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async getOrganization(id: string): Promise<Organization | undefined> {
@@ -329,7 +329,7 @@ export class DbStorage implements IStorage {
 
   // Organization operations
   async getAllOrganizations(): Promise<Organization[]> {
-    return await db.select().from(organizations);
+    return await db.select().from(organizations).orderBy(asc(organizations.name));
   }
 
   async getOrganization(id: string): Promise<Organization | undefined> {
