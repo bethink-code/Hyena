@@ -9,11 +9,14 @@ import {
   type InsertOrganization,
   type Property,
   type InsertProperty,
+  type HelpComment,
+  type InsertHelpComment,
   users,
   incidents,
   incidentTimeline,
   organizations,
-  properties
+  properties,
+  helpComments
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 import { db } from "./db";
@@ -55,6 +58,10 @@ export interface IStorage {
   // Incident timeline operations
   addIncidentTimelineEntry(entry: InsertIncidentTimeline): Promise<IncidentTimeline>;
   getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]>;
+  
+  // Help comment operations
+  createHelpComment(comment: InsertHelpComment): Promise<HelpComment>;
+  getHelpCommentsByRoute(route: string): Promise<HelpComment[]>;
 }
 
 export class MemStorage implements IStorage {
@@ -63,6 +70,7 @@ export class MemStorage implements IStorage {
   private incidentTimelines: Map<string, IncidentTimeline[]>;
   private organizations: Map<string, Organization>;
   private properties: Map<string, Property>;
+  private helpComments: Map<string, HelpComment>;
 
   constructor() {
     this.users = new Map();
@@ -70,6 +78,7 @@ export class MemStorage implements IStorage {
     this.incidentTimelines = new Map();
     this.organizations = new Map();
     this.properties = new Map();
+    this.helpComments = new Map();
   }
 
   // User operations
@@ -282,6 +291,23 @@ export class MemStorage implements IStorage {
   async getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]> {
     return this.incidentTimelines.get(incidentId) || [];
   }
+
+  // Help comment operations
+  async createHelpComment(insertComment: InsertHelpComment): Promise<HelpComment> {
+    const comment: HelpComment = {
+      id: randomUUID(),
+      ...insertComment,
+      createdAt: new Date(),
+    };
+    this.helpComments.set(comment.id, comment);
+    return comment;
+  }
+
+  async getHelpCommentsByRoute(route: string): Promise<HelpComment[]> {
+    return Array.from(this.helpComments.values())
+      .filter(comment => comment.route === route)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
 }
 
 // Database Storage Implementation using Drizzle ORM
@@ -442,6 +468,18 @@ export class DbStorage implements IStorage {
 
   async getIncidentTimeline(incidentId: string): Promise<IncidentTimeline[]> {
     return await db.select().from(incidentTimeline).where(eq(incidentTimeline.incidentId, incidentId));
+  }
+
+  // Help comment operations
+  async createHelpComment(insertComment: InsertHelpComment): Promise<HelpComment> {
+    const result = await db.insert(helpComments).values(insertComment).returning();
+    return result[0];
+  }
+
+  async getHelpCommentsByRoute(route: string): Promise<HelpComment[]> {
+    return await db.select().from(helpComments)
+      .where(eq(helpComments.route, route))
+      .orderBy(sql`${helpComments.createdAt} DESC`);
   }
 }
 

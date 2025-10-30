@@ -192,3 +192,21 @@ export type UpdateIncident = z.infer<typeof updateIncidentSchema>;
 export type Incident = typeof incidents.$inferSelect;
 export type InsertIncidentTimeline = z.infer<typeof insertIncidentTimelineSchema>;
 export type IncidentTimeline = typeof incidentTimeline.$inferSelect;
+
+// Help comments table for stakeholder feedback on documentation pages
+export const helpComments = pgTable("help_comments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  route: text("route").notNull(), // Page route like '/manager', '/admin', '/technician'
+  authorName: text("author_name").notNull(),
+  authorRole: text("author_role").notNull(), // User role or stakeholder type
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertHelpCommentSchema = createInsertSchema(helpComments).omit({
+  id: true,
+  createdAt: true,
+});
+
+export type InsertHelpComment = z.infer<typeof insertHelpCommentSchema>;
+export type HelpComment = typeof helpComments.$inferSelect;

@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import express from "express";
 import { storage } from "./storage";
-import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, baseUserInsertSchema, insertOrganizationSchema, insertPropertySchema } from "@shared/schema";
+import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, baseUserInsertSchema, insertOrganizationSchema, insertPropertySchema, insertHelpCommentSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import multer from "multer";
@@ -611,6 +611,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Event routes (alias for incidents - system uses terms interchangeably)
   // Uses shared handler to maintain full feature parity with /api/incidents
   app.get("/api/events", getIncidentsHandler);
+
+  // Help comment routes for documentation panel feedback
+  app.get("/api/help/comments/:route", async (req, res) => {
+    try {
+      const route = decodeURIComponent(req.params.route);
+      const comments = await storage.getHelpCommentsByRoute(route);
+      res.json(comments);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/help/comments", async (req, res) => {
+    try {
+      const validatedComment = insertHelpCommentSchema.parse(req.body);
+      const comment = await storage.createHelpComment(validatedComment);
+      res.json(comment);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
 
   const httpServer = createServer(app);
 
