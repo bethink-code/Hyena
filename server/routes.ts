@@ -645,6 +645,156 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Report API endpoints
+  
+  // Manager Reports
+  app.get("/api/reports/incidents", async (req, res) => {
+    try {
+      const allIncidents = await storage.getAllIncidents();
+      
+      // Calculate additional metrics for each incident
+      const incidentsWithMetrics = allIncidents.map(incident => {
+        const createdDate = new Date(incident.createdAt);
+        const updatedDate = new Date(incident.updatedAt);
+        const resolutionTime = updatedDate.getTime() - createdDate.getTime();
+        const resolutionHours = Math.round(resolutionTime / (1000 * 60 * 60));
+        
+        return {
+          ...incident,
+          resolutionHours,
+          isOverdue: incident.status !== 'resolved' && resolutionHours > 24,
+        };
+      });
+      
+      res.json(incidentsWithMetrics);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/reports/sla-performance", async (req, res) => {
+    try {
+      const allIncidents = await storage.getAllIncidents();
+      
+      // Calculate SLA metrics for each incident
+      const slaData = allIncidents.map(incident => {
+        const createdDate = new Date(incident.createdAt);
+        const updatedDate = new Date(incident.updatedAt);
+        const resolutionTime = updatedDate.getTime() - createdDate.getTime();
+        const resolutionHours = Math.round(resolutionTime / (1000 * 60 * 60));
+        
+        // Define SLA targets based on priority
+        const slaTargets: Record<string, number> = {
+          critical: 4,
+          high: 8,
+          medium: 24,
+          low: 48,
+        };
+        
+        const slaTarget = slaTargets[incident.priority] || 24;
+        const slaStatus = incident.status === 'resolved' 
+          ? (resolutionHours <= slaTarget ? 'met' : 'breached')
+          : (resolutionHours > slaTarget ? 'at_risk' : 'on_track');
+        
+        return {
+          id: incident.id,
+          title: incident.title,
+          priority: incident.priority,
+          status: incident.status,
+          propertyId: incident.propertyId,
+          createdAt: incident.createdAt,
+          resolutionHours,
+          slaTarget,
+          slaStatus,
+          slaBreachBy: slaStatus === 'breached' ? resolutionHours - slaTarget : 0,
+        };
+      });
+      
+      res.json(slaData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/reports/category-analysis", async (req, res) => {
+    try {
+      const allIncidents = await storage.getAllIncidents();
+      
+      // Group incidents by category
+      const categoryGroups = allIncidents.reduce((acc, incident) => {
+        const category = incident.category || 'Uncategorized';
+        if (!acc[category]) {
+          acc[category] = [];
+        }
+        acc[category].push(incident);
+        return acc;
+      }, {} as Record<string, typeof allIncidents>);
+      
+      // Calculate metrics for each category
+      const categoryData = Object.entries(categoryGroups).map(([category, incidents]) => {
+        const totalIncidents = incidents.length;
+        const resolvedIncidents = incidents.filter(i => i.status === 'resolved').length;
+        const criticalIncidents = incidents.filter(i => i.priority === 'critical').length;
+        const avgResolutionTime = incidents
+          .filter(i => i.status === 'resolved')
+          .reduce((sum, i) => {
+            const time = new Date(i.updatedAt).getTime() - new Date(i.createdAt).getTime();
+            return sum + (time / (1000 * 60 * 60));
+          }, 0) / (resolvedIncidents || 1);
+        
+        return {
+          category,
+          totalIncidents,
+          resolvedIncidents,
+          criticalIncidents,
+          avgResolutionTime: Math.round(avgResolutionTime),
+          resolutionRate: Math.round((resolvedIncidents / totalIncidents) * 100),
+        };
+      });
+      
+      res.json(categoryData.sort((a, b) => b.totalIncidents - a.totalIncidents));
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/reports/guest-impact", async (req, res) => {
+    try {
+      const allIncidents = await storage.getAllIncidents();
+      
+      // Filter incidents that affect guests
+      const guestImpactData = allIncidents
+        .filter(incident => incident.affectedGuests && incident.affectedGuests > 0)
+        .map(incident => {
+          const createdDate = new Date(incident.createdAt);
+          const updatedDate = new Date(incident.updatedAt);
+          const resolutionTime = updatedDate.getTime() - createdDate.getTime();
+          const resolutionHours = Math.round(resolutionTime / (1000 * 60 * 60));
+          
+          // Calculate impact score (guests * hours)
+          const impactScore = (incident.affectedGuests || 0) * resolutionHours;
+          
+          return {
+            id: incident.id,
+            title: incident.title,
+            priority: incident.priority,
+            status: incident.status,
+            propertyId: incident.propertyId,
+            affectedGuests: incident.affectedGuests,
+            resolutionHours,
+            impactScore,
+            createdAt: incident.createdAt,
+            category: incident.category,
+          };
+        })
+        .sort((a, b) => b.impactScore - a.impactScore);
+      
+      res.json(guestImpactData);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

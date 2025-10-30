@@ -1,6 +1,6 @@
+import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   LayoutDashboard,
   Building2,
@@ -10,11 +10,15 @@ import {
   FileText,
   Puzzle,
   Shield,
-  Download,
   Building,
+  GitCompare,
+  Wrench,
+  Activity,
 } from "lucide-react";
 
 export default function Reports() {
+  const [, setLocation] = useLocation();
+
   const navSections = [
     {
       label: "Overview",
@@ -43,10 +47,34 @@ export default function Reports() {
   ];
 
   const reports = [
-    { name: "Quarterly Performance Report", date: "01/10/2025", properties: "All", format: "PDF" },
-    { name: "Monthly Incident Summary", date: "01/10/2025", properties: "All", format: "PDF" },
-    { name: "Regional Comparison Report", date: "25/09/2025", properties: "Regional", format: "PDF" },
-    { name: "SLA Compliance Report", date: "15/09/2025", properties: "All", format: "PDF" },
+    {
+      id: "portfolio-performance",
+      title: "Portfolio Performance Report",
+      description: "Comprehensive performance metrics across all organizations and properties",
+      icon: BarChart3,
+      route: "/admin/reports/portfolio-performance",
+    },
+    {
+      id: "organization-comparison",
+      title: "Organization Comparison Report",
+      description: "Compare performance and metrics across different organizations",
+      icon: GitCompare,
+      route: "/admin/reports/organization-comparison",
+    },
+    {
+      id: "technician-fleet",
+      title: "Technician Fleet Analysis",
+      description: "Analyze technician workload, efficiency, and resource allocation",
+      icon: Wrench,
+      route: "/admin/reports/technician-fleet",
+    },
+    {
+      id: "system-health",
+      title: "System Health Report",
+      description: "Overall system status, performance metrics, and incident trends",
+      icon: Activity,
+      route: "/admin/reports/system-health",
+    },
   ];
 
   return (
@@ -55,35 +83,36 @@ export default function Reports() {
       homeRoute="/admin"
       navSections={navSections}
     >
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-1">System Reports</h2>
-          <p className="text-muted-foreground">Portfolio-wide reporting and documentation</p>
+          <h2 className="text-2xl font-bold mb-1">Platform Reports</h2>
+          <p className="text-muted-foreground">
+            Portfolio-wide analytics and comprehensive system reporting
+          </p>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Available Reports</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {reports.map((report, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-md">
-                  <div className="space-y-1">
-                    <div className="font-medium">{report.name}</div>
-                    <div className="text-sm text-muted-foreground">
-                      Generated: {report.date} • Scope: {report.properties}
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {reports.map((report) => (
+            <Card
+              key={report.id}
+              className="hover-elevate active-elevate-2 cursor-pointer transition-all"
+              onClick={() => setLocation(report.route)}
+              data-testid={`card-report-${report.id}`}
+            >
+              <CardHeader>
+                <div className="flex items-start gap-4">
+                  <div className="p-3 rounded-lg bg-primary/10">
+                    <report.icon className="h-6 w-6 text-primary" />
                   </div>
-                  <Button variant="outline" size="sm" data-testid={`button-download-${index}`}>
-                    <Download className="h-4 w-4 mr-2" />
-                    Download {report.format}
-                  </Button>
+                  <div className="flex-1">
+                    <CardTitle className="text-lg">{report.title}</CardTitle>
+                    <CardDescription className="mt-2">{report.description}</CardDescription>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+            </Card>
+          ))}
+        </div>
       </div>
     </AppLayout>
   );

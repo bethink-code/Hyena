@@ -21,6 +21,10 @@ import ManagerAnalytics from "@/pages/manager/Analytics";
 import ManagerReports from "@/pages/manager/Reports";
 import ManagerMessages from "@/pages/manager/Messages";
 import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
+import ManagerIncidentSummaryReport from "@/pages/manager/reports/IncidentSummary";
+import ManagerSLAPerformanceReport from "@/pages/manager/reports/SLAPerformance";
+import ManagerCategoryAnalysisReport from "@/pages/manager/reports/CategoryAnalysis";
+import ManagerGuestImpactReport from "@/pages/manager/reports/GuestImpact";
 
 import HotelManagerIncidents from "@/pages/hotel-manager/IncidentQueue";
 import HotelManagerNetwork from "@/pages/hotel-manager/NetworkStatus";
@@ -60,6 +64,10 @@ function Router() {
       <Route path="/manager/network" component={ManagerNetwork} />
       <Route path="/manager/analytics" component={ManagerAnalytics} />
       <Route path="/manager/reports" component={ManagerReports} />
+      <Route path="/manager/reports/incident-summary" component={ManagerIncidentSummaryReport} />
+      <Route path="/manager/reports/sla-performance" component={ManagerSLAPerformanceReport} />
+      <Route path="/manager/reports/category-analysis" component={ManagerCategoryAnalysisReport} />
+      <Route path="/manager/reports/guest-impact" component={ManagerGuestImpactReport} />
       <Route path="/manager/messages" component={ManagerMessages} />
       
       <Route path="/hotel-manager" component={HotelManagerDashboard} />
