@@ -61,6 +61,12 @@ const commentFormSchema = z.object({
 function CommentsTab({ route }: { route: string }) {
   const { data: comments, isLoading } = useQuery<HelpComment[]>({
     queryKey: ["/api/help/comments", route],
+    queryFn: async () => {
+      const encodedRoute = encodeURIComponent(route);
+      const response = await fetch(`/api/help/comments/${encodedRoute}`);
+      if (!response.ok) throw new Error("Failed to fetch comments");
+      return response.json();
+    },
     enabled: !!route,
   });
 
