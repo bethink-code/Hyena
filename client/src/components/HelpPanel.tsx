@@ -27,7 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FileText, Info, Sparkles, MessageSquare, Send } from "lucide-react";
+import { FileText, Info, Sparkles, MessageSquare, Send, Trash2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { HelpComment } from "@shared/schema";
 
@@ -98,6 +98,19 @@ function CommentsTab({ route }: { route: string }) {
   const onSubmit = (data: z.infer<typeof commentFormSchema>) => {
     addCommentMutation.mutate(data);
   };
+
+  const deleteCommentMutation = useMutation({
+    mutationFn: async (commentId: string) => {
+      const response = await fetch(`/api/help/comments/${commentId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error("Failed to delete comment");
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/help/comments", route] });
+    },
+  });
 
   return (
     <div className="flex flex-col h-full gap-4">
@@ -187,7 +200,7 @@ function CommentsTab({ route }: { route: string }) {
             <Card key={comment.id} data-testid={`comment-${comment.id}`}>
               <CardContent className="pt-4">
                 <div className="flex items-start justify-between gap-2 mb-2">
-                  <div>
+                  <div className="flex-1">
                     <div className="font-semibold text-sm" data-testid={`comment-author-${comment.id}`}>
                       {comment.authorName}
                     </div>
@@ -195,8 +208,20 @@ function CommentsTab({ route }: { route: string }) {
                       {comment.authorRole}
                     </div>
                   </div>
-                  <div className="text-xs text-muted-foreground" data-testid={`comment-time-${comment.id}`}>
-                    {format(new Date(comment.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                  <div className="flex items-center gap-2">
+                    <div className="text-xs text-muted-foreground" data-testid={`comment-time-${comment.id}`}>
+                      {format(new Date(comment.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => deleteCommentMutation.mutate(comment.id)}
+                      disabled={deleteCommentMutation.isPending}
+                      data-testid={`button-delete-comment-${comment.id}`}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
                   </div>
                 </div>
                 <p className="text-sm" data-testid={`comment-body-${comment.id}`}>

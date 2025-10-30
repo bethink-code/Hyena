@@ -62,6 +62,7 @@ export interface IStorage {
   // Help comment operations
   createHelpComment(comment: InsertHelpComment): Promise<HelpComment>;
   getHelpCommentsByRoute(route: string): Promise<HelpComment[]>;
+  deleteHelpComment(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -308,6 +309,10 @@ export class MemStorage implements IStorage {
       .filter(comment => comment.route === route)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
+
+  async deleteHelpComment(id: string): Promise<boolean> {
+    return this.helpComments.delete(id);
+  }
 }
 
 // Database Storage Implementation using Drizzle ORM
@@ -480,6 +485,11 @@ export class DbStorage implements IStorage {
     return await db.select().from(helpComments)
       .where(eq(helpComments.route, route))
       .orderBy(sql`${helpComments.createdAt} DESC`);
+  }
+
+  async deleteHelpComment(id: string): Promise<boolean> {
+    const result = await db.delete(helpComments).where(eq(helpComments.id, id)).returning();
+    return result.length > 0;
   }
 }
 
