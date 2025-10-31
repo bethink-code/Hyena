@@ -1,6 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +40,7 @@ export default function Organizations() {
         title="Organizations"
         homeRoute="/admin"
         navSections={ADMIN_NAV}
+        sidebarHeader={<HyenaLogo />}
       >
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-muted-foreground">Loading organizations...</div>
@@ -52,6 +54,7 @@ export default function Organizations() {
       title="Organizations"
       homeRoute="/admin"
       navSections={ADMIN_NAV}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6">

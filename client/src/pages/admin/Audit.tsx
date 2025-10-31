@@ -1,4 +1,5 @@
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ADMIN_NAV } from "@/config/navigation";
@@ -17,6 +18,7 @@ export default function Audit() {
       title="Audit Logs"
       homeRoute="/admin"
       navSections={ADMIN_NAV}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         <div>

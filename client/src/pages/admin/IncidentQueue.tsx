@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { Button } from "@/components/ui/button";
@@ -254,6 +255,7 @@ export default function AdminIncidentQueue() {
       title="Platform Administration Center"
       homeRoute="/admin"
       navSections={ADMIN_NAV}
+      sidebarHeader={<HyenaLogo />}
       notificationCount={allIncidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">

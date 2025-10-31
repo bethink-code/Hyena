@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
@@ -234,6 +235,7 @@ export default function PropertyDetail() {
         title="Property Not Found"
         navSections={ADMIN_NAV}
         homeRoute="/admin"
+        sidebarHeader={<HyenaLogo />}
         notificationCount={0}
       >
         <div className="text-center py-12">
@@ -254,6 +256,7 @@ export default function PropertyDetail() {
       title={`Property: ${property.name}`}
       navSections={ADMIN_NAV}
       homeRoute="/admin"
+      sidebarHeader={<HyenaLogo />}
       notificationCount={incidents.filter(i => i.status === 'new').length}
     >
       <div className="space-y-6">

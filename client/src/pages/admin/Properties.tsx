@@ -1,6 +1,7 @@
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident } from "@shared/schema";
@@ -35,6 +36,7 @@ export default function Properties() {
       title="Property Management"
       homeRoute="/admin"
       navSections={ADMIN_NAV}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-6">
