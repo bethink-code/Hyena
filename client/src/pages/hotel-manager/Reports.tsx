@@ -65,6 +65,13 @@ export default function Reports() {
       icon: Users,
       route: "/hotel-manager/reports/resource-utilization",
     },
+    {
+      id: "user-feedback",
+      title: "User Feedback Report",
+      description: "Centralized view of all user comments and feedback across the platform",
+      icon: MessageSquare,
+      route: "/hotel-manager/reports/user-feedback",
+    },
   ];
 
   return (

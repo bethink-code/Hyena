@@ -25,12 +25,14 @@ import ManagerIncidentSummaryReport from "@/pages/manager/reports/IncidentSummar
 import ManagerSLAPerformanceReport from "@/pages/manager/reports/SLAPerformance";
 import ManagerCategoryAnalysisReport from "@/pages/manager/reports/CategoryAnalysis";
 import ManagerGuestImpactReport from "@/pages/manager/reports/GuestImpact";
+import ManagerUserFeedbackReport from "@/pages/manager/reports/UserFeedback";
 
 import HotelManagerIncidents from "@/pages/hotel-manager/IncidentQueue";
 import HotelManagerNetwork from "@/pages/hotel-manager/NetworkStatus";
 import HotelManagerAnalytics from "@/pages/hotel-manager/Analytics";
 import HotelManagerReports from "@/pages/hotel-manager/Reports";
 import HotelManagerMessages from "@/pages/hotel-manager/Messages";
+import HotelManagerUserFeedbackReport from "@/pages/hotel-manager/reports/UserFeedback";
 
 import TechnicianIncidents from "@/pages/technician/IncidentQueue";
 import TechnicianPropertyDetail from "@/pages/technician/PropertyDetail";
@@ -49,6 +51,7 @@ import AdminReports from "@/pages/admin/Reports";
 import AdminAudit from "@/pages/admin/Audit";
 import Organizations from "@/pages/admin/Organizations";
 import OrganizationDetail from "@/pages/admin/OrganizationDetail";
+import AdminUserFeedbackReport from "@/pages/admin/reports/UserFeedback";
 
 import NotFound from "@/pages/not-found";
 
@@ -68,6 +71,7 @@ function Router() {
       <Route path="/manager/reports/sla-performance" component={ManagerSLAPerformanceReport} />
       <Route path="/manager/reports/category-analysis" component={ManagerCategoryAnalysisReport} />
       <Route path="/manager/reports/guest-impact" component={ManagerGuestImpactReport} />
+      <Route path="/manager/reports/user-feedback" component={ManagerUserFeedbackReport} />
       <Route path="/manager/messages" component={ManagerMessages} />
       
       <Route path="/hotel-manager" component={HotelManagerDashboard} />
@@ -75,6 +79,7 @@ function Router() {
       <Route path="/hotel-manager/network" component={HotelManagerNetwork} />
       <Route path="/hotel-manager/analytics" component={HotelManagerAnalytics} />
       <Route path="/hotel-manager/reports" component={HotelManagerReports} />
+      <Route path="/hotel-manager/reports/user-feedback" component={HotelManagerUserFeedbackReport} />
       <Route path="/hotel-manager/messages" component={HotelManagerMessages} />
       
       <Route path="/technician" component={TechnicianApp} />
@@ -93,6 +98,7 @@ function Router() {
       <Route path="/admin/integrations" component={AdminIntegrations} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path="/admin/reports" component={AdminReports} />
+      <Route path="/admin/reports/user-feedback" component={AdminUserFeedbackReport} />
       <Route path="/admin/audit" component={AdminAudit} />
       <Route path="/admin/organizations/:id" component={OrganizationDetail} />
       <Route path="/admin/organizations" component={Organizations} />

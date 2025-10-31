@@ -795,6 +795,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/reports/user-feedback", async (req, res) => {
+    try {
+      // Fetch all help comments from all routes
+      const allComments = await storage.getAllHelpComments();
+      res.json(allComments);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;

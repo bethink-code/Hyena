@@ -62,6 +62,7 @@ export interface IStorage {
   // Help comment operations
   createHelpComment(comment: InsertHelpComment): Promise<HelpComment>;
   getHelpCommentsByRoute(route: string): Promise<HelpComment[]>;
+  getAllHelpComments(): Promise<HelpComment[]>;
   deleteHelpComment(id: string): Promise<boolean>;
 }
 
@@ -310,6 +311,11 @@ export class MemStorage implements IStorage {
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 
+  async getAllHelpComments(): Promise<HelpComment[]> {
+    return Array.from(this.helpComments.values())
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
   async deleteHelpComment(id: string): Promise<boolean> {
     return this.helpComments.delete(id);
   }
@@ -484,6 +490,11 @@ export class DbStorage implements IStorage {
   async getHelpCommentsByRoute(route: string): Promise<HelpComment[]> {
     return await db.select().from(helpComments)
       .where(eq(helpComments.route, route))
+      .orderBy(sql`${helpComments.createdAt} DESC`);
+  }
+
+  async getAllHelpComments(): Promise<HelpComment[]> {
+    return await db.select().from(helpComments)
       .orderBy(sql`${helpComments.createdAt} DESC`);
   }
 

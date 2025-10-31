@@ -71,6 +71,13 @@ export default function Reports() {
       icon: Users,
       route: "/manager/reports/guest-impact",
     },
+    {
+      id: "user-feedback",
+      title: "User Feedback Report",
+      description: "Centralized view of all user comments and feedback across the platform",
+      icon: MessageSquare,
+      route: "/manager/reports/user-feedback",
+    },
   ];
 
   return (

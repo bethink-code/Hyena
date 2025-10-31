@@ -14,6 +14,7 @@ import {
   GitCompare,
   Wrench,
   Activity,
+  MessageSquare,
 } from "lucide-react";
 
 export default function Reports() {
@@ -74,6 +75,13 @@ export default function Reports() {
       description: "Overall system status, performance metrics, and incident trends",
       icon: Activity,
       route: "/admin/reports/system-health",
+    },
+    {
+      id: "user-feedback",
+      title: "User Feedback Report",
+      description: "Centralized view of all user comments and feedback across the platform",
+      icon: MessageSquare,
+      route: "/admin/reports/user-feedback",
     },
   ];
 
