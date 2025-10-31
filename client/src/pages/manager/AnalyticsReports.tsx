@@ -3,9 +3,7 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
-import { PropertyList } from "@/components/PropertyList";
-import { PROPERTIES } from "@/lib/properties";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertTriangle,
@@ -18,17 +16,29 @@ import {
   Users,
   Activity,
   ExternalLink,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import type { Incident } from "@shared/schema";
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts";
 
 export default function AnalyticsReports() {
   const { data: activeOrg } = useActiveOrganization();
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState("dashboard");
   
-  // Use the first 3 properties for the manager's scope
-  const managerProperties = PROPERTIES.slice(0, 3);
+  // Fetch real incidents data
+  const { data: incidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
+  });
+
+  // Filter incidents for manager's properties (1, 2, 3)
+  const managerIncidents = useMemo(() => {
+    return incidents.filter(i => ["1", "2", "3"].includes(i.propertyId || ""));
+  }, [incidents]);
 
   const navSections = [
     {
@@ -51,85 +61,6 @@ export default function AnalyticsReports() {
       ],
     },
   ];
-
-  // Mock analytics data for each property
-  const analyticsByProperty: Record<string, {
-    avgResponseTime: number;
-    resolutionRate: number;
-    guestSatisfaction: number;
-    totalIncidents: number;
-    trend: "up" | "down";
-  }> = {
-    "1": {
-      avgResponseTime: 23,
-      resolutionRate: 94,
-      guestSatisfaction: 4.6,
-      totalIncidents: 42,
-      trend: "down",
-    },
-    "2": {
-      avgResponseTime: 35,
-      resolutionRate: 88,
-      guestSatisfaction: 4.2,
-      totalIncidents: 58,
-      trend: "up",
-    },
-    "3": {
-      avgResponseTime: 48,
-      resolutionRate: 78,
-      guestSatisfaction: 3.8,
-      totalIncidents: 72,
-      trend: "up",
-    },
-  };
-
-  // Calculate analytics status for each property
-  const propertiesWithAnalytics = useMemo(() => {
-    return managerProperties.map(property => {
-      const analytics = analyticsByProperty[property.id] || {
-        avgResponseTime: 30,
-        resolutionRate: 90,
-        guestSatisfaction: 4.0,
-        totalIncidents: 50,
-        trend: "down",
-      };
-      
-      // Calculate status based on performance metrics
-      let analyticsStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
-      
-      // Critical if multiple metrics are poor
-      if (
-        (analytics.avgResponseTime > 45 && analytics.resolutionRate < 80) ||
-        analytics.guestSatisfaction < 4.0
-      ) {
-        analyticsStatus = "critical";
-      } 
-      // Degraded if some metrics need attention
-      else if (
-        analytics.avgResponseTime > 30 ||
-        analytics.resolutionRate < 90 ||
-        analytics.guestSatisfaction < 4.5
-      ) {
-        analyticsStatus = "degraded";
-      }
-
-      // Use total incidents as incident count
-      const incidentCount = analytics.totalIncidents;
-      
-      // Critical incidents based on response time and resolution rate
-      const criticalCount = analytics.avgResponseTime > 45 || analytics.resolutionRate < 80 ? 
-        Math.floor(analytics.totalIncidents * 0.3) : 
-        Math.floor(analytics.totalIncidents * 0.1);
-
-      return {
-        ...property,
-        status: analyticsStatus,
-        incidentCount,
-        criticalCount,
-        newCount: analytics.trend === "up" ? Math.floor(analytics.totalIncidents * 0.15) : 0,
-      };
-    });
-  }, [managerProperties]);
 
   const reports = [
     {
@@ -209,14 +140,119 @@ export default function AnalyticsReports() {
                 Monitor performance metrics and trends across all properties
               </p>
             </div>
-            <PropertyList
-              properties={propertiesWithAnalytics}
-              onPropertyClick={(property) => {
-                if (property.id) {
-                  setLocation(`/manager/properties/${property.id}`);
-                }
-              }}
-            />
+
+            {/* Property Performance Comparison Chart */}
+            <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/manager/reports/incident-summary")}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Incidents by Property</span>
+                  <Badge variant="outline" className="text-xs">Click to view report</Badge>
+                </CardTitle>
+                <CardDescription>Active incident distribution across your properties</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={[
+                    { name: "Table Bay Hotel", active: managerIncidents.filter(i => i.propertyId === "1" && i.status !== "resolved" && i.status !== "cancelled").length, critical: managerIncidents.filter(i => i.propertyId === "1" && i.priority === "critical" && i.status !== "resolved").length },
+                    { name: "Umhlanga Sands", active: managerIncidents.filter(i => i.propertyId === "2" && i.status !== "resolved" && i.status !== "cancelled").length, critical: managerIncidents.filter(i => i.propertyId === "2" && i.priority === "critical" && i.status !== "resolved").length },
+                    { name: "Saxon Hotel", active: managerIncidents.filter(i => i.propertyId === "3" && i.status !== "resolved" && i.status !== "cancelled").length, critical: managerIncidents.filter(i => i.propertyId === "3" && i.priority === "critical" && i.status !== "resolved").length },
+                  ]}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis dataKey="name" className="text-xs" />
+                    <YAxis className="text-xs" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                    <Legend />
+                    <Bar dataKey="active" fill="hsl(var(--primary))" name="Active Incidents" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="critical" fill="hsl(var(--destructive))" name="Critical" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* Incident Categories Breakdown */}
+            <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/manager/reports/category-analysis")}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>Incidents by Category</span>
+                  <Badge variant="outline" className="text-xs">Click to view report</Badge>
+                </CardTitle>
+                <CardDescription>Distribution of incidents across different categories</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: "Connectivity", value: managerIncidents.filter(i => i.category === "connectivity").length, fill: "hsl(var(--chart-1))" },
+                        { name: "Performance", value: managerIncidents.filter(i => i.category === "performance").length, fill: "hsl(var(--chart-2))" },
+                        { name: "Hardware", value: managerIncidents.filter(i => i.category === "hardware").length, fill: "hsl(var(--chart-3))" },
+                        { name: "Security", value: managerIncidents.filter(i => i.category === "security").length, fill: "hsl(var(--chart-4))" },
+                        { name: "Other", value: managerIncidents.filter(i => !i.category || !["connectivity", "performance", "hardware", "security"].includes(i.category)).length, fill: "hsl(var(--chart-5))" },
+                      ].filter(d => d.value > 0)}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={100}
+                      dataKey="value"
+                    >
+                    </Pie>
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            {/* SLA Performance Metrics */}
+            <Card className="hover-elevate cursor-pointer" onClick={() => setLocation("/manager/reports/sla-performance")}>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <span>SLA Performance Trend</span>
+                  <Badge variant="outline" className="text-xs">Click to view report</Badge>
+                </CardTitle>
+                <CardDescription>Resolution rate and response time trends</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Avg Response Time</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">23 min</div>
+                      <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                        <TrendingDown className="h-3 w-3 mr-1" />
+                        12% improvement
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Resolution Rate</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">94%</div>
+                      <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        3% increase
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">Guest Satisfaction</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">4.6/5</div>
+                      <div className="flex items-center text-xs text-green-600 dark:text-green-400">
+                        <TrendingUp className="h-3 w-3 mr-1" />
+                        0.3 point gain
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="reports" className="mt-6 space-y-6">
