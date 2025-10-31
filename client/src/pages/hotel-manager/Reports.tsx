@@ -34,12 +34,6 @@ export default function Reports() {
         { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: BarChart3 },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/hotel-manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   const reports = [

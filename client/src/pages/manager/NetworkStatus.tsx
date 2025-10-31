@@ -36,12 +36,6 @@ export default function NetworkStatus() {
         { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   // Mock network device data for each property

@@ -30,12 +30,6 @@ export default function Analytics() {
         { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/hotel-manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   return (

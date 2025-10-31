@@ -18,7 +18,6 @@ import EventSimulator from "@/pages/EventSimulator";
 import ManagerIncidents from "@/pages/manager/IncidentQueue";
 import ManagerNetwork from "@/pages/manager/NetworkStatus";
 import ManagerAnalyticsReports from "@/pages/manager/AnalyticsReports";
-import ManagerMessages from "@/pages/manager/Messages";
 import ManagerPropertyDetail from "@/pages/manager/PropertyDetail";
 import ManagerIncidentSummaryReport from "@/pages/manager/reports/IncidentSummary";
 import ManagerSLAPerformanceReport from "@/pages/manager/reports/SLAPerformance";
@@ -29,7 +28,6 @@ import ManagerUserFeedbackReport from "@/pages/manager/reports/UserFeedback";
 import HotelManagerIncidents from "@/pages/hotel-manager/IncidentQueue";
 import HotelManagerNetwork from "@/pages/hotel-manager/NetworkStatus";
 import HotelManagerAnalyticsReports from "@/pages/hotel-manager/AnalyticsReports";
-import HotelManagerMessages from "@/pages/hotel-manager/Messages";
 import HotelManagerUserFeedbackReport from "@/pages/hotel-manager/reports/UserFeedback";
 
 import TechnicianIncidents from "@/pages/technician/IncidentQueue";
@@ -68,14 +66,12 @@ function Router() {
       <Route path="/manager/reports/category-analysis" component={ManagerCategoryAnalysisReport} />
       <Route path="/manager/reports/guest-impact" component={ManagerGuestImpactReport} />
       <Route path="/manager/reports/user-feedback" component={ManagerUserFeedbackReport} />
-      <Route path="/manager/messages" component={ManagerMessages} />
       
       <Route path="/hotel-manager" component={HotelManagerDashboard} />
       <Route path="/hotel-manager/incidents" component={HotelManagerIncidents} />
       <Route path="/hotel-manager/network" component={HotelManagerNetwork} />
       <Route path="/hotel-manager/analytics" component={HotelManagerAnalyticsReports} />
       <Route path="/hotel-manager/reports/user-feedback" component={HotelManagerUserFeedbackReport} />
-      <Route path="/hotel-manager/messages" component={HotelManagerMessages} />
       
       <Route path="/technician" component={TechnicianApp} />
       <Route path="/technician/incidents" component={TechnicianIncidents} />

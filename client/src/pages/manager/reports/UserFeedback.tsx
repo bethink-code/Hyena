@@ -40,12 +40,6 @@ export default function UserFeedbackReport() {
         { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   const columns: ColumnDef<HelpComment>[] = [

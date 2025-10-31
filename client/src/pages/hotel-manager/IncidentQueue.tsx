@@ -67,12 +67,6 @@ export default function IncidentQueuePage() {
         { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/hotel-manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   const { data: allIncidents = [] } = useQuery<Incident[]>({

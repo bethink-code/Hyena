@@ -54,12 +54,6 @@ export default function AnalyticsReports() {
         { title: "Analytics & Reports", href: "/manager/analytics", icon: BarChart3 },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   const reports = [

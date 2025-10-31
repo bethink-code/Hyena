@@ -35,12 +35,6 @@ export default function Messages() {
         { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   // Mock message data for each property
@@ -115,19 +109,3 @@ export default function Messages() {
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-1">Guest Communication</h2>
-          <p className="text-muted-foreground">Monitor guest messages and feedback across all properties</p>
-        </div>
-
-        <PropertyList
-          properties={propertiesWithMessages}
-          onPropertyClick={(property) => {
-            if (property.id) {
-              setLocation(`/manager/properties/${property.id}`);
-            }
-          }}
-        />
-      </div>
-    </AppLayout>
-  );
-}

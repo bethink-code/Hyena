@@ -30,12 +30,6 @@ export default function Messages() {
         { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
       ],
     },
-    {
-      label: "Communication",
-      items: [
-        { title: "Guest Messages", href: "/hotel-manager/messages", icon: MessageSquare },
-      ],
-    },
   ];
 
   return (
@@ -49,13 +43,3 @@ export default function Messages() {
         <h2 className="text-2xl font-bold mb-6">Guest Messages</h2>
         <Card>
           <CardHeader>
-            <CardTitle>Communication Center</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-muted-foreground">Guest communications for The Table Bay Hotel</p>
-          </CardContent>
-        </Card>
-      </div>
-    </AppLayout>
-  );
-}
