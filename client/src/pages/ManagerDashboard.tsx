@@ -15,6 +15,8 @@ import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import { MANAGER_NAV } from "@/config/navigation";
 import {
+  LayoutDashboard,
+  AlertTriangle,
   Clock,
   CheckCircle2,
   TrendingUp,
