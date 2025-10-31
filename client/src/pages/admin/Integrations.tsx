@@ -2,46 +2,9 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
-  Building,
-} from "lucide-react";
+import { ADMIN_NAV } from "@/config/navigation";
 
 export default function Integrations() {
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
-
   const integrations = [
     { name: "Slack Notifications", description: "Send alerts to Slack channels", status: "active" },
     { name: "Email System", description: "SMTP email delivery", status: "active" },
@@ -53,7 +16,7 @@ export default function Integrations() {
     <AppLayout
       title="Integrations"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">
         <div>

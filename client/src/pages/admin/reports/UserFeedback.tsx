@@ -3,16 +3,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { ReportDataTable, ColumnDef, FilterDef } from "@/components/ReportDataTable";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
-  Building,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,33 +17,6 @@ export default function UserFeedbackReport() {
   const { data: feedbackData = [], isLoading } = useQuery<HelpComment[]>({
     queryKey: ["/api/reports/user-feedback"],
   });
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   const columns: ColumnDef<HelpComment>[] = [
     {
@@ -158,7 +123,7 @@ export default function UserFeedbackReport() {
     <AppLayout
       title="User Feedback Report"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         <div className="flex items-center gap-4">

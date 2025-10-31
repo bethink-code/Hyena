@@ -5,17 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { ADMIN_NAV } from "@/config/navigation";
 import { 
   Building2, 
-  ChevronRight, 
-  Settings, 
-  LayoutDashboard, 
-  Users, 
-  BarChart3, 
-  FileText, 
-  Puzzle, 
-  Shield,
-  Building
+  ChevronRight,
 } from "lucide-react";
 import type { Organization } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -40,39 +33,12 @@ export default function Organizations() {
     },
   });
 
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: Users },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
-
   if (isLoading) {
     return (
       <AppLayout
         title="Organizations"
         homeRoute="/admin"
-        navSections={navSections}
+        navSections={ADMIN_NAV}
       >
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-muted-foreground">Loading organizations...</div>
@@ -85,7 +51,7 @@ export default function Organizations() {
     <AppLayout
       title="Organizations"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-6">

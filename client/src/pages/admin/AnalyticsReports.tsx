@@ -3,17 +3,11 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
   Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  Puzzle,
-  Shield,
   TrendingUp,
   TrendingDown,
-  Building,
   GitCompare,
   Wrench,
   Activity,
@@ -34,32 +28,6 @@ export default function AnalyticsReports() {
   const { data: incidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Analytics & Reports", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   const reports = [
     {
@@ -111,7 +79,7 @@ export default function AnalyticsReports() {
     <AppLayout
       title="Analytics & Reports"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

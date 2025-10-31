@@ -22,6 +22,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { THEME_LABELS, THEME_MAP, applyTheme, type ThemeKey } from "@/lib/themes";
 import type { Organization, Property, User } from "@shared/schema";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
   ArrowLeft,
   Building2,
@@ -33,11 +34,6 @@ import {
   Edit,
   Trash2,
   Plus,
-  LayoutDashboard,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
 } from "lucide-react";
 
 const SA_TIMEZONES = [
@@ -418,38 +414,12 @@ export default function OrganizationDetail() {
     setUserDialogOpen(true);
   };
 
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Organizations", href: "/admin/organizations", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
-
   if (orgLoading) {
     return (
       <AppLayout
         title="Organization Details"
         homeRoute="/admin"
-        navSections={navSections}
+        navSections={ADMIN_NAV}
         sidebarHeader={<HyenaLogo />}
       >
         <div className="flex items-center justify-center min-h-[400px]">
@@ -464,7 +434,7 @@ export default function OrganizationDetail() {
       <AppLayout
         title="Organization Not Found"
         homeRoute="/admin"
-        navSections={navSections}
+        navSections={ADMIN_NAV}
         sidebarHeader={<HyenaLogo />}
       >
         <div className="flex items-center justify-center min-h-[400px]">
@@ -478,7 +448,7 @@ export default function OrganizationDetail() {
     <AppLayout
       title={organization.name}
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
       sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-6xl">

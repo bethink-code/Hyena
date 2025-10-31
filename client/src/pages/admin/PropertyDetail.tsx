@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
   LayoutDashboard,
   ArrowLeft,
@@ -20,14 +21,6 @@ import {
   Clock,
   CheckCircle2,
   TrendingUp,
-  Building2,
-  Users,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
-  Building,
 } from "lucide-react";
 
 export default function PropertyDetail() {
@@ -38,33 +31,6 @@ export default function PropertyDetail() {
 
   // Find property details from shared constants
   const property = getPropertyById(propertyId || "");
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: Users },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -266,7 +232,7 @@ export default function PropertyDetail() {
     return (
       <AppLayout
         title="Property Not Found"
-        navSections={navSections}
+        navSections={ADMIN_NAV}
         homeRoute="/admin"
         notificationCount={0}
       >
@@ -286,7 +252,7 @@ export default function PropertyDetail() {
   return (
     <AppLayout
       title={`Property: ${property.name}`}
-      navSections={navSections}
+      navSections={ADMIN_NAV}
       homeRoute="/admin"
       notificationCount={incidents.filter(i => i.status === 'new').length}
     >

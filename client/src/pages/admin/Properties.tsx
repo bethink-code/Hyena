@@ -4,17 +4,7 @@ import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident } from "@shared/schema";
-import {
-  LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
-  Building,
-} from "lucide-react";
+import { ADMIN_NAV } from "@/config/navigation";
 
 export default function Properties() {
   const [, setLocation] = useLocation();
@@ -23,33 +13,6 @@ export default function Properties() {
   const { data: allIncidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   // Calculate incident counts for each property from actual incidents
   const propertiesWithIncidents = PROPERTIES.map(property => {
@@ -71,7 +34,7 @@ export default function Properties() {
     <AppLayout
       title="Property Management"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-6">

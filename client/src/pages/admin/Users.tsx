@@ -17,17 +17,9 @@ import { baseUserInsertSchema } from "@shared/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
   UserPlus,
-  Building,
 } from "lucide-react";
 
 const formSchema = baseUserInsertSchema.extend({
@@ -40,33 +32,6 @@ export default function Users() {
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   const { data: users = [], isLoading } = useQuery<User[]>({
     queryKey: ["/api/users?type=platform"],
@@ -156,7 +121,7 @@ export default function Users() {
     <AppLayout
       title="User Management"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
         <div className="flex items-center justify-between">

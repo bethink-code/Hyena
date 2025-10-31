@@ -12,18 +12,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { THEME_LABELS, THEME_MAP, applyTheme, type ThemeKey } from "@/lib/themes";
 import type { Organization } from "@shared/schema";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
-  Building2,
-  Users as UsersIcon,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
   Shield,
   Palette,
   Upload,
-  Building,
 } from "lucide-react";
 
 export default function Config() {
@@ -47,39 +40,12 @@ export default function Config() {
     setPreviewTheme(null);
     applyTheme(originalTheme);
   };
-  
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: UsersIcon },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   return (
     <AppLayout
       title="System Configuration"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
       sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-4xl space-y-6">

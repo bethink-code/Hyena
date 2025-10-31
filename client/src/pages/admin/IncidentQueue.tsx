@@ -10,18 +10,10 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
+import { ADMIN_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
-  Building2,
-  Users,
-  Settings,
-  BarChart3,
-  FileText,
-  Puzzle,
-  Shield,
   ArrowLeft,
   Filter,
-  Building,
 } from "lucide-react";
 
 export default function AdminIncidentQueue() {
@@ -56,33 +48,6 @@ export default function AdminIncidentQueue() {
     setSearchParams(''); // Clear search params state immediately
     setLocation('/admin/incidents');
   };
-
-  const navSections = [
-    {
-      label: "Overview",
-      items: [
-        { title: "Portfolio Dashboard", href: "/admin", icon: LayoutDashboard },
-        { title: "All Properties", href: "/admin/properties", icon: Building2 },
-      ],
-    },
-    {
-      label: "Management",
-      items: [
-        { title: "Organizations", href: "/admin/organizations", icon: Building },
-        { title: "Users & Roles", href: "/admin/users", icon: Users },
-        { title: "System Config", href: "/admin/config", icon: Settings },
-        { title: "Integrations", href: "/admin/integrations", icon: Puzzle },
-      ],
-    },
-    {
-      label: "Reporting",
-      items: [
-        { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
-        { title: "Audit Logs", href: "/admin/audit", icon: Shield },
-      ],
-    },
-  ];
 
   // Fetch all incidents (admin sees all properties)
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -288,7 +253,7 @@ export default function AdminIncidentQueue() {
     <AppLayout
       title="Platform Administration Center"
       homeRoute="/admin"
-      navSections={navSections}
+      navSections={ADMIN_NAV}
       notificationCount={allIncidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
