@@ -1,41 +1,16 @@
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
+import { HOTEL_MANAGER_NAV } from "@/config/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
-} from "lucide-react";
 
 export default function NetworkStatus() {
   const { data: activeOrg } = useActiveOrganization();
 
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-        { title: "Incidents", href: "/hotel-manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/hotel-manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
-      ],
-    },
-  ];
-
   return (
     <AppLayout
       title="Network Status"
-      navSections={navSections}
+      navSections={HOTEL_MANAGER_NAV}
       homeRoute="/hotel-manager"
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >

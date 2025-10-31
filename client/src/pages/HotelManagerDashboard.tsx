@@ -12,18 +12,14 @@ import { useToast } from "@/hooks/use-toast";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
+import { HOTEL_MANAGER_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
   LayoutDashboard,
   AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   Clock,
   CheckCircle2,
   MapPin,
-  Users,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,23 +37,6 @@ export default function HotelManagerDashboard() {
   // Additional hotel managers can be created in admin (e.g., Sarah Thompson for property "2")
   const propertyId = "1";
   const property = getPropertyById(propertyId);
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-        { title: "Incidents", href: "/hotel-manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: BarChart3 },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -282,7 +261,7 @@ export default function HotelManagerDashboard() {
   return (
     <AppLayout
       title="Property Management"
-      navSections={navSections}
+      navSections={HOTEL_MANAGER_NAV}
       homeRoute="/hotel-manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}

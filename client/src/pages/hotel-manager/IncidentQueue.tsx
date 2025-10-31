@@ -10,14 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { HOTEL_MANAGER_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   Filter,
 } from "lucide-react";
 
@@ -50,24 +45,6 @@ export default function IncidentQueuePage() {
     setSearchParams('');
     setLocation('/hotel-manager/incidents');
   };
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/hotel-manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/hotel-manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
-      ],
-    },
-  ];
 
   const { data: allIncidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
@@ -209,7 +186,7 @@ export default function IncidentQueuePage() {
   return (
     <AppLayout
       title="Incident Queue"
-      navSections={navSections}
+      navSections={HOTEL_MANAGER_NAV}
       homeRoute="/hotel-manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}

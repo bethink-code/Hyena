@@ -3,14 +3,11 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
+import { HOTEL_MANAGER_NAV } from "@/config/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
   MessageSquare,
-  Wifi,
   Building2,
   TrendingUp,
   TrendingDown,
@@ -33,23 +30,6 @@ export default function AnalyticsReports() {
   const { data: incidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-        { title: "Incidents", href: "/hotel-manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: BarChart3 },
-      ],
-    },
-  ];
 
   const reports = [
     {
@@ -93,7 +73,7 @@ export default function AnalyticsReports() {
   return (
     <AppLayout
       title="Analytics & Reports"
-      navSections={navSections}
+      navSections={HOTEL_MANAGER_NAV}
       homeRoute="/hotel-manager"
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >

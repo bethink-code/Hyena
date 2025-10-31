@@ -2,16 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
+import { HOTEL_MANAGER_NAV } from "@/config/navigation";
 import { ReportDataTable, ColumnDef, FilterDef } from "@/components/ReportDataTable";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,24 +20,6 @@ export default function UserFeedbackReport() {
   const { data: feedbackData = [], isLoading } = useQuery<HelpComment[]>({
     queryKey: ["/api/reports/user-feedback"],
   });
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-        { title: "Incidents", href: "/hotel-manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/hotel-manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: FileText },
-      ],
-    },
-  ];
 
   const columns: ColumnDef<HelpComment>[] = [
     {
@@ -149,7 +126,7 @@ export default function UserFeedbackReport() {
     <AppLayout
       title="User Feedback Report"
       homeRoute="/hotel-manager"
-      navSections={navSections}
+      navSections={HOTEL_MANAGER_NAV}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">
