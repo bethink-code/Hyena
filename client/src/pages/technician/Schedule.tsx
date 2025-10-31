@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
 import { TECHNICIAN_NAV } from "@/config/navigation";
@@ -76,6 +77,7 @@ export default function Schedule() {
       title="Preventive Maintenance"
       homeRoute="/technician"
       navSections={TECHNICIAN_NAV}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

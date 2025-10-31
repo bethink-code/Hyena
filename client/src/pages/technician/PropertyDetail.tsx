@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useParams, Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
+import { HyenaLogo } from "@/components/HyenaLogo";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
@@ -213,6 +214,7 @@ export default function TechnicianPropertyDetail() {
       homeRoute="/technician"
       notificationCount={workQueue.length}
       navSections={TECHNICIAN_NAV}
+      sidebarHeader={<HyenaLogo />}
     >
       <div className="space-y-6">
         {/* Property Header */}
