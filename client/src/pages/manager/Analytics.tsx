@@ -32,7 +32,7 @@ export default function Analytics() {
       label: "Analysis",
       items: [
         { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/manager/reports", icon: FileText },
+        { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
       ],
     },
     {

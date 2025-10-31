@@ -54,8 +54,7 @@ export default function HotelManagerDashboard() {
     {
       label: "Analysis",
       items: [
-        { title: "Analytics", href: "/hotel-manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/hotel-manager/reports", icon: FileText },
+        { title: "Analytics & Reports", href: "/hotel-manager/analytics", icon: BarChart3 },
       ],
     },
     {

@@ -49,7 +49,7 @@ export default function GuestImpactReport() {
       label: "Analysis",
       items: [
         { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/manager/reports", icon: FileText },
+        { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
       ],
     },
     {
@@ -189,7 +189,7 @@ export default function GuestImpactReport() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => setLocation("/manager/reports")}
+            onClick={() => setLocation("/manager/analytics")}
             data-testid="button-back"
           >
             <ArrowLeft className="h-5 w-5" />

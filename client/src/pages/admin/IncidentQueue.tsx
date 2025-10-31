@@ -78,7 +78,7 @@ export default function AdminIncidentQueue() {
       label: "Reporting",
       items: [
         { title: "Regional Analytics", href: "/admin/analytics", icon: BarChart3 },
-        { title: "Reports", href: "/admin/reports", icon: FileText },
+        { title: "Analytics & Reports", href: "/admin/reports", icon: FileText },
         { title: "Audit Logs", href: "/admin/audit", icon: Shield },
       ],
     },
