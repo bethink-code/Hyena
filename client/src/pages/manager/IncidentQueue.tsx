@@ -11,14 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
+import { MANAGER_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   ArrowLeft,
   Filter,
 } from "lucide-react";
@@ -60,24 +55,6 @@ export default function IncidentQueuePage() {
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
   const managerPropertyIds = managerProperties.map(p => p.id);
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { title: "Incident Queue", href: "/manager/incidents", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -283,7 +260,7 @@ export default function IncidentQueuePage() {
     <AppLayout
       title="Incident Queue"
       homeRoute="/manager"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       notificationCount={allIncidents.filter(i => 
         managerPropertyIds.includes(i.propertyId || '') && i.status === 'new'
       ).length}

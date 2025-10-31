@@ -5,14 +5,7 @@ import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
-import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
-} from "lucide-react";
+import { MANAGER_NAV } from "@/config/navigation";
 
 export default function NetworkStatus() {
   const { data: activeOrg } = useActiveOrganization();
@@ -20,23 +13,6 @@ export default function NetworkStatus() {
   
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Incidents", href: "/manager", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
-      ],
-    },
-  ];
 
   // Mock network device data for each property
   const networkDevicesByProperty: Record<string, Array<{ name: string; status: "healthy" | "degraded" | "critical" | "offline"; uptime: string }>> = {
@@ -102,7 +78,7 @@ export default function NetworkStatus() {
     <AppLayout
       title="Network Status"
       homeRoute="/manager"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">

@@ -4,12 +4,8 @@ import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { ReportDataTable, ColumnDef } from "@/components/ReportDataTable";
 import { Badge } from "@/components/ui/badge";
+import { MANAGER_NAV } from "@/config/navigation";
 import {
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -31,23 +27,6 @@ export default function CategoryAnalysisReport() {
   const { data: categoryData = [], isLoading } = useQuery<CategoryData[]>({
     queryKey: ["/api/reports/category-analysis"],
   });
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Incidents", href: "/manager", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics", href: "/manager/analytics", icon: BarChart3 },
-        { title: "Analytics & Reports", href: "/manager/analytics", icon: FileText },
-      ],
-    },
-  ];
 
   const columns: ColumnDef<CategoryData>[] = [
     {
@@ -105,7 +84,7 @@ export default function CategoryAnalysisReport() {
     <AppLayout
       title="Category Analysis Report"
       homeRoute="/manager"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">

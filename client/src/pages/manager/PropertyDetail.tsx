@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
+import { MANAGER_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
-  LayoutDashboard,
   ArrowLeft,
   MapPin,
 } from "lucide-react";
@@ -28,15 +28,6 @@ export default function PropertyDetail() {
 
   // Find property details from shared constants
   const property = getPropertyById(propertyId || "");
-
-  const navSections = [
-    {
-      label: "Navigation",
-      items: [
-        { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -196,7 +187,7 @@ export default function PropertyDetail() {
       <AppLayout
         title="Property Management Dashboard"
         homeRoute="/manager"
-        navSections={navSections}
+        navSections={MANAGER_NAV}
         sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
       >
         <div className="container mx-auto px-4 py-8 max-w-7xl">
@@ -219,7 +210,7 @@ export default function PropertyDetail() {
     <AppLayout
       title="Property Management Dashboard"
       homeRoute="/manager"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl">

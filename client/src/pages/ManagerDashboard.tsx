@@ -13,13 +13,8 @@ import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
+import { MANAGER_NAV } from "@/config/navigation";
 import {
-  LayoutDashboard,
-  AlertTriangle,
-  BarChart3,
-  FileText,
-  MessageSquare,
-  Wifi,
   Clock,
   CheckCircle2,
   TrendingUp,
@@ -37,22 +32,6 @@ export default function ManagerDashboard() {
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
   const managerPropertyIds = managerProperties.map(p => p.id);
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Incidents", href: "/manager", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics & Reports", href: "/manager/analytics", icon: BarChart3 },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -306,7 +285,7 @@ export default function ManagerDashboard() {
   return (
     <AppLayout
       title="Incident Management"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       homeRoute="/manager"
       notificationCount={incidents.filter(i => i.status === 'new').length}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}

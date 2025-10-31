@@ -5,11 +5,8 @@ import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { MANAGER_NAV } from "@/config/navigation";
 import {
-  AlertTriangle,
-  BarChart3,
-  MessageSquare,
-  Wifi,
   FileSpreadsheet,
   Clock,
   FolderKanban,
@@ -18,6 +15,7 @@ import {
   ExternalLink,
   TrendingUp,
   TrendingDown,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -39,22 +37,6 @@ export default function AnalyticsReports() {
   const managerIncidents = useMemo(() => {
     return incidents.filter(i => ["1", "2", "3"].includes(i.propertyId || ""));
   }, [incidents]);
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "Incidents", href: "/manager", icon: AlertTriangle },
-        { title: "Network Status", href: "/manager/network", icon: Wifi },
-      ],
-    },
-    {
-      label: "Analysis",
-      items: [
-        { title: "Analytics & Reports", href: "/manager/analytics", icon: BarChart3 },
-      ],
-    },
-  ];
 
   const reports = [
     {
@@ -106,7 +88,7 @@ export default function AnalyticsReports() {
     <AppLayout
       title="Analytics & Reports"
       homeRoute="/manager"
-      navSections={navSections}
+      navSections={MANAGER_NAV}
       sidebarHeader={activeOrg && <OrganizationLogo organizationId={activeOrg.id} />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
