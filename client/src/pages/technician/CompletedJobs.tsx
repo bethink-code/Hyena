@@ -4,29 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 import type { Incident } from "@shared/schema";
-import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
 
 export default function CompletedJobs() {
   const [, setLocation] = useLocation();
   
-  const navSections = [
-    {
-      label: "Work",
-      items: [
-        { title: "Work Queue", href: "/technician", icon: ClipboardList },
-        { title: "Completed Jobs", href: "/technician/completed", icon: History },
-      ],
-    },
-    {
-      label: "Maintenance",
-      items: [
-        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
-        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
-      ],
-    },
-  ];
-
   const { data: allEvents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/events"],
   });
@@ -80,7 +63,7 @@ export default function CompletedJobs() {
     <AppLayout
       title="Completed Jobs"
       homeRoute="/technician"
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

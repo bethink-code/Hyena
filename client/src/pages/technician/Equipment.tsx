@@ -3,28 +3,11 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
-import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 
 export default function Equipment() {
   const [, setLocation] = useLocation();
   
-  const navSections = [
-    {
-      label: "Work",
-      items: [
-        { title: "Work Queue", href: "/technician", icon: ClipboardList },
-        { title: "Completed Jobs", href: "/technician/completed", icon: History },
-      ],
-    },
-    {
-      label: "Maintenance",
-      items: [
-        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
-        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
-      ],
-    },
-  ];
-
   // Mock equipment data for each property
   const equipmentByProperty: Record<string, Array<{ name: string; status: "available" | "in-use" | "maintenance" | "critical"; quantity: number }>> = {
     "1": [
@@ -124,7 +107,7 @@ export default function Equipment() {
     <AppLayout
       title="Equipment Inventory"
       homeRoute="/technician"
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

@@ -6,34 +6,17 @@ import { HyenaLogo } from "@/components/HyenaLogo";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { LogIssueDialog } from "@/components/LogIssueDialog";
 import { PROPERTIES } from "@/lib/properties";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 import type { Incident } from "@shared/schema";
 import { 
   CheckCircle2, 
   ClipboardList, 
-  Calendar, 
-  Wrench, 
   Play,
   AlertTriangle,
 } from "lucide-react";
 
 export default function TechnicianApp() {
   const [, navigate] = useLocation();
-
-  const navSections = [
-    {
-      label: "Work",
-      items: [
-        { title: "My Work", href: "/technician", icon: ClipboardList },
-      ],
-    },
-    {
-      label: "Maintenance",
-      items: [
-        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
-        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -112,7 +95,7 @@ export default function TechnicianApp() {
       title="Technician App"
       homeRoute="/technician"
       notificationCount={technicianIncidents.filter(i => i.status === 'assigned' || i.status === 'in_progress').length}
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
       sidebarHeader={<HyenaLogo />}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">

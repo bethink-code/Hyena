@@ -9,13 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
-  LayoutDashboard,
-  Wrench,
-  Calendar,
-  CheckCircle2,
-  Package,
   ArrowLeft,
   Filter,
 } from "lucide-react";
@@ -52,23 +48,6 @@ export default function TechnicianIncidentQueue() {
     setSearchParams(''); // Clear search params state immediately
     setLocation('/technician/incidents');
   };
-
-  const navSections = [
-    {
-      label: "Main",
-      items: [
-        { title: "My Work", href: "/technician", icon: LayoutDashboard },
-        { title: "Schedule", href: "/technician/schedule", icon: Calendar },
-      ],
-    },
-    {
-      label: "Tasks",
-      items: [
-        { title: "Completed Jobs", href: "/technician/completed", icon: CheckCircle2 },
-        { title: "Equipment", href: "/technician/equipment", icon: Package },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -276,7 +255,7 @@ export default function TechnicianIncidentQueue() {
     <AppLayout
       title="Technician Work Queue"
       homeRoute="/technician"
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
       notificationCount={allIncidents.filter(i => i.status === 'new').length}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-6">

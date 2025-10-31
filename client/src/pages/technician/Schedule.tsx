@@ -3,30 +3,13 @@ import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
-import { ClipboardList, History, Calendar, Wrench } from "lucide-react";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 
 export default function Schedule() {
   const [, setLocation] = useLocation();
   
   // Use the first 3 properties for the technician's scope
   const technicianProperties = PROPERTIES.slice(0, 3);
-
-  const navSections = [
-    {
-      label: "Work",
-      items: [
-        { title: "Work Queue", href: "/technician", icon: ClipboardList },
-        { title: "Completed Jobs", href: "/technician/completed", icon: History },
-      ],
-    },
-    {
-      label: "Maintenance",
-      items: [
-        { title: "Preventive Schedule", href: "/technician/schedule", icon: Calendar },
-        { title: "Equipment", href: "/technician/equipment", icon: Wrench },
-      ],
-    },
-  ];
 
   // Mock maintenance task data for each property
   const maintenanceTasksByProperty: Record<string, Array<{ task: string; date: string; priority: "high" | "medium" | "low"; equipment: string; status: "scheduled" | "overdue" | "completed" }>> = {
@@ -92,7 +75,7 @@ export default function Schedule() {
     <AppLayout
       title="Preventive Maintenance"
       homeRoute="/technician"
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
     >
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
         <div>

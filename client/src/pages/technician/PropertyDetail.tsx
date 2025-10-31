@@ -12,9 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
+import { TECHNICIAN_NAV } from "@/config/navigation";
 import type { Incident, IncidentTimeline } from "@shared/schema";
 import {
-  ClipboardList,
   ArrowLeft,
   MapPin,
   Camera,
@@ -31,15 +31,6 @@ export default function TechnicianPropertyDetail() {
 
   // Find property details from shared constants
   const property = getPropertyById(propertyId || "");
-
-  const navSections = [
-    {
-      label: "Navigation",
-      items: [
-        { title: "My Work", href: "/technician", icon: ClipboardList },
-      ],
-    },
-  ];
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -199,7 +190,7 @@ export default function TechnicianPropertyDetail() {
       <AppLayout
         title="Property Not Found"
         homeRoute="/technician"
-        navSections={navSections}
+        navSections={TECHNICIAN_NAV}
         notificationCount={0}
       >
         <div className="text-center py-12">
@@ -221,7 +212,7 @@ export default function TechnicianPropertyDetail() {
       title={property.name}
       homeRoute="/technician"
       notificationCount={workQueue.length}
-      navSections={navSections}
+      navSections={TECHNICIAN_NAV}
     >
       <div className="space-y-6">
         {/* Property Header */}
