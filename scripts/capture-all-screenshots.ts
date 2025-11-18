@@ -13,94 +13,81 @@ interface ScreenshotTask {
 }
 
 const screenshots: ScreenshotTask[] = [
-  // Guest Portal (no auth needed)
+  // Guest Portal
   {
     filename: 'guest-portal-network-status.png',
     url: '/guest',
-    description: 'Guest Portal - Network Status',
-    role: 'guest'
+    description: 'Guest Portal - Network Status'
   },
   {
     filename: 'guest-portal-report-issue.png',
     url: '/guest/report',
-    description: 'Guest Portal - Report Issue Form',
-    role: 'guest'
+    description: 'Guest Portal - Report Issue Form'
   },
   {
     filename: 'guest-portal-my-issues.png',
     url: '/guest/my-issues',
-    description: 'Guest Portal - My Issues Dashboard',
-    role: 'guest'
+    description: 'Guest Portal - My Issues Dashboard'
   },
   
-  // Hotel Manager Dashboard
+  // Hotel Manager Dashboard (/hotel-manager is the single-property version)
   {
     filename: 'manager-dashboard-overview.png',
-    url: '/manager',
-    description: 'Hotel Manager Dashboard - Overview',
-    role: 'manager'
-  },
-  {
-    filename: 'manager-incident-queue.png',
-    url: '/manager/incidents',
-    description: 'Hotel Manager - Incident Queue',
-    role: 'manager'
+    url: '/hotel-manager',
+    description: 'Hotel Manager Dashboard - Overview'
   },
   {
     filename: 'manager-analytics.png',
-    url: '/manager/analytics',
-    description: 'Hotel Manager - Analytics View',
-    role: 'manager'
+    url: '/hotel-manager/analytics',
+    description: 'Hotel Manager - Analytics View'
   },
   
-  // Regional Manager Dashboard
+  // Regional Manager Dashboard (/manager is the multi-property version)
   {
     filename: 'regional-manager-overview.png',
-    url: '/regional-manager',
-    description: 'Regional Manager - Multi-Property Overview',
-    role: 'regional'
+    url: '/manager',
+    description: 'Regional Manager - Multi-Property Overview'
   },
   {
     filename: 'regional-manager-incidents.png',
-    url: '/regional-manager/incidents',
-    description: 'Regional Manager - Incident Queue',
-    role: 'regional'
+    url: '/manager/incidents',
+    description: 'Regional Manager - Incident Queue'
+  },
+  {
+    filename: 'regional-manager-analytics.png',
+    url: '/manager/analytics',
+    description: 'Regional Manager - Analytics & Reports'
   },
   
   // Admin Center
   {
     filename: 'admin-dashboard.png',
     url: '/admin',
-    description: 'Admin Center - Dashboard',
-    role: 'admin'
+    description: 'Admin Center - Dashboard'
   },
   {
     filename: 'admin-organizations.png',
     url: '/admin/organizations',
-    description: 'Admin Center - Organizations',
-    role: 'admin'
+    description: 'Admin Center - Organizations'
   },
   {
     filename: 'admin-users.png',
     url: '/admin/users',
-    description: 'Admin Center - User Management',
-    role: 'admin'
+    description: 'Admin Center - User Management'
   },
   
   // Technician App
   {
     filename: 'technician-work-queue.png',
     url: '/technician',
-    description: 'Technician App - Work Queue',
-    role: 'technician'
+    description: 'Technician App - Work Queue'
   },
   
-  // Simulator (no auth needed)
+  // Simulator
   {
     filename: 'simulator-interface.png',
     url: '/simulator',
-    description: 'Event Simulator',
-    role: 'guest'
+    description: 'Event Simulator'
   }
 ];
 
@@ -187,47 +174,11 @@ async function captureAllScreenshots() {
     let successCount = 0;
     let failCount = 0;
     
-    // Group screenshots by role
-    const roleGroups = {
-      guest: screenshots.filter(s => s.role === 'guest'),
-      admin: screenshots.filter(s => s.role === 'admin'),
-      manager: screenshots.filter(s => s.role === 'manager'),
-      regional: screenshots.filter(s => s.role === 'regional'),
-      technician: screenshots.filter(s => s.role === 'technician')
-    };
-    
-    // Capture guest screenshots (no auth needed)
-    if (roleGroups.guest.length > 0) {
-      console.log('\n📱 Capturing Guest Portal screenshots...');
-      for (const task of roleGroups.guest) {
-        const success = await captureScreenshot(browser, task);
-        if (success) successCount++;
-        else failCount++;
-      }
-    }
-    
-    // Capture authenticated screenshots for each role
-    for (const [role, tasks] of Object.entries(roleGroups)) {
-      if (role === 'guest' || tasks.length === 0) continue;
-      
-      console.log(`\n👤 Capturing ${role} screenshots...`);
-      const page = await browser.newPage();
-      await page.setViewport({ width: 1440, height: 900 });
-      
-      try {
-        await login(page, role as any);
-        
-        for (const task of tasks) {
-          const success = await captureScreenshot(browser, task, page);
-          if (success) successCount++;
-          else failCount++;
-        }
-      } catch (error: any) {
-        console.error(`  ✗ Failed to login as ${role}: ${error.message}`);
-        failCount += tasks.length;
-      } finally {
-        await page.close();
-      }
+    // Capture all screenshots (no authentication required)
+    for (const task of screenshots) {
+      const success = await captureScreenshot(browser, task);
+      if (success) successCount++;
+      else failCount++;
     }
     
     console.log(`\n✅ Screenshot capture complete!`);
