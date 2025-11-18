@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Lightbulb, Flag, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, InsertIncident } from "@shared/schema";
@@ -26,6 +27,9 @@ export default function GuestPortal() {
   const { toast } = useToast();
   const [showFeedback, setShowFeedback] = useState(false);
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
+
+  // Get property alerts for announcements banner
+  const { alert } = usePropertyAlerts({ propertyId: PROPERTIES[0].id });
 
   // Fetch all events (in a real app, would filter by guest ID)
   const { data: allEvents = [] } = useQuery<Incident[]>({
@@ -136,7 +140,7 @@ export default function GuestPortal() {
           badges={["24/7 Network Support", "Fast Response Times", "Expert Assistance"]}
         />
 
-        <NetworkStatusIndicator status="healthy" incidentCount={0} />
+        <NetworkStatusIndicator incident={alert || undefined} />
 
         <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
