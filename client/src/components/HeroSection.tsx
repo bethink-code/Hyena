@@ -48,12 +48,12 @@ export function HeroSection({
         />
       </div>
 
-      {/* Content Container - Left-Aligned */}
-      <div className="relative h-full min-h-[280px] md:min-h-[360px] flex flex-col justify-between p-6 md:p-8">
-        {/* Brand Plaque - Top Left */}
+      {/* Content Container - Two Column Layout */}
+      <div className="relative h-full min-h-[280px] md:min-h-[360px] flex flex-wrap items-end gap-6 p-6 md:p-8">
+        {/* Left Column: Brand Plaque */}
         {(logoUrl || hotelName) && (
           <div 
-            className="self-start bg-card/80 dark:bg-card/60 backdrop-blur-md border border-border/40 rounded-md shadow-lg p-4 md:p-5"
+            className="bg-black/70 dark:bg-black/80 backdrop-blur-md border border-white/20 rounded-md shadow-lg p-4 md:p-5"
             data-testid="container-brand-plaque"
           >
             <div className="flex items-center gap-4">
@@ -67,11 +67,11 @@ export function HeroSection({
               )}
               {hotelName && (
                 <div className="flex flex-col">
-                  <span className="text-base md:text-lg font-semibold text-card-foreground" data-testid="text-hotel-name">
+                  <span className="text-base md:text-lg font-semibold text-white" data-testid="text-hotel-name">
                     {hotelName}
                   </span>
                   {location && (
-                    <span className="text-sm text-muted-foreground" data-testid="text-hotel-location">
+                    <span className="text-sm text-white/80" data-testid="text-hotel-location">
                       {location}
                     </span>
                   )}
@@ -81,8 +81,8 @@ export function HeroSection({
           </div>
         )}
 
-        {/* Content Stack - Bottom Left */}
-        <div className="max-w-2xl space-y-4 md:space-y-6">
+        {/* Right Column: Content Stack */}
+        <div className="flex-1 min-w-[280px] space-y-4 md:space-y-6">
           {/* Headline */}
           <h1 
             className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" 
