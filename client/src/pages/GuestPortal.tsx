@@ -28,8 +28,11 @@ export default function GuestPortal() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
-  // Get property alerts for announcements banner
-  const { alert } = usePropertyAlerts({ propertyId: PROPERTIES[0].id });
+  // Get property alerts for announcements banner (guest-friendly sources only)
+  const { alert } = usePropertyAlerts({ 
+    propertyId: PROPERTIES[0].id,
+    sources: ["manager_announcement", "eskom_api", "weather_api", "scheduled_check"]
+  });
 
   // Fetch all events (in a real app, would filter by guest ID)
   const { data: allEvents = [] } = useQuery<Incident[]>({

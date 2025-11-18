@@ -18,7 +18,7 @@ interface UsePropertyAlertsOptions {
 
 export function usePropertyAlerts({ propertyId, sources = ANNOUNCEMENT_SOURCES }: UsePropertyAlertsOptions = {}) {
   const { data: allIncidents = [], isLoading } = useQuery<Incident[]>({
-    queryKey: ["/api/events"],
+    queryKey: ["/api/incidents"],
   });
 
   // Filter to active announcements/alerts
@@ -51,7 +51,10 @@ export function usePropertyAlerts({ propertyId, sources = ANNOUNCEMENT_SOURCES }
       return aPriority - bPriority;
     }
     
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    // Guard against missing createdAt (fallback to 0 for invalid dates)
+    const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return bTime - aTime;
   });
 
   // Return the highest priority alert
