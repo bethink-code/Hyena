@@ -2,10 +2,15 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
+import path from "path";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static HTML documentation files BEFORE any other routes or Vite middleware
+const docsPath = path.join(process.cwd(), 'public', 'docs');
+app.use('/docs', express.static(docsPath));
 
 app.use((req, res, next) => {
   const start = Date.now();
