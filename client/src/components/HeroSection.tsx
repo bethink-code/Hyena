@@ -82,7 +82,7 @@ export function HeroSection({
         )}
 
         {/* Spacer for mobile, flex-grow for desktop */}
-        <div className="h-20 md:flex-1 md:min-h-32" />
+        <div className="h-20 md:flex-1 md:min-h-16" />
 
         {/* Content Stack - Bottom */}
         <div className="max-w-2xl space-y-2 pt-[0px] pb-[0px] ml-[20px] mr-[20px]">
