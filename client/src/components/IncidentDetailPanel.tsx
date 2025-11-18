@@ -128,8 +128,6 @@ export function IncidentDetailPanel({
     },
   });
 
-  if (!incident) return null;
-
   const borderColors = {
     critical: "border-l-event-critical",
     high: "border-l-event-high",
@@ -141,6 +139,8 @@ export function IncidentDetailPanel({
     if (!comment.trim()) return;
     addCommentMutation.mutate(comment.trim());
   };
+
+  if (!incident) return null;
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
