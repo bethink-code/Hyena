@@ -17,13 +17,14 @@ interface EventQueueProps {
   events: EventCardProps[];
   onEventClick?: (eventId: string) => void;
   className?: string;
+  defaultViewMode?: ViewMode;
 }
 
-export function EventQueue({ events, onEventClick, className }: EventQueueProps) {
+export function EventQueue({ events, onEventClick, className, defaultViewMode = "table" }: EventQueueProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
-  const [viewMode, setViewMode] = useState<ViewMode>("table");
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultViewMode);
 
   // Apply filters
   const filteredEvents = events.filter(event => {

@@ -212,6 +212,7 @@ export default function GuestPortal() {
                     timestamp: formatTimestamp(event.createdAt),
                   }))}
                   onEventClick={(eventId) => setViewingEventId(eventId)}
+                  defaultViewMode="card"
                 />
               )}
             </div>
