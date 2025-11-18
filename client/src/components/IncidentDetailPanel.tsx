@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { format } from "date-fns";
 import {
   Sheet,
   SheetContent,
@@ -310,8 +311,8 @@ export function IncidentDetailPanel({
                   <div className="space-y-4">
                     {timelineData.map((item, index) => (
                       <div key={index} className="flex gap-4 text-sm border-l-2 pl-4 py-2">
-                        <div className="flex-shrink-0 w-20 text-muted-foreground font-mono text-xs">
-                          {item.timestamp}
+                        <div className="flex-shrink-0 text-muted-foreground text-xs min-w-[140px]">
+                          {format(new Date(item.timestamp), "dd MMM yyyy HH:mm")}
                         </div>
                         <div className="flex-1">
                           <p className="text-sm font-medium">{item.action}</p>
