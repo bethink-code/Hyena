@@ -49,7 +49,6 @@ export const HOTEL_MANAGER_NAV: NavSection[] = [
     label: "Main",
     items: [
       { title: "Dashboard", href: "/hotel-manager", icon: LayoutDashboard },
-      { title: "Incidents", href: "/hotel-manager/incidents", icon: AlertTriangle },
       { title: "Network Status", href: "/hotel-manager/network", icon: Wifi },
     ],
   },

@@ -25,7 +25,6 @@ import ManagerCategoryAnalysisReport from "@/pages/manager/reports/CategoryAnaly
 import ManagerGuestImpactReport from "@/pages/manager/reports/GuestImpact";
 import ManagerUserFeedbackReport from "@/pages/manager/reports/UserFeedback";
 
-import HotelManagerIncidents from "@/pages/hotel-manager/IncidentQueue";
 import HotelManagerNetwork from "@/pages/hotel-manager/NetworkStatus";
 import HotelManagerAnalyticsReports from "@/pages/hotel-manager/AnalyticsReports";
 import HotelManagerUserFeedbackReport from "@/pages/hotel-manager/reports/UserFeedback";
@@ -68,7 +67,6 @@ function Router() {
       <Route path="/manager/reports/user-feedback" component={ManagerUserFeedbackReport} />
       
       <Route path="/hotel-manager" component={HotelManagerDashboard} />
-      <Route path="/hotel-manager/incidents" component={HotelManagerIncidents} />
       <Route path="/hotel-manager/network" component={HotelManagerNetwork} />
       <Route path="/hotel-manager/analytics" component={HotelManagerAnalyticsReports} />
       <Route path="/hotel-manager/reports/user-feedback" component={HotelManagerUserFeedbackReport} />

@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
@@ -28,7 +27,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function HotelManagerDashboard() {
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
   const [selectedIncidentId, setSelectedIncidentId] = useState<string | null>(null);
   
   // Fetch active organization
@@ -83,7 +81,6 @@ export default function HotelManagerDashboard() {
         value: criticalCount,
         icon: AlertTriangle,
         variant: criticalCount > 0 ? "critical" : "default",
-        onClick: () => setLocation('/hotel-manager/incidents?priority=critical'),
       },
       {
         id: "active",
@@ -91,7 +88,6 @@ export default function HotelManagerDashboard() {
         value: activeCount,
         icon: LayoutDashboard,
         variant: activeCount > 5 ? "high" : "default",
-        onClick: () => setLocation('/hotel-manager/incidents'),
       },
       {
         id: "in-progress",
@@ -99,7 +95,6 @@ export default function HotelManagerDashboard() {
         value: inProgressCount,
         icon: Clock,
         variant: "medium",
-        onClick: () => setLocation('/hotel-manager/incidents?status=in_progress'),
       },
       {
         id: "resolved-today",
@@ -107,10 +102,9 @@ export default function HotelManagerDashboard() {
         value: resolvedToday,
         icon: CheckCircle2,
         variant: "success",
-        onClick: () => setLocation('/hotel-manager/incidents?status=resolved'),
       },
     ];
-  }, [incidents, setLocation]);
+  }, [incidents]);
 
   // Calculate property status
   const propertyStatus = useMemo(() => {
