@@ -53,25 +53,25 @@ export function HeroSection({
         {/* Brand Plaque - Top Left */}
         {(logoUrl || hotelName) && (
           <div 
-            className="self-start bg-card/80 dark:bg-card/60 backdrop-blur-md border border-border/40 rounded-md shadow-lg p-3 md:p-4"
+            className="self-start bg-card/80 dark:bg-card/60 backdrop-blur-md border border-border/40 rounded-md shadow-lg p-4 md:p-5"
             data-testid="container-brand-plaque"
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               {logoUrl && (
                 <img
                   src={logoUrl}
                   alt={hotelName || "Property logo"}
-                  className="h-8 md:h-10 w-auto object-contain"
+                  className="h-16 md:h-20 w-auto object-contain"
                   data-testid="img-property-logo"
                 />
               )}
               {hotelName && (
                 <div className="flex flex-col">
-                  <span className="text-sm md:text-base font-semibold text-card-foreground" data-testid="text-hotel-name">
+                  <span className="text-base md:text-lg font-semibold text-card-foreground" data-testid="text-hotel-name">
                     {hotelName}
                   </span>
                   {location && (
-                    <span className="text-xs text-muted-foreground" data-testid="text-hotel-location">
+                    <span className="text-sm text-muted-foreground" data-testid="text-hotel-location">
                       {location}
                     </span>
                   )}
