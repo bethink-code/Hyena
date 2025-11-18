@@ -5,6 +5,8 @@ import { AppLayout } from "@/components/AppLayout";
 import { HyenaLogo } from "@/components/HyenaLogo";
 import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { LogIssueDialog } from "@/components/LogIssueDialog";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
+import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
 import { PROPERTIES } from "@/lib/properties";
 import { TECHNICIAN_NAV } from "@/config/navigation";
 import type { Incident } from "@shared/schema";
@@ -17,6 +19,11 @@ import {
 
 export default function TechnicianApp() {
   const [, navigate] = useLocation();
+
+  // Get infrastructure alerts for technicians (api_monitoring, automated_alert, scheduled_check)
+  const { alert } = usePropertyAlerts({ 
+    sources: ["api_monitoring", "automated_alert", "scheduled_check", "eskom_api", "weather_api"] 
+  });
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -108,6 +115,8 @@ export default function TechnicianApp() {
             </div>
             <LogIssueDialog />
           </div>
+
+          <NetworkStatusIndicator incident={alert || undefined} />
           
           <SummaryMetrics metrics={metrics} />
         </div>
