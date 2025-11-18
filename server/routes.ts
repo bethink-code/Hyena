@@ -608,6 +608,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Add comment to incident (creates a timeline entry)
+  app.post("/api/incidents/:id/comments", async (req, res) => {
+    try {
+      const { comment } = req.body;
+      if (!comment || typeof comment !== 'string' || !comment.trim()) {
+        return res.status(400).json({ error: "Comment text is required" });
+      }
+
+      // Get current user from session (or use a default)
+      const actor = (req as any).user?.username || (req as any).user?.email || "User";
+
+      const validatedEntry = insertIncidentTimelineSchema.parse({
+        incidentId: req.params.id,
+        action: comment.trim(),
+        actor,
+        actionType: "comment",
+      });
+
+      const entry = await storage.addIncidentTimelineEntry(validatedEntry);
+      res.json(entry);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   // Event routes (alias for incidents - system uses terms interchangeably)
   // Uses shared handler to maintain full feature parity with /api/incidents
   app.get("/api/events", getIncidentsHandler);

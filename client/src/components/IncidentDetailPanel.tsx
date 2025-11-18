@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   Sheet,
   SheetContent,
@@ -6,6 +8,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { PriorityBadge, type Priority } from "./PriorityBadge";
 import { StatusBadge, type IncidentStatus } from "./StatusBadge";
 import { Button } from "@/components/ui/button";
@@ -18,6 +21,8 @@ import { RequestInfoDialog } from "./RequestInfoDialog";
 import { ReassignDialog } from "./ReassignDialog";
 import { ChangePriorityDialog } from "./ChangePriorityDialog";
 import { AssignTechnicianDialog } from "./AssignTechnicianDialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import {
   MapPin,
   User,
@@ -29,6 +34,7 @@ import {
   AlertCircle,
   FileText,
   Wrench,
+  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -68,6 +74,28 @@ export function IncidentDetailPanel({
   onResolve,
   onEscalate,
 }: IncidentDetailPanelProps) {
+  const { toast } = useToast();
+  const [comment, setComment] = useState("");
+
+  // Fetch timeline data directly from API
+  // Keep query enabled even when panel is closed to maintain cache
+  const { data: timelineData = [], isLoading: timelineLoading } = useQuery<Array<{
+    timestamp: string;
+    action: string;
+    actor: string;
+  }>>({
+    queryKey: ["/api/incidents", incident?.id, "timeline"],
+    queryFn: async () => {
+      if (!incident?.id) return [];
+      const res = await fetch(`/api/incidents/${incident.id}/timeline`, {
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error(`${res.status}: ${res.statusText}`);
+      return await res.json();
+    },
+    enabled: !!incident?.id,
+  });
+
   if (!incident) return null;
 
   const borderColors = {
@@ -75,6 +103,38 @@ export function IncidentDetailPanel({
     high: "border-l-event-high",
     medium: "border-l-event-medium",
     low: "border-l-border",
+  };
+
+  // Mutation for adding comments
+  const addCommentMutation = useMutation({
+    mutationFn: async (commentText: string) => {
+      const response = await apiRequest("POST", `/api/incidents/${incident.id}/comments`, {
+        comment: commentText,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      // Invalidate both timeline and incidents queries to refetch fresh data
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents", incident.id, "timeline"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      setComment("");
+      toast({
+        title: "Comment Added",
+        description: "Your comment has been added to the incident timeline.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to add comment",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleAddComment = () => {
+    if (!comment.trim()) return;
+    addCommentMutation.mutate(comment.trim());
   };
 
   return (
@@ -99,16 +159,16 @@ export function IncidentDetailPanel({
             </div>
           </SheetHeader>
 
-          <Tabs defaultValue="summary" className="flex-1 flex flex-col">
+          <Tabs defaultValue="activity" className="flex-1 flex flex-col">
             <TabsList className="mx-6 mt-4 w-auto justify-start" data-testid="tabs-incident-detail">
-              <TabsTrigger value="summary" data-testid="tab-summary">
-                Summary
-              </TabsTrigger>
               <TabsTrigger value="activity" data-testid="tab-activity">
                 Activity
               </TabsTrigger>
               <TabsTrigger value="technical" data-testid="tab-technical">
                 Technical
+              </TabsTrigger>
+              <TabsTrigger value="summary" data-testid="tab-summary">
+                Summary
               </TabsTrigger>
             </TabsList>
 
@@ -213,10 +273,40 @@ export function IncidentDetailPanel({
               </TabsContent>
 
               <TabsContent value="activity" className="px-6 py-4 space-y-4 mt-0">
+                {/* Comment Input Form */}
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Add Comment</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Textarea
+                      placeholder="Add a comment to the incident timeline..."
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      rows={3}
+                      data-testid="textarea-comment"
+                      className="resize-none"
+                    />
+                    <div className="flex justify-end">
+                      <Button
+                        onClick={handleAddComment}
+                        disabled={!comment.trim() || addCommentMutation.isPending}
+                        size="sm"
+                        data-testid="button-add-comment"
+                      >
+                        <Send className="h-4 w-4 mr-2" />
+                        {addCommentMutation.isPending ? "Posting..." : "Post Comment"}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Activity Timeline */}
+                <Separator />
                 <h3 className="text-sm font-semibold">Activity Timeline</h3>
-                {incident.timeline && incident.timeline.length > 0 ? (
+                {timelineData && timelineData.length > 0 ? (
                   <div className="space-y-4">
-                    {incident.timeline.map((item, index) => (
+                    {timelineData.map((item, index) => (
                       <div key={index} className="flex gap-4 text-sm border-l-2 pl-4 py-2">
                         <div className="flex-shrink-0 w-20 text-muted-foreground font-mono text-xs">
                           {item.timestamp}
