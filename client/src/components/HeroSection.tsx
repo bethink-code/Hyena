@@ -53,7 +53,7 @@ export function HeroSection({
         {/* Left Column: Brand Plaque */}
         {(logoUrl || hotelName) && (
           <div 
-            className="bg-black/70 dark:bg-black/80 backdrop-blur-md border border-white/20 rounded-md shadow-lg p-4 md:p-5"
+            className="dark:bg-black/80 backdrop-blur-md border border-white/20 rounded-md shadow-lg p-4 md:p-5 bg-[#0000004f]"
             data-testid="container-brand-plaque"
           >
             <div className="flex items-center gap-4">
