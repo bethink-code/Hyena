@@ -127,8 +127,8 @@ export default function GuestPortal() {
     >
       <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <HeroSection
-          title="Welcome to Network Support"
-          subtitle="Get help with connectivity issues in seconds"
+          title="Connected Throughout Your Stay"
+          subtitle="Issues with wifi, streaming, or devices? We've got you."
           imageSrc={heroImage}
           logoUrl={PROPERTIES[0].logoUrl}
         />
