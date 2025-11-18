@@ -49,11 +49,11 @@ export function HeroSection({
       </div>
 
       {/* Content Container */}
-      <div className="relative h-full min-h-[280px] md:min-h-[360px] p-6 md:p-8">
+      <div className="relative h-full min-h-[280px] md:min-h-[360px] flex flex-col justify-between p-6 md:p-8">
         {/* Brand Plaque - Top Left */}
         {(logoUrl || hotelName) && (
           <div 
-            className="absolute top-6 left-6 md:top-8 md:left-8 dark:bg-black/80 backdrop-blur-md rounded-md shadow-lg p-4 md:p-5 bg-[#0000004f]"
+            className="dark:bg-black/80 backdrop-blur-md rounded-md shadow-lg p-4 md:p-5 bg-[#0000004f] self-start"
             data-testid="container-brand-plaque"
           >
             <div className="flex items-center gap-4">
@@ -82,7 +82,7 @@ export function HeroSection({
         )}
 
         {/* Content Stack - Bottom */}
-        <div className="absolute bottom-6 left-6 right-6 md:bottom-8 md:left-8 md:right-8 max-w-2xl space-y-4 md:space-y-6">
+        <div className="max-w-2xl space-y-6 md:space-y-8">
           {/* Headline */}
           <h1 
             className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" 
