@@ -37,6 +37,7 @@ Preferred communication style: Simple, everyday language.
   - **Users Tab:** Full CRUD for organization users (regional_manager, property_manager) with property assignment
   - **Settings Tab:** Contact information and regional settings (timezone, language)
 - **Technician Dashboard:** Displays summary metrics (My Queue, In Progress, Completed Today, Critical) with incident counts, removing property cards and client-side filters for a focused view on assigned work.
+- **Hotel Manager Analytics & Reports:** Scoped to single property showing property-specific KPIs (Active Incidents, Critical Issues, Avg Response Time, Resolution Rate), 7-day incident trends, and category breakdown. Removed regional/multi-property comparisons.
 
 ### System Design Choices
 - **Event-Driven Architecture:** Core around events and timelines, with real-time updates via React Query.
