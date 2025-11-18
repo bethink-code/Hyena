@@ -1,11 +1,15 @@
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
 
 interface HeroSectionProps {
   title: string;
   subtitle: string;
   imageSrc: string;
   logoUrl?: string;
+  hotelName?: string;
+  location?: string;
+  badges?: string[];
   ctaText?: string;
   onCtaClick?: () => void;
   className?: string;
@@ -16,47 +20,116 @@ export function HeroSection({
   subtitle,
   imageSrc,
   logoUrl,
+  hotelName,
+  location,
+  badges,
   ctaText,
   onCtaClick,
   className,
 }: HeroSectionProps) {
   return (
-    <div className={cn("relative h-64 overflow-hidden rounded-lg", className)}>
+    <div className={cn("relative min-h-[280px] md:min-h-[360px] overflow-hidden rounded-lg", className)}>
+      {/* Base Image */}
       <div className="absolute inset-0">
         <img
           src={imageSrc}
           alt="Hero background"
           className="w-full h-full object-cover"
+          data-testid="img-hero-background"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40" />
+        {/* Layered Gradient Overlays */}
+        <div 
+          className="absolute inset-0" 
+          style={{ background: 'var(--hero-overlay-radial)' }}
+        />
+        <div 
+          className="absolute inset-0" 
+          style={{ background: 'var(--hero-overlay-linear)' }}
+        />
       </div>
-      {logoUrl && (
-        <div className="absolute top-4 left-4">
-          <img
-            src={logoUrl}
-            alt="Property logo"
-            className="h-10 object-contain"
-            data-testid="img-property-logo"
-          />
-        </div>
-      )}
-      <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-4xl font-bold text-white mb-3" data-testid="text-hero-title">
-          {title}
-        </h1>
-        <p className="text-lg text-white/90 mb-6 max-w-2xl" data-testid="text-hero-subtitle">
-          {subtitle}
-        </p>
-        {ctaText && onCtaClick && (
-          <Button
-            size="lg"
-            onClick={onCtaClick}
-            className="bg-primary hover:bg-primary/90"
-            data-testid="button-hero-cta"
+
+      {/* Content Container - Left-Aligned */}
+      <div className="relative h-full min-h-[280px] md:min-h-[360px] flex flex-col justify-between p-6 md:p-8">
+        {/* Brand Plaque - Top Left */}
+        {(logoUrl || hotelName) && (
+          <div 
+            className="self-start bg-card/80 dark:bg-card/60 backdrop-blur-md border border-border/40 rounded-md shadow-lg p-3 md:p-4"
+            data-testid="container-brand-plaque"
           >
-            {ctaText}
-          </Button>
+            <div className="flex items-center gap-3">
+              {logoUrl && (
+                <img
+                  src={logoUrl}
+                  alt={hotelName || "Property logo"}
+                  className="h-8 md:h-10 w-auto object-contain"
+                  data-testid="img-property-logo"
+                />
+              )}
+              {hotelName && (
+                <div className="flex flex-col">
+                  <span className="text-sm md:text-base font-semibold text-card-foreground" data-testid="text-hotel-name">
+                    {hotelName}
+                  </span>
+                  {location && (
+                    <span className="text-xs text-muted-foreground" data-testid="text-hotel-location">
+                      {location}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
+
+        {/* Content Stack - Bottom Left */}
+        <div className="max-w-2xl space-y-4 md:space-y-6">
+          {/* Headline */}
+          <h1 
+            className="text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight" 
+            style={{ textWrap: 'balance' }}
+            data-testid="text-hero-title"
+          >
+            {title}
+          </h1>
+
+          {/* Subtitle */}
+          <p 
+            className="text-base md:text-lg text-white/90 leading-relaxed"
+            data-testid="text-hero-subtitle"
+          >
+            {subtitle}
+          </p>
+
+          {/* Badge Strip */}
+          {badges && badges.length > 0 && (
+            <div className="flex flex-wrap gap-2" data-testid="container-hero-badges">
+              {badges.map((badge, index) => (
+                <Badge 
+                  key={index}
+                  variant="outline" 
+                  className="bg-background/70 dark:bg-background/50 backdrop-blur-sm border-border/60 text-foreground no-default-hover-elevate no-default-active-elevate"
+                  data-testid={`badge-hero-${index}`}
+                >
+                  {badge}
+                </Badge>
+              ))}
+            </div>
+          )}
+
+          {/* CTA Button */}
+          {ctaText && onCtaClick && (
+            <div>
+              <Button
+                size="lg"
+                onClick={onCtaClick}
+                variant="default"
+                data-testid="button-hero-cta"
+              >
+                {ctaText}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

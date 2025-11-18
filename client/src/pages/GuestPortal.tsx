@@ -131,6 +131,9 @@ export default function GuestPortal() {
           subtitle="Issues with wifi, streaming, or devices? We've got you."
           imageSrc={heroImage}
           logoUrl={PROPERTIES[0].logoUrl}
+          hotelName={PROPERTIES[0].name}
+          location={PROPERTIES[0].location}
+          badges={["24/7 Network Support", "Fast Response Times", "Expert Assistance"]}
         />
 
         <NetworkStatusIndicator status="healthy" incidentCount={0} />
