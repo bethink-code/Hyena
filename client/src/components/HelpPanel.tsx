@@ -37,9 +37,13 @@ interface HelpPanelProps {
 }
 
 const routeToSpecMap: Record<string, string> = {
-  "/manager": "/docs/hotel-manager-specs.html",
-  "/manager/incidents": "/docs/hotel-manager-specs.html",
-  "/manager/regional": "/docs/regional-manager-specs.html",
+  "/hotel-manager": "/docs/hotel-manager-specs.html",
+  "/hotel-manager/network": "/docs/hotel-manager-specs.html",
+  "/hotel-manager/analytics": "/docs/hotel-manager-specs.html",
+  "/manager": "/docs/regional-manager-specs.html",
+  "/manager/incidents": "/docs/regional-manager-specs.html",
+  "/manager/network": "/docs/regional-manager-specs.html",
+  "/manager/analytics": "/docs/regional-manager-specs.html",
   "/admin": "/docs/admin-center-specs.html",
   "/admin/organizations": "/docs/admin-center-specs.html",
   "/admin/users": "/docs/admin-center-specs.html",
@@ -50,9 +54,13 @@ const routeToSpecMap: Record<string, string> = {
 };
 
 const routeToDownloadSpecMap: Record<string, { url: string; filename: string }> = {
-  "/manager": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
-  "/manager/incidents": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
-  "/manager/regional": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
+  "/hotel-manager": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
+  "/hotel-manager/network": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
+  "/hotel-manager/analytics": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
+  "/manager": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
+  "/manager/incidents": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
+  "/manager/network": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
+  "/manager/analytics": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
   "/admin": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
   "/admin/organizations": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
   "/admin/users": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
@@ -63,8 +71,11 @@ const routeToDownloadSpecMap: Record<string, { url: string; filename: string }> 
 };
 
 const routeToAIInsightsMap: Record<string, string> = {
+  "/hotel-manager": "/docs/ai/manager-dashboard.html",
+  "/hotel-manager/analytics": "/docs/ai/manager-dashboard.html",
   "/manager": "/docs/ai/manager-dashboard.html",
   "/manager/incidents": "/docs/ai/incident-queue.html",
+  "/manager/analytics": "/docs/ai/manager-dashboard.html",
   "/admin": "/docs/ai/admin-portfolio.html",
   "/technician": "/docs/ai/technician-queue.html",
   "/technician/incidents": "/docs/ai/technician-queue.html",
