@@ -82,7 +82,7 @@ export function HeroSection({
         )}
 
         {/* Content Stack - Bottom */}
-        <div className="max-w-2xl space-y-6 md:space-y-8 pt-[0px] pb-[0px] ml-[20px] mr-[20px] mt-auto">
+        <div className="max-w-2xl space-y-3 md:space-y-4 pt-[0px] pb-[0px] ml-[20px] mr-[20px] mt-8 md:mt-auto">
           {/* Headline */}
           <h1 
             className="text-3xl md:text-4xl lg:text-5xl text-white leading-tight font-medium" 
