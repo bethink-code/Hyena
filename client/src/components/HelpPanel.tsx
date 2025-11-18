@@ -27,7 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { FileText, Info, Sparkles, MessageSquare, Send, Trash2 } from "lucide-react";
+import { FileText, Info, Sparkles, MessageSquare, Send, Trash2, Download } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { HelpComment } from "@shared/schema";
 
@@ -37,11 +37,29 @@ interface HelpPanelProps {
 }
 
 const routeToSpecMap: Record<string, string> = {
-  "/manager": "/docs/manager/dashboard.html",
-  "/manager/incidents": "/docs/manager/incidents.html",
-  "/admin": "/docs/admin/portfolio.html",
-  "/technician": "/docs/technician/work-queue.html",
-  "/technician/incidents": "/docs/technician/work-queue.html",
+  "/manager": "/docs/hotel-manager-specs.html",
+  "/manager/incidents": "/docs/hotel-manager-specs.html",
+  "/manager/regional": "/docs/regional-manager-specs.html",
+  "/admin": "/docs/admin-center-specs.html",
+  "/admin/organizations": "/docs/admin-center-specs.html",
+  "/admin/users": "/docs/admin-center-specs.html",
+  "/technician": "/docs/technician-app-specs.html",
+  "/technician/incidents": "/docs/technician-app-specs.html",
+  "/guest": "/docs/guest-portal-specs.html",
+  "/simulator": "/docs/event-simulator-specs.html",
+};
+
+const routeToDownloadSpecMap: Record<string, { url: string; filename: string }> = {
+  "/manager": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
+  "/manager/incidents": { url: "/docs/hotel-manager-specs.html", filename: "hotel-manager-specs.html" },
+  "/manager/regional": { url: "/docs/regional-manager-specs.html", filename: "regional-manager-specs.html" },
+  "/admin": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
+  "/admin/organizations": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
+  "/admin/users": { url: "/docs/admin-center-specs.html", filename: "admin-center-specs.html" },
+  "/technician": { url: "/docs/technician-app-specs.html", filename: "technician-app-specs.html" },
+  "/technician/incidents": { url: "/docs/technician-app-specs.html", filename: "technician-app-specs.html" },
+  "/guest": { url: "/docs/guest-portal-specs.html", filename: "guest-portal-specs.html" },
+  "/simulator": { url: "/docs/event-simulator-specs.html", filename: "event-simulator-specs.html" },
 };
 
 const routeToAIInsightsMap: Record<string, string> = {
@@ -315,22 +333,90 @@ export function HelpPanel({ open, onClose }: HelpPanelProps) {
 
   const getPageTitle = () => {
     const titles: Record<string, string> = {
-      "/manager": "Manager Dashboard",
-      "/manager/incidents": "Incident Queue",
-      "/admin": "Admin Center - Portfolio Dashboard",
-      "/technician": "Technician Work Queue",
-      "/technician/incidents": "Technician Work Queue",
+      "/manager": "Hotel Manager Dashboard",
+      "/manager/incidents": "Hotel Manager - Incident Queue",
+      "/manager/regional": "Regional Manager Dashboard",
+      "/admin": "Admin Center",
+      "/technician": "Technician App",
+      "/technician/incidents": "Technician App - Work Queue",
+      "/guest": "Guest Portal",
+      "/simulator": "Event Simulator",
     };
     return titles[location] || "Page Documentation";
   };
+
+  const handleDownloadSpec = async () => {
+    const downloadInfo = routeToDownloadSpecMap[location];
+    if (!downloadInfo) return;
+
+    try {
+      const response = await fetch(downloadInfo.url);
+      if (!response.ok) throw new Error("Failed to download specification");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = downloadInfo.filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
+
+  const handleDownloadMasterPlatform = async () => {
+    try {
+      const response = await fetch("/docs/hyena-platform-functional-specifications.html");
+      if (!response.ok) throw new Error("Failed to download master specification");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = "hyena-platform-functional-specifications.html";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Download error:", error);
+    }
+  };
+
+  const hasDownloadableSpec = routeToDownloadSpecMap[location] !== undefined;
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-[700px] sm:max-w-[700px]" data-testid="help-panel">
         <SheetHeader className="mb-4">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <SheetTitle>Page Documentation</SheetTitle>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <SheetTitle>Page Documentation</SheetTitle>
+            </div>
+            <div className="flex gap-2">
+              {hasDownloadableSpec && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadSpec}
+                  data-testid="button-download-spec"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Page Specs
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDownloadMasterPlatform}
+                data-testid="button-download-master"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Master Platform Specs
+              </Button>
+            </div>
           </div>
           <SheetDescription>
             {getPageTitle()}

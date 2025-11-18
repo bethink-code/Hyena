@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Manager Dashboard - Functional Specifications | Project Hyena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        .container { background: white; padding: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 4px solid #f29d00; padding-bottom: 30px; margin-bottom: 40px; }
+        h1 { color: #1a1a1a; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.2em; font-weight: 300; }
+        .meta { display: flex; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+        h2 { color: #f29d00; font-size: 1.8em; margin-top: 50px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f29d00; }
+        h3 { color: #333; font-size: 1.3em; margin-top: 30px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        .feature-list li { padding-left: 10px; position: relative; }
+        .feature-list li:before { content: "✓"; color: #f29d00; font-weight: bold; position: absolute; left: -20px; }
+        .screenshot-placeholder { background: #f0f0f0; border: 2px dashed #ccc; padding: 60px 20px; text-align: center; margin: 30px 0; border-radius: 8px; }
+        .screenshot-placeholder p { color: #999; font-style: italic; }
+        .callout { background: #fff8e6; border-left: 4px solid #f29d00; padding: 20px; margin: 25px 0; }
+        .callout h4 { color: #f29d00; margin-bottom: 10px; }
+        .ai-section { background: #f0f8ff; border-left: 4px solid #4a90e2; padding: 30px; margin: 30px 0; }
+        .ai-section h3 { color: #4a90e2; }
+        .workflow { background: #f9f9f9; padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .workflow-step { display: flex; align-items: start; margin: 15px 0; }
+        .step-number { background: #f29d00; color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; margin-right: 15px; flex-shrink: 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f29d00; color: white; font-weight: 600; }
+        .page-break { page-break-after: always; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; padding: 20px; } .page-break { page-break-after: always; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Hotel Manager Dashboard</h1>
+            <p class="subtitle">Functional Specifications & AI Transformation Opportunities</p>
+            <div class="meta">
+                <div><strong>Project:</strong> Hyena Network Monitoring Platform</div>
+                <div><strong>Interface:</strong> Hotel Manager Dashboard</div>
+                <div><strong>Version:</strong> 1.0 (Prototype)</div>
+                <div><strong>Date:</strong> November 2025</div>
+            </div>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>
+            The Hotel Manager Dashboard is a white-labeled operational command center designed for property managers to monitor, manage, and resolve connectivity incidents at their hotel. This interface provides real-time visibility into network health, incident status, and resolution progress, enabling managers to maintain exceptional guest experience while optimizing technician resources.
+        </p>
+        
+        <div class="callout">
+            <h4>Business Value</h4>
+            <p>
+                By centralizing incident management and providing actionable analytics, hotel managers can proactively address connectivity issues before they escalate, reduce guest complaints, and make data-driven decisions about network infrastructure investments. The dashboard transforms reactive firefighting into strategic operational management.
+            </p>
+        </div>
+
+        <h2>Core Functionality</h2>
+        
+        <h3>1. Dashboard Overview</h3>
+        <p>
+            The main dashboard provides at-a-glance visibility into current property network health and incident status through interactive summary metrics.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Active Incidents Counter:</strong> Real-time count of all open incidents requiring action</li>
+            <li><strong>Critical Issues Alert:</strong> Highlighted counter showing high-priority incidents demanding immediate attention</li>
+            <li><strong>Average Response Time:</strong> Property-level metric tracking time from incident report to technician assignment</li>
+            <li><strong>Resolution Rate:</strong> Percentage of incidents resolved within target SLA timeframes</li>
+            <li><strong>Interactive Metrics:</strong> Click any summary card to filter incident queue to that specific category</li>
+            <li><strong>7-Day Trend Analysis:</strong> Visual graph showing incident volume patterns over the past week</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Hotel Manager Dashboard Overview</p>
+            <p>(Summary metrics cards showing Active Incidents, Critical Issues, Avg Response Time, Resolution Rate)</p>
+        </div>
+
+        <h3>2. Incident Queue Management</h3>
+        <p>
+            Comprehensive incident listing with powerful filtering, sorting, and bulk action capabilities for efficient incident triage and assignment.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Multi-Dimensional Filtering:</strong> Filter by status (New, Assigned, In Progress, On Hold, Resolved), priority (Critical, High, Medium, Low), category</li>
+            <li><strong>Real-Time Status:</strong> Live updates as incidents are created, assigned, updated, or resolved</li>
+            <li><strong>Priority-Based Sorting:</strong> Automatic highlighting of critical and high-priority incidents</li>
+            <li><strong>Quick Actions:</strong> One-click access to assign technician, change priority, or view full incident details</li>
+            <li><strong>Bulk Operations:</strong> Select multiple incidents for batch assignment or priority updates</li>
+            <li><strong>Search & Filter:</strong> Quickly locate specific incidents by guest name, room number, or issue description</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Incident Queue View</p>
+            <p>(Filtered list of incidents with status badges, priority indicators, and action buttons)</p>
+        </div>
+
+        <h3>3. Incident Detail & Action Management</h3>
+        <p>
+            Detailed incident view providing complete context and comprehensive action options for effective incident resolution.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Complete Incident Context:</strong> Guest information, room location, issue description, category, priority, timestamps</li>
+            <li><strong>Activity Timeline:</strong> Chronological log of all actions taken, status changes, and technician updates with comments</li>
+            <li><strong>Technician Assignment:</strong> Assign initial technician or reassign to different team member</li>
+            <li><strong>Priority Management:</strong> Escalate or de-escalate incident priority based on changing circumstances</li>
+            <li><strong>Status Actions:</strong>
+                <ul>
+                    <li>Put On Hold - Temporarily suspend work with resume date and reason</li>
+                    <li>Request Information - Ask guest for additional details</li>
+                    <li>Mark as Resolved - Close completed incidents</li>
+                    <li>Cancel Incident - Close false reports or duplicates</li>
+                </ul>
+            </li>
+            <li><strong>Comment System:</strong> Add internal notes and updates to incident timeline for team collaboration</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Incident Detail Panel</p>
+            <p>(Side panel showing incident details, timeline, and action buttons)</p>
+        </div>
+
+        <h3>4. Analytics & Reporting</h3>
+        <p>
+            Property-specific performance metrics and trend analysis to support data-driven operational decisions.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>7-Day Incident Trends:</strong> Line chart showing daily incident volume to identify patterns</li>
+            <li><strong>Category Breakdown:</strong> Distribution of incidents by type (WiFi, Streaming, Device Connectivity) to identify problem areas</li>
+            <li><strong>Performance KPIs:</strong> Average resolution time, first-time fix rate, technician utilization</li>
+            <li><strong>Property-Specific Focus:</strong> All metrics scoped to single property for focused management</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Analytics View</p>
+            <p>(Charts showing incident trends and category breakdown)</p>
+        </div>
+
+        <h3>5. Network Status Awareness</h3>
+        <p>
+            Real-time visibility into external factors affecting network performance, particularly critical for South African context.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Load Shedding Alerts:</strong> Integration with Eskom API to display current and upcoming load shedding schedules</li>
+            <li><strong>ISP Status:</strong> Alerts for known ISP outages or degradation affecting property connectivity</li>
+            <li><strong>Weather Impact:</strong> Severe weather warnings that may impact network infrastructure</li>
+            <li><strong>Proactive Communication:</strong> Pre-emptive guest notifications about anticipated service disruptions</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <h2>User Workflows</h2>
+
+        <h3>Workflow 1: Morning Operational Review</h3>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Login to Dashboard</strong><br>
+                    Manager accesses Hotel Manager Dashboard at start of shift
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Review Summary Metrics</strong><br>
+                    Check overnight incident volume, critical issues, resolution performance
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Address Critical Items</strong><br>
+                    Click "Critical Issues" card to view high-priority incidents needing immediate attention
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Assign Resources</strong><br>
+                    Assign technicians to unassigned critical incidents based on availability and expertise
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Check External Factors</strong><br>
+                    Review load shedding schedule and ISP status for potential impact planning
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">6</div>
+                <div>
+                    <strong>Review Trends</strong><br>
+                    Analyze 7-day trend graph to identify emerging patterns or recurring issues
+                </div>
+            </div>
+        </div>
+
+        <h3>Workflow 2: Responding to New Critical Incident</h3>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Real-Time Alert</strong><br>
+                    Dashboard notification counter updates with new critical incident
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>View Incident Details</strong><br>
+                    Click incident in queue to open detail panel with full context
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Assess Situation</strong><br>
+                    Review guest information, issue description, affected room/area, impact scope
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Assign Technician</strong><br>
+                    Open "Assign Technician" dialog, select appropriate technician based on location/expertise
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Add Context Note</strong><br>
+                    Use comment system to add internal note with priority instructions or guest sensitivities
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">6</div>
+                <div>
+                    <strong>Monitor Progress</strong><br>
+                    Watch activity timeline for technician updates and status changes
+                </div>
+            </div>
+        </div>
+
+        <h3>Workflow 3: Incident Escalation Management</h3>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Identify Stalled Incident</strong><br>
+                    Notice incident has been "In Progress" for extended period without resolution
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Review Timeline</strong><br>
+                    Check activity log to understand what troubleshooting has been attempted
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Change Priority</strong><br>
+                    Use "Change Priority" action to escalate from Medium to High or Critical
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Reassign or Add Resources</strong><br>
+                    Either reassign to senior technician or request additional help via comment
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Guest Communication</strong><br>
+                    Add "Request Information" update if need guest input, or proactively communicate status
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>Technical Features</h2>
+
+        <h3>White-Label Branding</h3>
+        <p>
+            Dashboard automatically displays organization-specific branding while maintaining consistent functionality across all branded instances.
+        </p>
+        <ul>
+            <li>Organization logo in navigation header</li>
+            <li>Custom color schemes matching brand guidelines</li>
+            <li>Property-specific context (name, location, contact info)</li>
+            <li>Branded export and print-friendly reports</li>
+        </ul>
+
+        <h3>Real-Time Data Synchronization</h3>
+        <p>
+            All incident data updates automatically across all connected dashboards without manual refresh, ensuring managers always have current information.
+        </p>
+
+        <h3>Role-Based Access Control</h3>
+        <p>
+            Property managers see only their assigned property's incidents and analytics, ensuring data isolation in multi-property organizations.
+        </p>
+
+        <h3>Comment & Collaboration System</h3>
+        <p>
+            New comment functionality allows managers to add internal notes to incident timelines for team collaboration and context preservation.
+        </p>
+        <ul>
+            <li>Timeline integration showing all comments chronologically</li>
+            <li>Actor attribution (who posted each comment)</li>
+            <li>Timestamp tracking for audit trail</li>
+            <li>Markdown support for formatted notes</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <div class="ai-section">
+            <h2>AI Transformation Opportunities</h2>
+            <p>
+                Artificial intelligence can transform the Hotel Manager Dashboard from a reactive monitoring tool into a proactive operational intelligence platform that predicts problems, automates routine decisions, and provides strategic insights.
+            </p>
+
+            <h3>1. Intelligent Incident Triage & Auto-Assignment</h3>
+            <p><strong>Current State:</strong> Manager manually reviews each new incident and assigns technician based on personal knowledge.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically categorizes, prioritizes, and assigns incidents to optimal technician.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Smart Categorization:</strong> NLP analyzes guest description to automatically tag incident category and affected systems</li>
+                <li><strong>Dynamic Priority Adjustment:</strong> ML considers guest tier (VIP/loyalty status), issue type, property occupancy, time of day to set optimal priority</li>
+                <li><strong>Intelligent Assignment:</strong> AI matches incidents to technicians based on:
+                    <ul>
+                        <li>Current workload and availability</li>
+                        <li>Historical expertise with similar issue types</li>
+                        <li>Physical proximity to affected room</li>
+                        <li>Past guest interaction success ratings</li>
+                    </ul>
+                </li>
+                <li><strong>Workload Balancing:</strong> Prevents technician burnout by distributing work evenly across team</li>
+                <li><strong>Override Capability:</strong> Manager retains ability to manually reassign if AI suggestion doesn't fit situational context</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Business Impact Example</h4>
+                <p>
+                    At 3 PM on a Friday, five incidents are reported simultaneously. AI instantly categorizes each, identifies that two are in the same wing and can be handled by one trip, assigns the VIP guest issue to the most experienced technician, and routes the simple TV streaming issue to available junior tech—all before the manager even sees the alerts.
+                </p>
+            </div>
+
+            <h3>2. Predictive Analytics & Trend Forecasting</h3>
+            <p><strong>Current State:</strong> Dashboard shows historical 7-day trends; manager interprets patterns manually.</p>
+            <p><strong>AI-Enhanced Future:</strong> System predicts future incident volumes and identifies emerging problems before they become critical.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Volume Forecasting:</strong> ML predicts incident levels for next 24-72 hours based on:
+                    <ul>
+                        <li>Historical patterns (weekday vs. weekend, seasonal variations)</li>
+                        <li>Property occupancy forecast</li>
+                        <li>Scheduled events (conferences, weddings, peak check-in times)</li>
+                        <li>External factors (weather, load shedding schedules)</li>
+                    </ul>
+                </li>
+                <li><strong>Anomaly Detection:</strong> AI alerts manager when incident rates deviate from expected patterns ("Unusual spike in WiFi issues in East Wing—possible access point failure")</li>
+                <li><strong>Root Cause Correlation:</strong> System identifies common factors across multiple incidents to reveal underlying infrastructure problems</li>
+                <li><strong>Seasonal Pattern Recognition:</strong> Learns multi-year patterns like "December holiday period sees 40% more streaming issues"</li>
+                <li><strong>Actionable Recommendations:</strong> "Based on forecast, consider scheduling additional technician coverage for Saturday afternoon"</li>
+            </ul>
+
+            <h3>3. Automated Status Updates & Guest Communication</h3>
+            <p><strong>Current State:</strong> Manager manually reviews incidents and decides when to update guests.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically generates and sends appropriate guest updates based on incident progress.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Smart Triggers:</strong> AI determines optimal times to communicate with guests (technician assigned, significant delay, issue resolved)</li>
+                <li><strong>Message Personalization:</strong> Generates guest-friendly updates tailored to incident severity and guest preferences</li>
+                <li><strong>Multi-Channel Delivery:</strong> Chooses optimal channel (SMS, email, in-app notification) based on guest profile</li>
+                <li><strong>Sentiment-Aware Tone:</strong> Adjusts communication style for frustrated guests vs. routine issues</li>
+                <li><strong>Proactive Apologies:</strong> Automatically offers compensation (meal voucher, late checkout) for critical delays based on established thresholds</li>
+            </ul>
+
+            <h3>4. Intelligent Dashboard Insights & Recommendations</h3>
+            <p><strong>Current State:</strong> Dashboard displays raw metrics; manager must interpret and decide actions.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI Assistant proactively surfaces insights and suggests specific operational actions.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Contextual Insights:</strong> "Critical incidents are up 60% this week—this correlates with load shedding in Sandton area"</li>
+                <li><strong>Performance Comparisons:</strong> "Your average resolution time is 15% better than other Protea properties this month"</li>
+                <li><strong>Proactive Alerts:</strong> "Room 305's WiFi has degraded 40% in past 2 hours—likely to generate guest complaint within next 30 minutes"</li>
+                <li><strong>Action Recommendations:</strong> "Consider pre-emptive technician dispatch to prevent complaint"</li>
+                <li><strong>Resource Optimization:</strong> "Your PM shift consistently has 3x more incidents than AM—recommend shifting one technician's schedule"</li>
+                <li><strong>Investment Guidance:</strong> "East Wing generates 70% of WiFi issues—ROI analysis suggests replacing access points would reduce incidents by 45%"</li>
+            </ul>
+
+            <h3>5. Predictive Maintenance Scheduling</h3>
+            <p><strong>Current State:</strong> Reactive response to reported failures; no proactive infrastructure maintenance.</p>
+            <p><strong>AI-Enhanced Future:</strong> System predicts equipment failures and schedules preventive maintenance before guest impact.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Equipment Health Monitoring:</strong> AI tracks access point performance, signal degradation, connection drop rates</li>
+                <li><strong>Failure Prediction:</strong> ML models predict "Access Point 3-East likely to fail within 7 days based on performance trends"</li>
+                <li><strong>Optimal Scheduling:</strong> Recommends maintenance during low-occupancy periods to minimize guest disruption</li>
+                <li><strong>Parts Inventory Management:</strong> Predicts which replacement parts will be needed and when</li>
+                <li><strong>Vendor Coordination:</strong> Automatically generates service requests for external ISP or infrastructure vendors</li>
+            </ul>
+
+            <h3>6. Natural Language Query Interface</h3>
+            <p><strong>Current State:</strong> Manager manually filters and sorts data to answer questions.</p>
+            <p><strong>AI-Enhanced Future:</strong> Manager asks questions in plain English; AI provides instant answers with supporting data.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Conversational Queries:</strong> "How many WiFi issues did we have last weekend?" → Instant chart and number</li>
+                <li><strong>Comparative Analysis:</strong> "Is this week worse than usual?" → AI compares to historical averages with statistical significance</li>
+                <li><strong>Root Cause Exploration:</strong> "Why are incidents increasing?" → AI provides multi-factor analysis</li>
+                <li><strong>Performance Questions:</strong> "Which technician resolves WiFi issues fastest?" → Ranked performance metrics</li>
+                <li><strong>Predictive Queries:</strong> "What should I expect tomorrow?" → Forecast with confidence intervals</li>
+                <li><strong>Report Generation:</strong> "Create executive summary for weekly management meeting" → Formatted report with key insights</li>
+            </ul>
+
+            <h3>7. Automated Incident Clustering & Pattern Recognition</h3>
+            <p><strong>Current State:</strong> Multiple related incidents treated as separate issues.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI identifies related incidents and reveals systemic problems requiring single fix.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Spatial Clustering:</strong> "Five WiFi issues in Rooms 301-308 in past hour → likely single access point failure"</li>
+                <li><strong>Temporal Patterns:</strong> "Streaming issues spike every evening 7-9 PM → bandwidth capacity problem"</li>
+                <li><strong>Category Correlation:</strong> "Guest reporting WiFi + TV streaming issues → likely ISP upstream problem, not property network"</li>
+                <li><strong>Automatic Grouping:</strong> System proposes merging related incidents or creating master ticket for systemic issue</li>
+                <li><strong>Impact Assessment:</strong> "This access point failure affects 24 rooms—recommend critical priority escalation"</li>
+            </ul>
+
+            <h3>8. Dynamic SLA & Resolution Target Management</h3>
+            <p><strong>Current State:</strong> Fixed resolution targets regardless of incident complexity or context.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI sets realistic, dynamic resolution targets based on incident specifics.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Complexity Assessment:</strong> AI estimates resolution time based on issue type, historical similar incidents, technician skill level</li>
+                <li><strong>Contextual Targets:</strong> Adjusts expectations for unusual incidents (severe weather, vendor dependency, supply chain delays)</li>
+                <li><strong>Guest Impact Weighting:</strong> Tighter SLAs for VIP guests or high-occupancy periods</li>
+                <li><strong>Proactive Escalation:</strong> Automatically escalates if incident risks missing dynamic SLA target</li>
+                <li><strong>Realistic Expectations:</strong> Communicates AI-generated ETA to guests instead of generic promises</li>
+            </ul>
+
+            <div class="page-break"></div>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>AI Capability</th>
+                        <th>Business Value</th>
+                        <th>Technical Requirements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1<br>(3-6 months)</strong></td>
+                        <td>
+                            • Smart categorization<br>
+                            • Automated priority setting<br>
+                            • Basic trend analysis
+                        </td>
+                        <td>
+                            • 50% reduction in manual triage time<br>
+                            • More consistent prioritization<br>
+                            • Faster incident assignment
+                        </td>
+                        <td>
+                            • NLP API integration<br>
+                            • Training data from historical incidents<br>
+                            • ML model for priority classification
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2<br>(6-12 months)</strong></td>
+                        <td>
+                            • Intelligent auto-assignment<br>
+                            • Predictive analytics<br>
+                            • Anomaly detection
+                        </td>
+                        <td>
+                            • Optimal technician utilization<br>
+                            • Proactive problem identification<br>
+                            • 30% faster average resolution
+                        </td>
+                        <td>
+                            • Technician performance tracking<br>
+                            • Real-time workload monitoring<br>
+                            • Time-series forecasting models
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3<br>(12-18 months)</strong></td>
+                        <td>
+                            • AI Assistant with NL queries<br>
+                            • Predictive maintenance<br>
+                            • Automated guest communication
+                        </td>
+                        <td>
+                            • Strategic operational insights<br>
+                            • 60% reduction in guest-facing failures<br>
+                            • Enhanced guest satisfaction
+                        </td>
+                        <td>
+                            • Advanced ML infrastructure<br>
+                            • Integration with network monitoring<br>
+                            • Multi-channel communication platform
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout">
+                <h4>South African Contextualization</h4>
+                <p>For maximum effectiveness in the South African hospitality market, AI systems should:</p>
+                <ul>
+                    <li><strong>Load Shedding Intelligence:</strong> ML models trained on Eskom schedules and historical impact patterns to predict connectivity issues</li>
+                    <li><strong>ISP Reliability Patterns:</strong> Learn and compensate for known reliability issues with local ISPs (Telkom, Vodacom, MTN, Rain)</li>
+                    <li><strong>Seasonal Tourism Patterns:</strong> Understand Cape Town summer season, Kruger safari peak periods, Durban holiday patterns</li>
+                    <li><strong>Multi-Language Support:</strong> NLP capabilities for English, Afrikaans, Zulu for both guest communication and technician notes</li>
+                    <li><strong>Regional Economic Factors:</strong> Adjust guest compensation recommendations based on local pricing and expectations</li>
+                    <li><strong>POPIA Compliance:</strong> All AI processing must comply with Protection of Personal Information Act data privacy requirements</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>Success Metrics</h2>
+        
+        <h3>Current State Metrics</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Current Target</th>
+                    <th>Measurement Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Average Response Time</td>
+                    <td>&lt; 15 minutes</td>
+                    <td>Time from incident creation to technician assignment</td>
+                </tr>
+                <tr>
+                    <td>Resolution Rate (within SLA)</td>
+                    <td>&gt; 85%</td>
+                    <td>Percentage of incidents resolved within target timeframe</td>
+                </tr>
+                <tr>
+                    <td>Critical Incident Escalation Time</td>
+                    <td>&lt; 5 minutes</td>
+                    <td>Time from critical incident report to manager action</td>
+                </tr>
+                <tr>
+                    <td>Guest Satisfaction (Resolved Issues)</td>
+                    <td>4.3+ / 5.0</td>
+                    <td>Post-resolution survey rating</td>
+                </tr>
+                <tr>
+                    <td>First-Time Fix Rate</td>
+                    <td>&gt; 75%</td>
+                    <td>Percentage of incidents resolved on first technician visit</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>AI-Enhanced Target Metrics</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>AI-Enhanced Target</th>
+                    <th>Improvement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Average Response Time</td>
+                    <td>&lt; 3 minutes</td>
+                    <td>-80% via instant auto-assignment</td>
+                </tr>
+                <tr>
+                    <td>Resolution Rate (within SLA)</td>
+                    <td>&gt; 95%</td>
+                    <td>+12% via predictive maintenance</td>
+                </tr>
+                <tr>
+                    <td>Proactive Issue Prevention</td>
+                    <td>40-50%</td>
+                    <td>New metric: incidents prevented before guest report</td>
+                </tr>
+                <tr>
+                    <td>Manager Time on Manual Triage</td>
+                    <td>-70%</td>
+                    <td>AI handles routine categorization and assignment</td>
+                </tr>
+                <tr>
+                    <td>First-Time Fix Rate</td>
+                    <td>&gt; 90%</td>
+                    <td>+20% via AI root cause diagnosis</td>
+                </tr>
+                <tr>
+                    <td>Guest Satisfaction</td>
+                    <td>4.7+ / 5.0</td>
+                    <td>+9% from faster response and proactive communication</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Conclusion</h2>
+        <p>
+            The Hotel Manager Dashboard provides property managers with the operational visibility and control tools needed to deliver exceptional network connectivity experiences for guests. By centralizing incident management, providing real-time status updates, and enabling rapid response to critical issues, the dashboard transforms network support from a reactive pain point into a proactive competitive advantage.
+        </p>
+        
+        <p>
+            The integration of AI capabilities represents a quantum leap in operational efficiency and guest satisfaction. Rather than spending time on manual triage and assignment, managers can focus on strategic oversight while AI handles routine decisions. Predictive analytics shifts the paradigm from firefighting to prevention, allowing hotels to fix problems before guests even notice them. Natural language querying and automated insights empower managers to make data-driven decisions without requiring deep technical expertise.
+        </p>
+
+        <p>
+            For South African hospitality properties facing unique challenges like load shedding and variable ISP reliability, AI-powered prediction and proactive communication become especially valuable—transforming external infrastructure problems from guest frustrations into transparently-managed service expectations.
+        </p>
+
+        <div class="callout">
+            <h4>Next Steps for AI Implementation</h4>
+            <ol>
+                <li><strong>Data Foundation:</strong> Begin comprehensive logging of all incident data, resolution patterns, technician performance, and guest outcomes to build training datasets</li>
+                <li><strong>Pilot Selection:</strong> Choose 1-2 high-volume properties for initial AI deployment to validate effectiveness and gather feedback</li>
+                <li><strong>Manager Training:</strong> Educate property managers on interpreting AI insights and understanding when to trust vs. override AI recommendations</li>
+                <li><strong>Success Metrics:</strong> Establish baseline measurements for all current metrics before AI implementation to quantify ROI</li>
+                <li><strong>Continuous Improvement:</strong> Implement feedback loops where manager corrections to AI decisions improve future model accuracy</li>
+            </ol>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #f29d00;">
+        
+        <div style="text-align: center; color: #999; font-size: 0.9em;">
+            <p><strong>Project Hyena</strong> - Network Monitoring Platform for Hospitality</p>
+            <p>Document Version 1.0 | November 2025</p>
+            <p style="margin-top: 20px;">This document is proprietary and confidential. Unauthorized distribution is prohibited.</p>
+        </div>
+    </div>
+</body>
+</html>

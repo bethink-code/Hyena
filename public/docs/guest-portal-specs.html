@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guest Portal - Functional Specifications | Project Hyena</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 60px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            border-bottom: 4px solid #f29d00;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.2em;
+            font-weight: 300;
+        }
+        
+        .meta {
+            display: flex;
+            gap: 30px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        h2 {
+            color: #f29d00;
+            font-size: 1.8em;
+            margin-top: 50px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f29d00;
+        }
+        
+        h3 {
+            color: #333;
+            font-size: 1.3em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+        
+        p {
+            margin-bottom: 15px;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        li {
+            margin-bottom: 10px;
+        }
+        
+        .feature-list li {
+            padding-left: 10px;
+            position: relative;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            color: #f29d00;
+            font-weight: bold;
+            position: absolute;
+            left: -20px;
+        }
+        
+        .screenshot-placeholder {
+            background: #f0f0f0;
+            border: 2px dashed #ccc;
+            padding: 60px 20px;
+            text-align: center;
+            margin: 30px 0;
+            border-radius: 8px;
+        }
+        
+        .screenshot-placeholder p {
+            color: #999;
+            font-style: italic;
+        }
+        
+        .callout {
+            background: #fff8e6;
+            border-left: 4px solid #f29d00;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        
+        .callout h4 {
+            color: #f29d00;
+            margin-bottom: 10px;
+        }
+        
+        .ai-section {
+            background: #f0f8ff;
+            border-left: 4px solid #4a90e2;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .ai-section h3 {
+            color: #4a90e2;
+        }
+        
+        .workflow {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .workflow-step {
+            display: flex;
+            align-items: start;
+            margin: 15px 0;
+        }
+        
+        .step-number {
+            background: #f29d00;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background: #f29d00;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .page-break {
+            page-break-after: always;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 20px;
+            }
+            
+            .page-break {
+                page-break-after: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Guest Portal</h1>
+            <p class="subtitle">Functional Specifications & AI Transformation Opportunities</p>
+            <div class="meta">
+                <div><strong>Project:</strong> Hyena Network Monitoring Platform</div>
+                <div><strong>Interface:</strong> Guest Portal</div>
+                <div><strong>Version:</strong> 1.0 (Prototype)</div>
+                <div><strong>Date:</strong> November 2025</div>
+            </div>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>
+            The Guest Portal is a white-labeled, guest-facing interface that empowers hotel guests to self-report connectivity issues, access troubleshooting guides, and track resolution progress without needing to contact reception. This interface transforms the traditional reactive support model into a transparent, self-service experience that improves guest satisfaction while reducing front-desk workload.
+        </p>
+        
+        <div class="callout">
+            <h4>Business Value</h4>
+            <p>
+                By providing guests with immediate access to issue reporting and status updates, hotels can significantly reduce support call volumes, improve perceived response times, and demonstrate transparency in issue resolution. The self-service model allows guests to feel empowered and informed throughout their stay.
+            </p>
+        </div>
+
+        <h2>Core Functionality</h2>
+        
+        <h3>1. Issue Reporting</h3>
+        <p>
+            Guests can report connectivity problems directly through an intuitive, mobile-optimized form. The system captures essential details while keeping the process simple and fast.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Simplified Issue Submission:</strong> Pre-categorized issue types (WiFi, TV streaming, device connectivity) minimize guest effort</li>
+            <li><strong>Location Auto-Detection:</strong> Room number and property information are pre-populated based on session context</li>
+            <li><strong>Priority Indicators:</strong> System automatically assigns priority based on issue category and affected services</li>
+            <li><strong>Confirmation & Ticket Number:</strong> Immediate confirmation with unique incident ID for tracking</li>
+            <li><strong>Multi-Device Support:</strong> Fully responsive design works seamlessly on phones, tablets, and in-room devices</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Issue Reporting Form</p>
+            <p>(Guest Portal main interface showing simplified issue submission form)</p>
+        </div>
+
+        <h3>2. Troubleshooting Guides</h3>
+        <p>
+            Before submitting an issue, guests can access guided troubleshooting steps that may resolve common problems instantly. This reduces unnecessary incident creation and empowers guests to solve simple issues independently.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Common Issues Library:</strong> Step-by-step guides for frequent problems (WiFi connection, streaming setup, device pairing)</li>
+            <li><strong>Visual Instructions:</strong> Clear, non-technical language with visual aids for maximum accessibility</li>
+            <li><strong>Quick Wins:</strong> Instant resolution for problems like password reset, network switching, or device reconnection</li>
+            <li><strong>Escalation Path:</strong> If troubleshooting doesn't resolve the issue, seamless transition to incident submission</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: Troubleshooting Guide Interface</p>
+            <p>(Self-service troubleshooting steps for common guest issues)</p>
+        </div>
+
+        <h3>3. My Issues Tracking</h3>
+        <p>
+            Guests can view real-time status of all their reported issues, including estimated resolution times and technician updates. This transparency reduces anxiety and support inquiries.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Real-Time Status Updates:</strong> Live incident status (New, In Progress, Resolved)</li>
+            <li><strong>Timeline Visibility:</strong> Activity log showing technician actions and progress updates</li>
+            <li><strong>Estimated Resolution:</strong> Clear communication of expected fix timeframes</li>
+            <li><strong>Issue History:</strong> All current and past issues for the guest's stay</li>
+            <li><strong>Resolution Confirmation:</strong> Notification when issue is marked as resolved</li>
+        </ul>
+
+        <div class="screenshot-placeholder">
+            <p>📸 Screenshot: My Issues Dashboard</p>
+            <p>(Guest view of their reported incidents with status and timeline)</p>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>User Workflows</h2>
+
+        <h3>Workflow 1: Reporting a New Issue</h3>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Guest Identifies Problem</strong><br>
+                    Guest experiences connectivity issue (e.g., WiFi not working)
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Access Guest Portal</strong><br>
+                    Guest opens portal via QR code, in-room tablet, or URL
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Select Issue Category</strong><br>
+                    Guest chooses from pre-defined categories (WiFi Connection, Streaming Issues, Device Pairing)
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Provide Details</strong><br>
+                    System pre-fills room/property info; guest adds brief description
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Submit & Receive Confirmation</strong><br>
+                    Immediate confirmation with incident ID and estimated resolution time
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">6</div>
+                <div>
+                    <strong>Track Progress</strong><br>
+                    Guest can check "My Issues" anytime to see current status and technician updates
+                </div>
+            </div>
+        </div>
+
+        <h3>Workflow 2: Self-Service Troubleshooting</h3>
+        <div class="workflow">
+            <div class="workflow-step">
+                <div class="step-number">1</div>
+                <div>
+                    <strong>Guest Encounters Issue</strong><br>
+                    Guest experiences problem but before reporting, checks troubleshooting guides
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">2</div>
+                <div>
+                    <strong>Browse Common Solutions</strong><br>
+                    Guest finds relevant guide (e.g., "WiFi Connection Problems")
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">3</div>
+                <div>
+                    <strong>Follow Steps</strong><br>
+                    Guest follows guided troubleshooting steps (restart device, forget/rejoin network, etc.)
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">4</div>
+                <div>
+                    <strong>Issue Resolved</strong><br>
+                    Problem fixed without creating incident ticket - instant satisfaction
+                </div>
+            </div>
+            <div class="workflow-step">
+                <div class="step-number">5</div>
+                <div>
+                    <strong>Alternative: Escalate if Needed</strong><br>
+                    If troubleshooting fails, direct path to submit incident from guide
+                </div>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>Technical Features</h2>
+
+        <h3>White-Label Branding</h3>
+        <p>
+            The Guest Portal dynamically adapts to match the hotel chain's brand identity, providing a seamless, branded experience that maintains brand consistency throughout the guest journey.
+        </p>
+        <ul>
+            <li>Organization-specific logo and color schemes</li>
+            <li>Customizable welcome messages and support information</li>
+            <li>Property-specific context (location, contact details)</li>
+            <li>Multi-language support (English, Afrikaans, Zulu)</li>
+        </ul>
+
+        <h3>Mobile-First Design</h3>
+        <p>
+            Recognizing that most guests use their smartphones, the portal is optimized for mobile devices with touch-friendly controls and minimal data usage.
+        </p>
+        <ul>
+            <li>Responsive layout adapts to phone, tablet, and desktop screens</li>
+            <li>Large, touch-friendly buttons and input fields</li>
+            <li>Optimized images and minimal bandwidth requirements</li>
+            <li>Works on any device without app installation</li>
+        </ul>
+
+        <h3>Real-Time Updates</h3>
+        <p>
+            Status changes are reflected immediately, ensuring guests always have current information about their reported issues.
+        </p>
+
+        <div class="page-break"></div>
+
+        <div class="ai-section">
+            <h2>AI Transformation Opportunities</h2>
+            <p>
+                By integrating artificial intelligence and machine learning capabilities, the Guest Portal can evolve from a reactive reporting system into a proactive, predictive support platform that anticipates and prevents guest issues before they occur.
+            </p>
+
+            <h3>1. Predictive Issue Detection</h3>
+            <p><strong>Current State:</strong> Guests manually report issues after they experience problems.</p>
+            <p><strong>AI-Enhanced Future:</strong> System predicts and alerts staff to potential issues before guests notice them.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Proactive Monitoring:</strong> AI analyzes network performance metrics in real-time to detect degradation patterns before they cause guest-facing failures</li>
+                <li><strong>Guest Behavior Analysis:</strong> ML models learn typical usage patterns (check-in time, streaming preferences, device count) and flag anomalies that might indicate hidden problems</li>
+                <li><strong>Environmental Correlation:</strong> AI connects external factors (weather, load shedding schedules, ISP outages) to predict impact on specific properties or rooms</li>
+                <li><strong>Pre-emptive Action:</strong> System automatically creates internal maintenance tickets before guest complaints occur</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Business Impact Example</h4>
+                <p>
+                    AI detects that Room 305's WiFi signal strength has dropped 40% over the past hour—still functional but trending toward failure. System alerts technicians to replace the access point during housekeeping, preventing a guest complaint that evening.
+                </p>
+            </div>
+
+            <h3>2. Intelligent Chatbot Support</h3>
+            <p><strong>Current State:</strong> Static troubleshooting guides and manual incident creation.</p>
+            <p><strong>AI-Enhanced Future:</strong> Conversational AI assistant provides personalized, real-time troubleshooting and support.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Natural Language Interaction:</strong> Guests describe problems in their own words; AI understands context and intent</li>
+                <li><strong>Guided Diagnostics:</strong> AI asks clarifying questions to narrow down root cause (device type, error messages, when problem started)</li>
+                <li><strong>Personalized Solutions:</strong> AI provides device-specific instructions based on guest's phone/laptop model</li>
+                <li><strong>Multi-Language Support:</strong> Real-time translation for South African languages (English, Afrikaans, Zulu, Xhosa)</li>
+                <li><strong>Escalation Intelligence:</strong> AI knows when human intervention is needed and seamlessly creates incident with all diagnostic context</li>
+                <li><strong>Learning Loop:</strong> Continuously improves responses based on resolution success rates</li>
+            </ul>
+
+            <h3>3. Automated Root Cause Analysis</h3>
+            <p><strong>Current State:</strong> Technicians manually investigate each incident to determine cause.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI instantly analyzes symptoms, correlates with system data, and suggests likely root cause.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Pattern Recognition:</strong> AI identifies common failure signatures (DHCP issues, DNS problems, access point overload)</li>
+                <li><strong>Historical Correlation:</strong> Compares current issue with thousands of past incidents to suggest most likely cause</li>
+                <li><strong>Infrastructure Awareness:</strong> AI has real-time visibility into network topology, device health, and configuration</li>
+                <li><strong>Diagnostic Recommendations:</strong> Suggests specific troubleshooting steps for technicians based on predicted root cause</li>
+            </ul>
+
+            <h3>4. Sentiment Analysis & Escalation</h3>
+            <p><strong>Current State:</strong> All incidents treated equally regardless of guest frustration level.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI detects guest emotion and automatically escalates critical situations.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Text Analysis:</strong> NLP detects frustration, urgency, or distress in guest-written descriptions</li>
+                <li><strong>Automatic Prioritization:</strong> High-emotion incidents automatically elevated to critical priority</li>
+                <li><strong>VIP Detection:</strong> Integration with hotel PMS to identify loyalty program members or high-value guests for priority handling</li>
+                <li><strong>Proactive Communication:</strong> AI triggers immediate notifications to management for at-risk guest situations</li>
+            </ul>
+
+            <h3>5. Predictive Troubleshooting</h3>
+            <p><strong>Current State:</strong> Generic troubleshooting guides for all guests.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI predicts exact issue and provides targeted solution instantly.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Context Awareness:</strong> AI knows guest's device type, operating system, browser, previous issues</li>
+                <li><strong>Smart Suggestions:</strong> "Based on your iPhone and our network logs, try these 3 steps..."</li>
+                <li><strong>Success Prediction:</strong> AI estimates probability each troubleshooting step will work for this specific scenario</li>
+                <li><strong>Adaptive Guidance:</strong> Adjusts recommendations in real-time based on guest's progress through steps</li>
+            </ul>
+
+            <h3>6. Automated Status Updates</h3>
+            <p><strong>Current State:</strong> Manual technician updates on incident timeline.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically generates natural-language status updates as work progresses.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Work Recognition:</strong> AI detects when technician actions occur (access point reboot, cable replacement, configuration change)</li>
+                <li><strong>Guest-Friendly Translation:</strong> Converts technical actions into clear guest communications ("Our team is upgrading your room's network equipment")</li>
+                <li><strong>Proactive Notifications:</strong> Automatically sends SMS/email when major milestones occur (technician assigned, technician en route, issue resolved)</li>
+                <li><strong>Completion Detection:</strong> AI verifies network performance has returned to normal before marking incident resolved</li>
+            </ul>
+
+            <h3>7. Guest Experience Personalization</h3>
+            <p><strong>Current State:</strong> Identical portal experience for all guests.</p>
+            <p><strong>AI-Enhanced Future:</strong> Portal adapts to individual guest preferences and history.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Returning Guest Recognition:</strong> AI remembers previous issues and prefers solutions that worked before</li>
+                <li><strong>Preference Learning:</strong> Adapts communication style (technical detail vs. simple explanations) based on guest responses</li>
+                <li><strong>Proactive Recommendations:</strong> Suggests WiFi band selection or device settings based on guest's usage patterns</li>
+                <li><strong>Issue Prevention:</strong> "We noticed you stream in 4K—we've already optimized your room's connection"</li>
+            </ul>
+
+            <div class="page-break"></div>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>AI Capability</th>
+                        <th>Business Value</th>
+                        <th>Technical Requirements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1<br>(3-6 months)</strong></td>
+                        <td>
+                            • Basic chatbot<br>
+                            • Sentiment analysis<br>
+                            • Automated categorization
+                        </td>
+                        <td>
+                            • 30-40% reduction in incident volume<br>
+                            • Faster initial triage<br>
+                            • Improved guest satisfaction
+                        </td>
+                        <td>
+                            • OpenAI/Anthropic API integration<br>
+                            • Training data collection<br>
+                            • Conversation flow design
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2<br>(6-12 months)</strong></td>
+                        <td>
+                            • Predictive issue detection<br>
+                            • Root cause analysis<br>
+                            • Personalized troubleshooting
+                        </td>
+                        <td>
+                            • 50-60% fewer guest-reported issues<br>
+                            • Proactive problem prevention<br>
+                            • Reduced technician time per incident
+                        </td>
+                        <td>
+                            • Real-time network monitoring<br>
+                            • ML model training infrastructure<br>
+                            • Historical data analysis
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3<br>(12-18 months)</strong></td>
+                        <td>
+                            • Full predictive platform<br>
+                            • Multi-language AI support<br>
+                            • Advanced personalization
+                        </td>
+                        <td>
+                            • 70-80% issue prevention rate<br>
+                            • Exceptional guest experience<br>
+                            • Competitive differentiation
+                        </td>
+                        <td>
+                            • Advanced ML pipelines<br>
+                            • Multi-model AI architecture<br>
+                            • Continuous learning systems
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="callout">
+                <h4>South African Contextualization</h4>
+                <p>For maximum effectiveness in the South African hospitality market, AI systems should:</p>
+                <ul>
+                    <li><strong>Load Shedding Intelligence:</strong> Integrate with Eskom API to predict and communicate power-related connectivity issues</li>
+                    <li><strong>ISP Awareness:</strong> Learn patterns of local ISP reliability (Telkom, Vodacom, Rain) to set accurate resolution expectations</li>
+                    <li><strong>Multi-Language Support:</strong> NLP models trained on South African English, Afrikaans, Zulu, and Xhosa</li>
+                    <li><strong>Cultural Sensitivity:</strong> Communication style adapted for South African hospitality norms and guest expectations</li>
+                    <li><strong>POPIA Compliance:</strong> All AI data processing must comply with Protection of Personal Information Act regulations</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <h2>Success Metrics</h2>
+        
+        <h3>Current State Metrics</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Current Target</th>
+                    <th>Measurement Method</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Self-Service Resolution Rate</td>
+                    <td>25-35%</td>
+                    <td>Issues resolved via troubleshooting guides without incident creation</td>
+                </tr>
+                <tr>
+                    <td>Average Time to Report Issue</td>
+                    <td>&lt; 2 minutes</td>
+                    <td>From portal access to incident submission</td>
+                </tr>
+                <tr>
+                    <td>Guest Portal Adoption</td>
+                    <td>60-70%</td>
+                    <td>Percentage of issues reported via portal vs. phone/front desk</td>
+                </tr>
+                <tr>
+                    <td>Guest Satisfaction Score</td>
+                    <td>4.2+ / 5.0</td>
+                    <td>Post-resolution satisfaction survey</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>AI-Enhanced Target Metrics</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>AI-Enhanced Target</th>
+                    <th>Improvement</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Self-Service Resolution Rate</td>
+                    <td>60-70%</td>
+                    <td>+100% improvement via intelligent chatbot</td>
+                </tr>
+                <tr>
+                    <td>Proactive Issue Prevention</td>
+                    <td>40-50%</td>
+                    <td>Issues resolved before guest report</td>
+                </tr>
+                <tr>
+                    <td>Average Time to Resolution</td>
+                    <td>-40%</td>
+                    <td>Faster diagnosis via AI root cause analysis</td>
+                </tr>
+                <tr>
+                    <td>Guest Satisfaction Score</td>
+                    <td>4.7+ / 5.0</td>
+                    <td>+12% improvement from proactive support</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Conclusion</h2>
+        <p>
+            The Guest Portal provides an essential foundation for modern, guest-centric hospitality technology support. By empowering guests with self-service tools and transparent issue tracking, hotels can significantly improve guest satisfaction while reducing operational overhead.
+        </p>
+        
+        <p>
+            The introduction of AI capabilities represents a transformative opportunity to shift from reactive to proactive support. Rather than waiting for guests to experience and report problems, AI-powered predictive monitoring can identify and resolve issues before they impact the guest experience. This evolution positions forward-thinking hotel chains as technology leaders in the hospitality industry, delivering exceptional service that anticipates guest needs rather than merely responding to complaints.
+        </p>
+
+        <div class="callout">
+            <h4>Next Steps</h4>
+            <p>
+                To move forward with AI integration, consider:
+            </p>
+            <ol>
+                <li><strong>Data Collection:</strong> Begin collecting and storing incident data, resolution patterns, and guest interaction logs to build training datasets</li>
+                <li><strong>Pilot Program:</strong> Select 2-3 properties for initial AI chatbot deployment to validate effectiveness and gather feedback</li>
+                <li><strong>ROI Analysis:</strong> Measure baseline metrics (incident volume, resolution time, guest satisfaction) to quantify AI impact</li>
+                <li><strong>Technology Partners:</strong> Evaluate AI platform vendors (OpenAI, Google Cloud AI, Azure AI) for South African market suitability</li>
+                <li><strong>Governance Framework:</strong> Establish POPIA-compliant data handling and AI ethics guidelines</li>
+            </ol>
+        </div>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #f29d00;">
+        
+        <div style="text-align: center; color: #999; font-size: 0.9em;">
+            <p><strong>Project Hyena</strong> - Network Monitoring Platform for Hospitality</p>
+            <p>Document Version 1.0 | November 2025</p>
+            <p style="margin-top: 20px;">This document is proprietary and confidential. Unauthorized distribution is prohibited.</p>
+        </div>
+    </div>
+</body>
+</html>

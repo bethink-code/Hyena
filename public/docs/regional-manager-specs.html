@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Regional Manager Dashboard - Functional Specifications | Project Hyena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        .container { background: white; padding: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 4px solid #f29d00; padding-bottom: 30px; margin-bottom: 40px; }
+        h1 { color: #1a1a1a; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.2em; font-weight: 300; }
+        .meta { display: flex; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+        h2 { color: #f29d00; font-size: 1.8em; margin-top: 50px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f29d00; }
+        h3 { color: #333; font-size: 1.3em; margin-top: 30px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        .feature-list li { padding-left: 10px; position: relative; }
+        .feature-list li:before { content: "✓"; color: #f29d00; font-weight: bold; position: absolute; left: -20px; }
+        .callout { background: #fff8e6; border-left: 4px solid #f29d00; padding: 20px; margin: 25px 0; }
+        .callout h4 { color: #f29d00; margin-bottom: 10px; }
+        .ai-section { background: #f0f8ff; border-left: 4px solid #4a90e2; padding: 30px; margin: 30px 0; }
+        .ai-section h3 { color: #4a90e2; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f29d00; color: white; font-weight: 600; }
+        .page-break { page-break-after: always; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Regional Manager Dashboard</h1>
+            <p class="subtitle">Functional Specifications & AI Transformation Opportunities</p>
+            <div class="meta">
+                <div><strong>Project:</strong> Hyena Network Monitoring Platform</div>
+                <div><strong>Interface:</strong> Regional Manager Dashboard</div>
+                <div><strong>Version:</strong> 1.0 (Prototype)</div>
+                <div><strong>Date:</strong> November 2025</div>
+            </div>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>
+            The Regional Manager Dashboard provides multi-property oversight for regional directors managing 3-15 hotels within a hotel chain organization. This strategic command center enables comparative performance analysis, resource optimization across properties, and identification of systemic issues affecting multiple locations.
+        </p>
+        
+        <div class="callout">
+            <h4>Business Value</h4>
+            <p>
+                By providing unified visibility across multiple properties, regional managers can identify best practices at top-performing hotels, detect systemic problems requiring organization-level intervention, and optimize technician resource allocation across their portfolio. The dashboard transforms fragmented property-level data into actionable regional intelligence.
+            </p>
+        </div>
+
+        <h2>Core Functionality</h2>
+        
+        <h3>1. Multi-Property Dashboard Overview</h3>
+        <p>
+            Aggregated metrics providing at-a-glance portfolio health assessment across all managed properties.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Portfolio-Wide Metrics:</strong> Total active incidents, critical issues, average response time, resolution rate across all properties</li>
+            <li><strong>Property Comparison Cards:</strong> Individual property status with incident counts and health indicators</li>
+            <li><strong>Drill-Down Capability:</strong> Click any property card to filter all data to that specific hotel</li>
+            <li><strong>Alert Prioritization:</strong> Properties requiring immediate attention highlighted visually</li>
+            <li><strong>Trend Indicators:</strong> Week-over-week change indicators showing improving or deteriorating properties</li>
+        </ul>
+
+        <h3>2. Comparative Property Analytics</h3>
+        <p>
+            Side-by-side performance metrics enabling identification of best performers and underperformers for strategic intervention.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Performance Ranking:</strong> Properties ranked by resolution rate, response time, guest satisfaction</li>
+            <li><strong>Incident Volume Comparison:</strong> Bar charts comparing incident rates normalized by property size/occupancy</li>
+            <li><strong>Technician Efficiency:</strong> Compare average resolution times across properties to identify training needs</li>
+            <li><strong>Category Breakdown:</strong> Identify if specific issue types (WiFi, streaming) are property-specific or region-wide</li>
+            <li><strong>Seasonal Pattern Analysis:</strong> Year-over-year comparisons showing tourism seasonality impact</li>
+        </ul>
+
+        <h3>3. Unified Incident Queue</h3>
+        <p>
+            Consolidated view of all incidents across portfolio with powerful multi-property filtering.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>All-Property View:</strong> See every active incident across entire region in single queue</li>
+            <li><strong>Property Filtering:</strong> Quickly filter to specific hotel or subset of properties</li>
+            <li><strong>Cross-Property Patterns:</strong> Identify systemic issues affecting multiple locations simultaneously</li>
+            <li><strong>Priority-Based Triage:</strong> Focus on critical incidents regardless of which property</li>
+            <li><strong>Bulk Actions:</strong> Coordinate responses across multiple properties for common issues</li>
+        </ul>
+
+        <h3>4. Resource Allocation Oversight</h3>
+        <p>
+            Regional view of technician deployment and workload distribution for optimization opportunities.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Technician Capacity View:</strong> See which properties are over/under-staffed</li>
+            <li><strong>Workload Balancing:</strong> Identify opportunities to reassign technicians between nearby properties</li>
+            <li><strong>Coverage Gaps:</strong> Detect properties without adequate technician coverage during peak periods</li>
+            <li><strong>Cross-Property Deployment:</strong> Coordinate multi-property technician assignments for efficiency</li>
+        </ul>
+
+        <div class="page-break"></div>
+
+        <div class="ai-section">
+            <h2>AI Transformation Opportunities</h2>
+            <p>
+                AI can elevate the Regional Manager Dashboard from reactive portfolio monitoring to proactive strategic management platform that optimizes resources, predicts problems, and identifies growth opportunities across the entire property portfolio.
+            </p>
+
+            <h3>1. Cross-Property Pattern Recognition & Root Cause Analysis</h3>
+            <p><strong>Current State:</strong> Regional manager manually compares metrics across properties to identify patterns.</p>
+            <p><strong>AI-Enhanced Future:</strong> Machine learning automatically detects correlated issues and reveals systemic root causes.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Multi-Property Correlation:</strong> AI identifies when multiple properties experience same issue type simultaneously (e.g., "5 Gauteng properties all reporting WiFi degradation - likely ISP backbone issue")</li>
+                <li><strong>Infrastructure Pattern Detection:</strong> Recognizes when issues are vendor-specific (e.g., "All properties using Vendor X access points have 3x higher failure rate")</li>
+                <li><strong>Geographic Correlation:</strong> Links incidents to external factors (load shedding zones, ISP regional outages, weather events)</li>
+                <li><strong>Temporal Clustering:</strong> Identifies organization-wide patterns (e.g., "All properties see streaming spike during major sporting events")</li>
+                <li><strong>Root Cause Recommendations:</strong> Suggests organization-level solutions vs. property-specific fixes</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Business Impact Example</h4>
+                <p>
+                    AI detects that six coastal properties (Cape Town, Durban, Port Elizabeth) all experience 40% increase in WiFi issues during summer months, while inland properties are stable. Analysis reveals salt air corrosion pattern on equipment. Regional manager initiates preventive replacement program saving R2M in emergency repairs and guest compensation.
+                </p>
+            </div>
+
+            <h3>2. Predictive Resource Optimization</h3>
+            <p><strong>Current State:</strong> Fixed technician assignments; reactive reallocation when problems occur.</p>
+            <p><strong>AI-Enhanced Future:</strong> Dynamic resource allocation predictions optimize staffing across portfolio.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Demand Forecasting:</strong> ML predicts which properties will need additional technician capacity 24-72 hours ahead based on:
+                    <ul>
+                        <li>Historical incident patterns</li>
+                        <li>Occupancy forecasts from PMS integration</li>
+                        <li>Scheduled events (conferences, weddings)</li>
+                        <li>External factors (load shedding schedules, weather forecasts)</li>
+                    </ul>
+                </li>
+                <li><strong>Optimal Deployment Recommendations:</strong> "Move 1 technician from Cape Town CBD to Sandton on Friday-Sunday to handle predicted conference demand"</li>
+                <li><strong>Skills-Based Routing:</strong> AI identifies which specialized expertise is needed where (e.g., "V-Waterfront property needs ISP integration specialist for fiber upgrade")</li>
+                <li><strong>Geographic Optimization:</strong> Suggests permanent redeployment when incident patterns show sustained imbalance</li>
+                <li><strong>Cost-Benefit Analysis:</strong> Quantifies ROI of hiring additional technician vs. accepting current SLA performance</li>
+            </ul>
+
+            <h3>3. Best Practice Identification & Knowledge Transfer</h3>
+            <p><strong>Current State:</strong> Regional manager manually observes which properties perform well and tries to replicate success.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically identifies and propagates successful strategies across portfolio.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Performance Driver Analysis:</strong> AI determines WHY top properties outperform (specific troubleshooting approaches, technician training, infrastructure choices)</li>
+                <li><strong>Automated Playbook Generation:</strong> System documents successful resolution patterns and recommends adoption at other properties</li>
+                <li><strong>Training Recommendations:</strong> Identifies skill gaps (e.g., "Technicians at Sandton property resolve WiFi issues 40% faster - recommend training other regions on their diagnostic process")</li>
+                <li><strong>Infrastructure Standardization:</strong> Suggests hardware/vendor standardization based on observed performance differences</li>
+                <li><strong>Knowledge Base Enrichment:</strong> Automatically creates troubleshooting guides from successful resolutions at high-performing properties</li>
+            </ul>
+
+            <h3>4. Strategic Investment Intelligence</h3>
+            <p><strong>Current State:</strong> Capital expenditure decisions based on complaint volume and manager intuition.</p>
+            <p><strong>AI-Enhanced Future:</strong> Data-driven ROI analysis for infrastructure investments across portfolio.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Infrastructure Upgrade Prioritization:</strong> AI ranks properties by incident ROI ("Replacing WiFi equipment at Umhlanga property would prevent estimated R450K/year in guest compensation and lost bookings")</li>
+                <li><strong>Vendor Performance Analysis:</strong> Compares incident rates across different equipment vendors to inform purchasing decisions</li>
+                <li><strong>Capacity Planning:</strong> Predicts which properties will require bandwidth/infrastructure upgrades based on growth trends</li>
+                <li><strong>Competitive Benchmarking:</strong> Compares portfolio performance against industry standards to identify investment gaps</li>
+                <li><strong>Risk Assessment:</strong> Quantifies reputational risk of current incident levels at each property</li>
+            </ul>
+
+            <h3>5. Automated Executive Reporting</h3>
+            <p><strong>Current State:</strong> Regional manager manually compiles weekly/monthly reports for executive leadership.</p>
+            <p><strong>AI-Enhanced Future:</strong> System auto-generates executive summaries with key insights and recommendations.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Natural Language Summaries:</strong> AI converts data into plain-English insights ("Regional incident volume decreased 15% this month driven by infrastructure upgrades at 3 coastal properties")</li>
+                <li><strong>Anomaly Highlighting:</strong> Automatically surfaces unusual patterns requiring executive attention</li>
+                <li><strong>Trend Narratives:</strong> Explains performance changes with causal analysis</li>
+                <li><strong>Recommendation Prioritization:</strong> Ranks action items by potential business impact</li>
+                <li><strong>Competitive Positioning:</strong> Contextualizes performance relative to industry benchmarks</li>
+                <li><strong>Automated Distribution:</strong> Scheduled delivery to stakeholders with role-specific customization</li>
+            </ul>
+
+            <h3>6. Predictive Property Health Scoring</h3>
+            <p><strong>Current State:</strong> Properties categorized as healthy/degraded/critical based on current incident count.</p>
+            <p><strong>AI-Enhanced Future:</strong> Predictive health score forecasts which properties will require intervention.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Leading Indicators:</strong> AI identifies early warning signs before incident volumes spike (e.g., gradual increase in resolution time, uptick in guest reopening tickets)</li>
+                <li><strong>Property Trajectory Prediction:</strong> "Cape Town CBD property trending toward degraded status within 30 days based on infrastructure aging patterns"</li>
+                <li><strong>Preventive Intervention Alerts:</strong> Recommends proactive actions before property health deteriorates to guest-visible level</li>
+                <li><strong>Seasonal Adjustment:</strong> Health scores account for expected seasonal variation vs. true performance decline</li>
+                <li><strong>Comparative Risk Ranking:</strong> Prioritizes which properties need immediate vs. scheduled attention</li>
+            </ul>
+
+            <h3>7. Multi-Property Incident Orchestration</h3>
+            <p><strong>Current State:</strong> Systemic issues require individual incident creation and management at each affected property.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically coordinates response to organization-wide problems.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Systemic Issue Detection:</strong> AI recognizes when incident is affecting multiple properties from common cause</li>
+                <li><strong>Automated Grouping:</strong> Creates master incident linking all related property-specific tickets</li>
+                <li><strong>Unified Communication:</strong> Single resolution update propagates to all affected properties' guests</li>
+                <li><strong>Coordinated Escalation:</strong> Automatically engages vendor or ISP for organization-wide issues</li>
+                <li><strong>Impact Quantification:</strong> Calculates total guest impact across portfolio to prioritize organization vs. property response</li>
+            </ul>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>AI Capability</th>
+                        <th>Business Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1<br>(3-6 months)</strong></td>
+                        <td>• Cross-property pattern recognition<br>• Basic resource optimization<br>• Automated reporting</td>
+                        <td>• Identify systemic issues 60% faster<br>• Reduce manual reporting time 80%<br>• Optimize technician deployment</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2<br>(6-12 months)</strong></td>
+                        <td>• Predictive resource allocation<br>• Best practice transfer<br>• Investment intelligence</td>
+                        <td>• 30% improvement in resource utilization<br>• Knowledge sharing across portfolio<br>• Data-driven CapEx decisions</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3<br>(12-18 months)</strong></td>
+                        <td>• Predictive health scoring<br>• Multi-property orchestration<br>• Strategic forecasting</td>
+                        <td>• Prevent 50% of property degradation<br>• Coordinate organization-wide responses<br>• Competitive market intelligence</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Conclusion</h2>
+        <p>
+            The Regional Manager Dashboard transforms fragmented property-level data into actionable regional intelligence, enabling strategic resource optimization and proactive problem prevention across hotel portfolios. AI integration elevates this from reactive monitoring to predictive strategic management, delivering significant competitive advantage in operational efficiency and guest satisfaction.
+        </p>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #f29d00;">
+        
+        <div style="text-align: center; color: #999; font-size: 0.9em;">
+            <p><strong>Project Hyena</strong> - Network Monitoring Platform for Hospitality</p>
+            <p>Document Version 1.0 | November 2025</p>
+        </div>
+    </div>
+</body>
+</html>

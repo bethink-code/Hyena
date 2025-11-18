@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Center - Functional Specifications | Project Hyena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        .container { background: white; padding: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 4px solid #f29d00; padding-bottom: 30px; margin-bottom: 40px; }
+        h1 { color: #1a1a1a; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.2em; font-weight: 300; }
+        .meta { display: flex; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+        h2 { color: #f29d00; font-size: 1.8em; margin-top: 50px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f29d00; }
+        h3 { color: #333; font-size: 1.3em; margin-top: 30px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        .feature-list li { padding-left: 10px; position: relative; }
+        .feature-list li:before { content: "✓"; color: #f29d00; font-weight: bold; position: absolute; left: -20px; }
+        .callout { background: #fff8e6; border-left: 4px solid #f29d00; padding: 20px; margin: 25px 0; }
+        .callout h4 { color: #f29d00; margin-bottom: 10px; }
+        .ai-section { background: #f0f8ff; border-left: 4px solid #4a90e2; padding: 30px; margin: 30px 0; }
+        .ai-section h3 { color: #4a90e2; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f29d00; color: white; font-weight: 600; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Center</h1>
+            <p class="subtitle">Functional Specifications & AI Transformation Opportunities</p>
+            <div class="meta">
+                <div><strong>Project:</strong> Hyena Network Monitoring Platform</div>
+                <div><strong>Interface:</strong> Admin Center</div>
+                <div><strong>Version:</strong> 1.0 (Prototype)</div>
+                <div><strong>Date:</strong> November 2025</div>
+            </div>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>
+            The Admin Center is the platform-wide administration interface for Hyena platform operators. This master control panel enables organization management, user administration, property oversight, system configuration, and platform-level analytics across all hotel chains using the Hyena platform.
+        </p>
+        
+        <div class="callout">
+            <h4>Business Value</h4>
+            <p>
+                By providing centralized control over multi-tenant white-labeled deployments, the Admin Center enables Hyena platform operators to efficiently onboard new hotel chains, manage user access across organizations, maintain brand customizations, and monitor platform health—all from a single unified interface.
+            </p>
+        </div>
+
+        <h2>Core Functionality</h2>
+        
+        <h3>1. Organization Management</h3>
+        <p>
+            Complete CRUD operations for hotel chain organizations using the platform.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Organization Registry:</strong> Master list of all hotel chains (Protea Hotels, City Lodge, etc.)</li>
+            <li><strong>Branding Configuration:</strong> Upload organization logos, set color schemes, customize themes</li>
+            <li><strong>Contact Management:</strong> Primary contacts, billing information, support escalation paths</li>
+            <li><strong>Regional Settings:</strong> Timezone, language preferences, currency, localization (SA-specific)</li>
+            <li><strong>Subscription Management:</strong> Plan tiers, property limits, feature access control</li>
+            <li><strong>Property Portfolio View:</strong> All hotels within each organization with health status</li>
+        </ul>
+
+        <h3>2. Property Management</h3>
+        <p>
+            Configure and monitor individual hotel properties across all organizations.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Property Configuration:</strong> Hotel name, location, contact details, capacity metrics</li>
+            <li><strong>Network Infrastructure:</strong> ISP details, bandwidth capacity, access point inventory</li>
+            <li><strong>Staff Assignment:</strong> Link property managers, regional managers, technicians to properties</li>
+            <li><strong>Performance Monitoring:</strong> Real-time incident volumes, resolution metrics, guest satisfaction</li>
+            <li><strong>Multi-Tenant Isolation:</strong> Ensure data separation between competing hotel chains</li>
+        </ul>
+
+        <h3>3. User Administration</h3>
+        <p>
+            Platform-wide user management with role-based access control.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Platform Users:</strong> Hyena super users, platform managers, technicians (cross-organization)</li>
+            <li><strong>Organization Users:</strong> Property managers, regional managers (scoped to specific hotel chain)</li>
+            <li><strong>Role Assignment:</strong> Super user, Hyena manager, Hyena user, technician, regional manager, property manager</li>
+            <li><strong>Access Control:</strong> Define which users can access which organizations and properties</li>
+            <li><strong>Activity Auditing:</strong> Track user logins, actions, data access for security compliance</li>
+            <li><strong>Bulk Operations:</strong> Mass user creation for new organization onboarding</li>
+        </ul>
+
+        <h3>4. Platform-Level Incident Management</h3>
+        <p>
+            Cross-organization incident visibility and emergency intervention capabilities.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>All-Organization View:</strong> Every active incident across entire platform</li>
+            <li><strong>Organization Filtering:</strong> Filter to specific hotel chain or property</li>
+            <li><strong>System-Wide Patterns:</strong> Identify issues affecting multiple organizations</li>
+            <li><strong>Emergency Intervention:</strong> Hyena staff can assign/reassign incidents across organization boundaries</li>
+            <li><strong>Escalation Management:</strong> Handle complex issues requiring Hyena platform expertise</li>
+        </ul>
+
+        <h3>5. Analytics & Reporting</h3>
+        <p>
+            Platform-wide performance metrics and business intelligence for strategic planning.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Platform Health Metrics:</strong> Total active incidents, average resolution times, customer satisfaction across all organizations</li>
+            <li><strong>Organization Comparison:</strong> Benchmark performance between different hotel chains</li>
+            <li><strong>Growth Metrics:</strong> User adoption rates, incident volumes over time, feature utilization</li>
+            <li><strong>SLA Compliance:</strong> Track service level agreement adherence for each organization</li>
+            <li><strong>Revenue Analytics:</strong> Organization subscription values, growth trends, churn risk indicators</li>
+        </ul>
+
+        <div class="ai-section">
+            <h2>AI Transformation Opportunities</h2>
+            <p>
+                AI can transform the Admin Center from a manual configuration and monitoring tool into an intelligent platform operations assistant that automates onboarding, predicts scaling needs, and provides strategic business intelligence.
+            </p>
+
+            <h3>1. Automated Organization Onboarding</h3>
+            <p><strong>Current State:</strong> Manual setup of new hotel chains with configuration wizards.</p>
+            <p><strong>AI-Enhanced Future:</strong> Intelligent onboarding assistant that learns from past deployments and automates setup.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Smart Configuration:</strong> AI suggests optimal settings based on organization size, region, property types</li>
+                <li><strong>Automated User Provisioning:</strong> Creates user accounts and assigns roles based on organizational structure</li>
+                <li><strong>Branding Auto-Detection:</strong> Extracts colors and styles from uploaded logo to auto-generate theme</li>
+                <li><strong>Property Import Intelligence:</strong> Parses provided property lists to auto-create hotel records</li>
+                <li><strong>Network Discovery:</strong> Automatically detects and catalogs network infrastructure at new properties</li>
+                <li><strong>Best Practice Application:</strong> Applies lessons learned from successful past deployments</li>
+            </ul>
+
+            <h3>2. Predictive Capacity Planning</h3>
+            <p><strong>Current State:</strong> Reactive response when organizations outgrow current infrastructure or subscription limits.</p>
+            <p><strong>AI-Enhanced Future:</strong> Proactive forecasting of infrastructure and scaling needs.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Growth Forecasting:</strong> Predicts when organizations will need additional properties, users, or features</li>
+                <li><strong>Infrastructure Sizing:</strong> Recommends optimal infrastructure based on expected incident volumes</li>
+                <li><strong>Resource Allocation:</strong> Suggests technician staffing levels for new property openings</li>
+                <li><strong>Upsell Opportunities:</strong> Identifies organizations ready for premium features or additional properties</li>
+                <li><strong>Churn Risk Detection:</strong> Flags organizations with declining engagement or satisfaction for proactive retention</li>
+            </ul>
+
+            <h3>3. Intelligent Anomaly Detection</h3>
+            <p><strong>Current State:</strong> Admin reviews metrics manually to identify unusual patterns.</p>
+            <p><strong>AI-Enhanced Future:</strong> Automated detection of platform-wide anomalies and potential issues.</p>
+            
+            <ul class="feature-list">
+                <li><strong>System Health Monitoring:</strong> Detects unusual incident patterns that may indicate platform bugs</li>
+                <li><strong>Security Threat Detection:</strong> Identifies suspicious user activity, unauthorized access attempts, data breaches</li>
+                <li><strong>Performance Degradation Alerts:</strong> Warns when response times or resolution rates deviate from normal</li>
+                <li><strong>Multi-Organization Correlation:</strong> Identifies when issues affect multiple hotel chains simultaneously</li>
+                <li><strong>Automated Escalation:</strong> Routes critical platform issues to appropriate Hyena engineers</li>
+            </ul>
+
+            <h3>4. AI-Powered Business Intelligence</h3>
+            <p><strong>Current State:</strong> Static reports showing historical platform metrics.</p>
+            <p><strong>AI-Enhanced Future:</strong> Conversational BI assistant providing natural language insights and predictions.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Natural Language Queries:</strong> "Which organizations have highest incident rates this month?" → Instant ranked list</li>
+                <li><strong>Predictive Analytics:</strong> "What will Q4 incident volume look like?" → Forecast with confidence intervals</li>
+                <li><strong>Root Cause Analysis:</strong> "Why is Organization X underperforming?" → Multi-factor analysis</li>
+                <li><strong>Competitive Intelligence:</strong> "How do we compare to industry benchmarks?" → Market positioning insights</li>
+                <li><strong>Automated Reporting:</strong> Generate executive summaries, board presentations, investor updates on demand</li>
+            </ul>
+
+            <h3>5. Smart User Management & Access Control</h3>
+            <p><strong>Current State:</strong> Manual role assignment and access provisioning.</p>
+            <p><strong>AI-Enhanced Future:</strong> Intelligent role suggestions and automated access lifecycle management.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Role Recommendation:</strong> AI suggests appropriate roles based on job title, organizational position, responsibilities</li>
+                <li><strong>Access Anomaly Detection:</strong> Flags unusual access patterns (e.g., user accessing competing organizations)</li>
+                <li><strong>Automated Deprovisioning:</strong> Detects inactive users and suggests account deactivation</li>
+                <li><strong>Compliance Monitoring:</strong> Ensures POPIA compliance in data access and user permissions</li>
+                <li><strong>Privilege Escalation Detection:</strong> Alerts when users gain inappropriate access levels</li>
+            </ul>
+
+            <h3>6. Platform Optimization Recommendations</h3>
+            <p><strong>Current State:</strong> Platform improvements based on manual observation and user feedback.</p>
+            <p><strong>AI-Enhanced Future:</strong> Data-driven optimization suggestions for platform enhancement.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Feature Utilization Analysis:</strong> Identifies underutilized features that could be promoted or deprecated</li>
+                <li><strong>UX Improvement Suggestions:</strong> Detects workflow patterns indicating usability issues</li>
+                <li><strong>Performance Optimization:</strong> Recommends database optimizations, caching strategies based on usage patterns</li>
+                <li><strong>Custom Feature Opportunities:</strong> Identifies unique needs that could be built into platform features</li>
+                <li><strong>Integration Recommendations:</strong> Suggests third-party integrations based on organization requests</li>
+            </ul>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>AI Capability</th>
+                        <th>Business Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1<br>(3-6 months)</strong></td>
+                        <td>• Automated onboarding assistant<br>• Anomaly detection<br>• Basic BI queries</td>
+                        <td>• 70% faster organization setup<br>• Proactive issue detection<br>• Reduced manual reporting time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2<br>(6-12 months)</strong></td>
+                        <td>• Predictive capacity planning<br>• Smart access control<br>• Platform optimization</td>
+                        <td>• Prevent scaling surprises<br>• Enhanced security posture<br>• Data-driven product roadmap</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3<br>(12-18 months)</strong></td>
+                        <td>• Advanced BI assistant<br>• Automated optimization<br>• Market intelligence</td>
+                        <td>• Strategic business insights<br>• Continuous platform improvement<br>• Competitive advantage</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Conclusion</h2>
+        <p>
+            The Admin Center provides Hyena platform operators with comprehensive tools to manage multi-tenant white-labeled deployments at scale. By centralizing organization management, user administration, and platform oversight, the Admin Center enables efficient operation of a SaaS platform serving multiple competing hotel chains while maintaining strict data isolation and brand customization.
+        </p>
+        
+        <p>
+            AI integration transforms the Admin Center from a manual administration tool into an intelligent platform operations assistant that automates routine tasks, predicts future needs, and provides strategic business intelligence—enabling Hyena to scale efficiently while maintaining exceptional service quality across all customer organizations.
+        </p>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #f29d00;">
+        
+        <div style="text-align: center; color: #999; font-size: 0.9em;">
+            <p><strong>Project Hyena</strong> - Network Monitoring Platform for Hospitality</p>
+            <p>Document Version 1.0 | November 2025</p>
+        </div>
+    </div>
+</body>
+</html>

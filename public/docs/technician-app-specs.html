@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Technician App - Functional Specifications | Project Hyena</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333; max-width: 1200px; margin: 0 auto; padding: 40px 20px; background: #f5f5f5; }
+        .container { background: white; padding: 60px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { border-bottom: 4px solid #f29d00; padding-bottom: 30px; margin-bottom: 40px; }
+        h1 { color: #1a1a1a; font-size: 2.5em; margin-bottom: 10px; }
+        .subtitle { color: #666; font-size: 1.2em; font-weight: 300; }
+        .meta { display: flex; gap: 30px; margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 0.9em; color: #666; }
+        h2 { color: #f29d00; font-size: 1.8em; margin-top: 50px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #f29d00; }
+        h3 { color: #333; font-size: 1.3em; margin-top: 30px; margin-bottom: 15px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul, ol { margin-left: 30px; margin-bottom: 20px; }
+        li { margin-bottom: 10px; }
+        .feature-list li { padding-left: 10px; position: relative; }
+        .feature-list li:before { content: "✓"; color: #f29d00; font-weight: bold; position: absolute; left: -20px; }
+        .callout { background: #fff8e6; border-left: 4px solid #f29d00; padding: 20px; margin: 25px 0; }
+        .callout h4 { color: #f29d00; margin-bottom: 10px; }
+        .ai-section { background: #f0f8ff; border-left: 4px solid #4a90e2; padding: 30px; margin: 30px 0; }
+        .ai-section h3 { color: #4a90e2; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #f29d00; color: white; font-weight: 600; }
+        @media print { body { background: white; padding: 0; } .container { box-shadow: none; padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Technician App</h1>
+            <p class="subtitle">Functional Specifications & AI Transformation Opportunities</p>
+            <div class="meta">
+                <div><strong>Project:</strong> Hyena Network Monitoring Platform</div>
+                <div><strong>Interface:</strong> Technician App</div>
+                <div><strong>Version:</strong> 1.0 (Prototype)</div>
+                <div><strong>Date:</strong> November 2025</div>
+            </div>
+        </div>
+
+        <h2>Executive Summary</h2>
+        <p>
+            The Technician App is a mobile-optimized field operations interface designed for network support technicians to manage their assigned work queue, access incident details on-the-go, update resolution progress, and collaborate with management through real-time status updates and comments.
+        </p>
+        
+        <div class="callout">
+            <h4>Business Value</h4>
+            <p>
+                By providing technicians with instant access to their work queue, incident history, and collaboration tools, the app eliminates time wasted on phone calls, manual status updates, and searching for incident details. Technicians can focus on resolution work while staying connected to the broader team, resulting in faster fixes and better guest outcomes.
+            </p>
+        </div>
+
+        <h2>Core Functionality</h2>
+        
+        <h3>1. Work Queue Dashboard</h3>
+        <p>
+            Personalized dashboard showing technician's assigned incidents with priority-based organization.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>My Queue:</strong> All active incidents assigned to logged-in technician</li>
+            <li><strong>In Progress:</strong> Incidents currently being worked on</li>
+            <li><strong>Completed Today:</strong> Resolved incidents for daily achievement tracking</li>
+            <li><strong>Critical Counter:</strong> High-priority items requiring immediate attention</li>
+            <li><strong>Priority Sorting:</strong> Critical and high-priority incidents automatically float to top</li>
+            <li><strong>One-Tap Access:</strong> Click any incident to view full details and take action</li>
+        </ul>
+
+        <h3>2. Incident Detail View</h3>
+        <p>
+            Comprehensive incident information optimized for mobile viewing and quick field reference.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Essential Details:</strong> Guest info, room location, issue description, priority, timestamps</li>
+            <li><strong>Activity Timeline:</strong> Chronological log of all actions, updates, and comments</li>
+            <li><strong>Comment System:</strong> Add progress updates and internal notes visible to managers</li>
+            <li><strong>Status Management:</strong> Update incident status (In Progress, Resolved)</li>
+            <li><strong>Escalation Options:</strong> Reassign to another technician or escalate priority if needed</li>
+            <li><strong>Tab Organization:</strong> Activity (default), Technical details, Summary information</li>
+        </ul>
+
+        <h3>3. Mobile-Optimized Interface</h3>
+        <p>
+            Field-friendly design for on-the-go access while moving between rooms and properties.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Touch-Optimized Controls:</strong> Large buttons and inputs designed for gloved or hurried operation</li>
+            <li><strong>Offline Capability:</strong> View cached incident details even without connectivity</li>
+            <li><strong>Quick Actions:</strong> Common operations (mark resolved, add comment) accessible with minimal taps</li>
+            <li><strong>Low-Bandwidth Design:</strong> Minimal data usage for reliable performance on cellular networks</li>
+        </ul>
+
+        <h3>4. Collaboration Features</h3>
+        <p>
+            Real-time communication tools connecting technicians with managers and other team members.
+        </p>
+        
+        <ul class="feature-list">
+            <li><strong>Comment Threading:</strong> Add timestamped updates to incident timeline for team visibility</li>
+            <li><strong>Reassignment Capability:</strong> Transfer incidents to colleagues when expertise or availability requires</li>
+            <li><strong>Manager Notifications:</strong> Updates automatically alert property managers of significant changes</li>
+            <li><strong>Team Awareness:</strong> See which colleagues are working on incidents at same property</li>
+        </ul>
+
+        <div class="ai-section">
+            <h2>AI Transformation Opportunities</h2>
+            <p>
+                AI can transform the Technician App from a simple work queue into an intelligent field assistant that provides diagnostic guidance, predicts issues, and learns from successful resolutions to make all technicians more effective.
+            </p>
+
+            <h3>1. AI-Powered Diagnostic Assistant</h3>
+            <p><strong>Current State:</strong> Technician relies on personal experience and manual troubleshooting.</p>
+            <p><strong>AI-Enhanced Future:</strong> Intelligent assistant suggests likely root causes and optimal resolution steps.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Automated Root Cause Analysis:</strong> AI analyzes incident symptoms, network logs, device data to suggest most likely cause</li>
+                <li><strong>Step-by-Step Guidance:</strong> Context-aware troubleshooting workflow adapts based on technician's actions</li>
+                <li><strong>Historical Pattern Matching:</strong> "This issue matches 47 previous incidents - 89% were resolved by [specific action]"</li>
+                <li><strong>Knowledge Base Integration:</strong> Automatically surfaces relevant documentation, similar cases, resolution procedures</li>
+                <li><strong>Real-Time Assistance:</strong> Natural language queries like "How do I reset Aruba access point model XYZ?"</li>
+                <li><strong>Success Probability:</strong> AI estimates likelihood each troubleshooting step will resolve the issue</li>
+            </ul>
+
+            <div class="callout">
+                <h4>Business Impact Example</h4>
+                <p>
+                    Junior technician receives WiFi connectivity complaint. AI instantly analyzes network logs, identifies DHCP pool exhaustion on specific access point, provides exact CLI commands to expand IP range. Resolution time: 8 minutes vs. typical 45 minutes of trial-and-error troubleshooting.
+                </p>
+            </div>
+
+            <h3>2. Predictive Maintenance Alerts</h3>
+            <p><strong>Current State:</strong> Technicians respond only to reported failures.</p>
+            <p><strong>AI-Enhanced Future:</strong> System predicts equipment failures and schedules preventive maintenance.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Equipment Health Monitoring:</strong> AI tracks performance degradation patterns in access points, switches, cables</li>
+                <li><strong>Failure Prediction:</strong> "Access Point 4-East showing 60% probability of failure within 72 hours"</li>
+                <li><strong>Preventive Work Orders:</strong> Proactive tasks added to technician queue before guest-facing failure occurs</li>
+                <li><strong>Parts Anticipation:</strong> System alerts when specific replacement parts should be stocked</li>
+                <li><strong>Optimal Scheduling:</strong> Recommends maintenance timing during low-occupancy periods</li>
+            </ul>
+
+            <h3>3. Smart Routing & Travel Optimization</h3>
+            <p><strong>Current State:</strong> Technician handles incidents in order assigned by manager.</p>
+            <p><strong>AI-Enhanced Future:</strong> AI optimizes technician routes and incident sequencing for maximum efficiency.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Geographic Clustering:</strong> Groups incidents by physical proximity to minimize travel time</li>
+                <li><strong>Priority Balancing:</strong> Balances urgent critical issues with efficient routing for medium-priority work</li>
+                <li><strong>Multi-Property Optimization:</strong> For technicians covering multiple hotels, suggests optimal property visit sequence</li>
+                <li><strong>Real-Time Rerouting:</strong> Adjusts route when new critical incident appears along current path</li>
+                <li><strong>Time-Window Awareness:</strong> Factors in guest availability ("Guest in Room 305 requested resolution before 2 PM")</li>
+            </ul>
+
+            <h3>4. Automated Documentation & Knowledge Capture</h3>
+            <p><strong>Current State:</strong> Technician manually types resolution notes; knowledge stays in individuals' heads.</p>
+            <p><strong>AI-Enhanced Future:</strong> System automatically documents resolutions and builds organizational knowledge base.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Auto-Generated Summaries:</strong> AI converts technician actions into plain-English resolution documentation</li>
+                <li><strong>Best Practice Extraction:</strong> Identifies when technician uses novel or particularly effective approach</li>
+                <li><strong>Troubleshooting Playbooks:</strong> Automatically creates reusable procedures from successful resolutions</li>
+                <li><strong>Voice-to-Text Notes:</strong> Hands-free documentation via voice recording transcribed and summarized</li>
+                <li><strong>Photo Analysis:</strong> AI analyzes photos of equipment/cabling to identify issues and suggest fixes</li>
+            </ul>
+
+            <h3>5. Skill Development & Training Recommendations</h3>
+            <p><strong>Current State:</strong> Generic training programs; skill gaps identified only through performance reviews.</p>
+            <p><strong>AI-Enhanced Future:</strong> Personalized training recommendations based on individual technician performance patterns.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Skill Gap Analysis:</strong> AI identifies which issue types specific technician struggles with</li>
+                <li><strong>Peer Comparison:</strong> "Other technicians resolve WiFi issues 30% faster using [specific technique]"</li>
+                <li><strong>Targeted Training:</strong> Recommends specific videos, documentation, or mentorship for skill improvement</li>
+                <li><strong>Certification Tracking:</strong> Alerts when vendor certifications expire or new relevant certifications available</li>
+                <li><strong>Career Progression:</strong> Identifies when technician has mastered current level and ready for advancement</li>
+            </ul>
+
+            <h3>6. Intelligent Escalation Detection</h3>
+            <p><strong>Current State:</strong> Technician decides when issue is beyond their capability and needs escalation.</p>
+            <p><strong>AI-Enhanced Future:</strong> System proactively suggests escalation before excessive time is wasted.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Complexity Assessment:</strong> AI evaluates issue difficulty relative to technician's skill level</li>
+                <li><strong>Time-Based Triggers:</strong> Suggests escalation if resolution time exceeds expected duration for issue type</li>
+                <li><strong>Expert Recommendation:</strong> "This Cisco routing issue should be escalated to Technician Sarah (Cisco certified)"</li>
+                <li><strong>Vendor Escalation:</strong> Recognizes when problem requires ISP or equipment manufacturer intervention</li>
+                <li><strong>Knowledge Preservation:</strong> Ensures learning opportunity when escalation was due to knowledge gap</li>
+            </ul>
+
+            <h3>7. Real-Time Performance Analytics</h3>
+            <p><strong>Current State:</strong> Technicians receive performance feedback monthly or quarterly.</p>
+            <p><strong>AI-Enhanced Future:</strong> Live performance metrics with constructive insights and gamification.</p>
+            
+            <ul class="feature-list">
+                <li><strong>Daily Performance Summary:</strong> "You resolved 8 incidents today - 20% above your average"</li>
+                <li><strong>Quality Metrics:</strong> First-time fix rate, guest satisfaction scores, average resolution time</li>
+                <li><strong>Team Benchmarking:</strong> Anonymous comparison to peer averages (not competitive, developmental)</li>
+                <li><strong>Improvement Suggestions:</strong> "Reviewing access point documentation could improve your WiFi resolution speed"</li>
+                <li><strong>Achievement Recognition:</strong> Celebrate milestones and exceptional performance</li>
+            </ul>
+
+            <h3>Implementation Roadmap</h3>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phase</th>
+                        <th>AI Capability</th>
+                        <th>Business Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Phase 1<br>(3-6 months)</strong></td>
+                        <td>• AI diagnostic assistant<br>• Automated documentation<br>• Smart routing</td>
+                        <td>• 40% faster average resolution<br>• Reduce knowledge dependency on senior techs<br>• 25% more efficient daily routes</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 2<br>(6-12 months)</strong></td>
+                        <td>• Predictive maintenance<br>• Skill development recommendations<br>• Intelligent escalation</td>
+                        <td>• 50% reduction in emergency failures<br>• Faster junior technician skill growth<br>• Prevent wasted troubleshooting time</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phase 3<br>(12-18 months)</strong></td>
+                        <td>• Real-time performance analytics<br>• Advanced knowledge capture<br>• Predictive workload management</td>
+                        <td>• Continuous skill improvement culture<br>• Organizational knowledge preservation<br>• Optimal resource utilization</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>Conclusion</h2>
+        <p>
+            The Technician App empowers field technicians with mobile-optimized access to their work queue, collaboration tools, and incident management capabilities. By removing communication barriers and providing instant access to critical information, technicians can deliver faster, more effective resolutions while staying connected to the broader team.
+        </p>
+        
+        <p>
+            AI transformation elevates technicians from reactive troubleshooters to proactive problem-solvers equipped with intelligent diagnostic assistance, predictive maintenance capabilities, and continuous learning tools. This creates a more satisfying work environment for technicians while dramatically improving service quality and operational efficiency.
+        </p>
+
+        <hr style="margin: 40px 0; border: none; border-top: 2px solid #f29d00;">
+        
+        <div style="text-align: center; color: #999; font-size: 0.9em;">
+            <p><strong>Project Hyena</strong> - Network Monitoring Platform for Hospitality</p>
+            <p>Document Version 1.0 | November 2025</p>
+        </div>
+    </div>
+</body>
+</html>
