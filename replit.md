@@ -26,8 +26,15 @@ Preferred communication style: Simple, everyday language.
 - **File Structure:** Path aliases (`@/`, `@shared/`, `@assets/`) for organized codebase.
 
 ### Feature Specifications
-- **Manual Event Creation:** Managers and Technicians can create events with extended schema including `eventType`, `scheduledFor`, `metadata`, and SA-specific categories (Load Shedding, ISP, Weather).
-- **Event Simulator:** A `/simulator` interface for testing, allowing manual incident creation and preset scenarios, including optional technician assignment.
+- **Alert vs Incident Separation:** System-wide distinction between informational alerts and actionable incidents via `itemType` field:
+  - **Incidents** (itemType='incident'): Active failures, outages, security issues, performance problems requiring technician action/remediation
+  - **Alerts** (itemType='alert'): External conditions, scheduled events, proactive maintenance, informational status updates
+  - All dashboards filter summary metrics (Active Incidents, Critical Count, etc.) by itemType='incident' only
+  - Guest Portal "My Issues" shows only itemType='incident' (actionable problems reported by guests)
+  - Network Status pages display itemType='alert' (informational status updates)
+  - Classification based on business impact, not source system
+- **Manual Event Creation:** Managers and Technicians can create events with extended schema including `eventType`, `scheduledFor`, `metadata`, `itemType`, and SA-specific categories (Load Shedding, ISP, Weather). Smart defaults apply itemType based on category selection.
+- **Event Simulator:** A `/simulator` interface for testing, allowing manual incident creation with itemType selection and preset scenarios with impact-based classification, including optional technician assignment.
 - **Aruba Network POC Integration:** Admin Dashboard includes a prominent card linking to a live Aruba network infrastructure proof-of-concept.
 - **Comprehensive Incident Action System:** Allows various actions (Cancel, Put On Hold, Request Info, Reassign, Change Priority) with associated dialogs and required fields. All actions create timeline entries for auditing.
 - **Incident Status Lifecycle:** Defines active (new, assigned, in_progress, on_hold) and terminal (resolved, cancelled, duplicate) statuses, with specific fields for reasons and dates (`cancelReason`, `holdReason`, `holdResumeDate`, `duplicateOfId`, `requestedInfo`).
