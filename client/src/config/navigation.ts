@@ -32,7 +32,6 @@ export const MANAGER_NAV: NavSection[] = [
     label: "Main",
     items: [
       { title: "Dashboard", href: "/manager", icon: LayoutDashboard },
-      { title: "Incidents", href: "/manager/incidents", icon: AlertTriangle },
       { title: "Network Status", href: "/manager/network", icon: Wifi },
     ],
   },
