@@ -96,24 +96,17 @@ export function IncidentDetailPanel({
     enabled: !!incident?.id,
   });
 
-  if (!incident) return null;
-
-  const borderColors = {
-    critical: "border-l-event-critical",
-    high: "border-l-event-high",
-    medium: "border-l-event-medium",
-    low: "border-l-border",
-  };
-
-  // Mutation for adding comments
+  // Mutation for adding comments - must be called before early return
   const addCommentMutation = useMutation({
     mutationFn: async (commentText: string) => {
+      if (!incident?.id) throw new Error("No incident ID");
       const response = await apiRequest("POST", `/api/incidents/${incident.id}/comments`, {
         comment: commentText,
       });
       return await response.json();
     },
     onSuccess: () => {
+      if (!incident?.id) return;
       // Invalidate both timeline and incidents queries to refetch fresh data
       queryClient.invalidateQueries({ queryKey: ["/api/incidents", incident.id, "timeline"] });
       queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
@@ -131,6 +124,15 @@ export function IncidentDetailPanel({
       });
     },
   });
+
+  if (!incident) return null;
+
+  const borderColors = {
+    critical: "border-l-event-critical",
+    high: "border-l-event-high",
+    medium: "border-l-event-medium",
+    low: "border-l-border",
+  };
 
   const handleAddComment = () => {
     if (!comment.trim()) return;
