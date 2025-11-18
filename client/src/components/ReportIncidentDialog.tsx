@@ -39,6 +39,7 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
     description: "",
     priority: "medium",
     category: "",
+    itemType: "incident" as "alert" | "incident", // Default to incident (actionable work)
     location: "",
     affectedGuests: "",
     estimatedResolution: "",
@@ -73,6 +74,7 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
         description: "",
         priority: "medium",
         category: "",
+        itemType: "incident",
         location: "",
         affectedGuests: "",
         estimatedResolution: "",
@@ -124,6 +126,7 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
       priority: formData.priority,
       status: "new",
       category: formData.category,
+      itemType: formData.itemType, // Alert (informational) vs Incident (actionable work)
       location: formData.location || undefined,
       affectedGuests: formData.affectedGuests ? parseInt(formData.affectedGuests) : undefined,
       estimatedResolution: formData.estimatedResolution || undefined,
@@ -234,6 +237,22 @@ export function ReportIncidentDialog({ defaultPropertyId, children }: ReportInci
                   <SelectItem value={EVENT_CATEGORIES.CONFIGURATION}>
                     {EVENT_CATEGORIES.CONFIGURATION}
                   </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="incident-type">Type *</Label>
+              <Select
+                value={formData.itemType}
+                onValueChange={(value: "alert" | "incident") => setFormData({ ...formData, itemType: value })}
+              >
+                <SelectTrigger id="incident-type" data-testid="select-incident-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="incident">Incident (Requires action/resolution)</SelectItem>
+                  <SelectItem value="alert">Alert (Informational only)</SelectItem>
                 </SelectContent>
               </Select>
             </div>

@@ -54,6 +54,7 @@ const PRESET_SCENARIOS = [
         priority: "critical",
         status: "new",
         category: EVENT_CATEGORIES.NETWORK_CONNECTIVITY,
+        itemType: "incident", // Active failure requiring technician action
         affectedGuests: 50,
         estimatedResolution: "1 hour",
         source: "api_monitoring",
@@ -66,6 +67,7 @@ const PRESET_SCENARIOS = [
         priority: "high",
         status: "new",
         category: EVENT_CATEGORIES.PERFORMANCE,
+        itemType: "incident", // Actionable guest report
         affectedGuests: 30,
         estimatedResolution: "45 minutes",
         source: "guest_portal",
@@ -78,6 +80,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.BANDWIDTH,
+        itemType: "incident", // Performance issue requiring action (capacity adjustment)
         affectedGuests: 200,
         estimatedResolution: "Until event ends",
         source: "automated_alert",
@@ -90,6 +93,7 @@ const PRESET_SCENARIOS = [
         priority: "critical",
         status: "new",
         category: EVENT_CATEGORIES.HARDWARE_FAILURE,
+        itemType: "incident", // Hardware failure requiring technician replacement
         affectedGuests: 0,
         estimatedResolution: "4 hours",
         source: "api_monitoring",
@@ -102,6 +106,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.CONFIGURATION,
+        itemType: "incident", // Actionable front desk report
         affectedGuests: 25,
         estimatedResolution: "30 minutes",
         source: "front_desk",
@@ -114,6 +119,7 @@ const PRESET_SCENARIOS = [
         priority: "critical",
         status: "new",
         category: EVENT_CATEGORIES.SECURITY,
+        itemType: "incident", // Security breach requiring immediate investigation
         affectedGuests: 1,
         estimatedResolution: "Immediate investigation",
         source: "api_monitoring",
@@ -126,6 +132,7 @@ const PRESET_SCENARIOS = [
         priority: "high",
         status: "new",
         category: EVENT_CATEGORIES.AUTHENTICATION,
+        itemType: "incident", // Actionable guest report
         affectedGuests: 15,
         estimatedResolution: "1 hour",
         source: "guest_portal",
@@ -138,6 +145,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.ADVANCED_SERVICES,
+        itemType: "incident", // Actionable front desk report
         affectedGuests: 8,
         estimatedResolution: "2 hours",
         source: "front_desk",
@@ -150,6 +158,7 @@ const PRESET_SCENARIOS = [
         priority: "critical",
         status: "new",
         category: EVENT_CATEGORIES.LOAD_SHEDDING,
+        itemType: "alert", // Informational from Eskom API
         affectedGuests: 180,
         estimatedResolution: "6 hours",
         source: "eskom_api",
@@ -163,6 +172,7 @@ const PRESET_SCENARIOS = [
         priority: "high",
         status: "new",
         category: EVENT_CATEGORIES.ISP_OUTAGE,
+        itemType: "incident", // Active outage requiring monitoring and communication
         affectedGuests: 120,
         estimatedResolution: "4 hours",
         source: "automated_alert",
@@ -176,6 +186,7 @@ const PRESET_SCENARIOS = [
         priority: "critical",
         status: "new",
         category: EVENT_CATEGORIES.WEATHER_IMPACT,
+        itemType: "incident", // Infrastructure damage requiring repair/replacement
         affectedGuests: 200,
         estimatedResolution: "12 hours",
         source: "weather_api",
@@ -189,6 +200,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.GUEST_EXPERIENCE,
+        itemType: "incident", // Actionable front desk report
         affectedGuests: 2,
         estimatedResolution: "30 minutes",
         source: "front_desk",
@@ -201,6 +213,7 @@ const PRESET_SCENARIOS = [
         priority: "low",
         status: "new",
         category: EVENT_CATEGORIES.PLANNED_MAINTENANCE,
+        itemType: "alert", // Informational scheduled event
         affectedGuests: 0,
         estimatedResolution: "4 hours",
         source: "scheduled_check",
@@ -214,6 +227,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT,
+        itemType: "alert", // Proactive capacity planning - informational
         affectedGuests: 400,
         estimatedResolution: "Weekend duration",
         source: "manager_report",
@@ -227,6 +241,7 @@ const PRESET_SCENARIOS = [
         priority: "low",
         status: "new",
         category: EVENT_CATEGORIES.EQUIPMENT_MAINTENANCE,
+        itemType: "alert", // Preventative maintenance - informational
         affectedGuests: 0,
         estimatedResolution: "1 hour",
         source: "technician_report",
@@ -243,6 +258,7 @@ const PRESET_SCENARIOS = [
       priority: "critical",
       status: "new",
       category: EVENT_CATEGORIES.NETWORK_CONNECTIVITY,
+      itemType: "incident", // Critical outage requiring immediate technician action
       affectedGuests: 150,
       estimatedResolution: "2 hours",
       source: "api_monitoring",
@@ -258,6 +274,7 @@ const PRESET_SCENARIOS = [
       priority: "critical",
       status: "new",
       category: EVENT_CATEGORIES.LOAD_SHEDDING,
+      itemType: "alert", // Informational from Eskom API
       affectedGuests: 200,
       estimatedResolution: "4 hours",
       source: "eskom_api",
@@ -274,6 +291,7 @@ const PRESET_SCENARIOS = [
       priority: "high",
       status: "new",
       category: EVENT_CATEGORIES.WEATHER_IMPACT,
+      itemType: "incident", // Active damage requiring monitoring and coordination
       affectedGuests: 180,
       estimatedResolution: "8-12 hours",
       source: "weather_api",
@@ -290,6 +308,7 @@ const PRESET_SCENARIOS = [
       priority: "critical",
       status: "new",
       category: EVENT_CATEGORIES.ISP_OUTAGE,
+      itemType: "incident", // Active outage requiring monitoring and communication
       affectedGuests: 220,
       estimatedResolution: "6 hours",
       source: "automated_alert",
@@ -306,6 +325,7 @@ const PRESET_SCENARIOS = [
       priority: "medium",
       status: "new",
       category: EVENT_CATEGORIES.HIGH_TRAFFIC_EVENT,
+      itemType: "alert", // Informational scheduled event
       affectedGuests: 300,
       estimatedResolution: "3 days",
       source: "scheduled_check",
@@ -323,6 +343,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.PERFORMANCE,
+        itemType: "incident", // Actionable guest report
         affectedGuests: 1,
         estimatedResolution: "20 minutes",
         source: "guest_portal",
@@ -335,6 +356,7 @@ const PRESET_SCENARIOS = [
         priority: "medium",
         status: "new",
         category: EVENT_CATEGORIES.CONFIGURATION,
+        itemType: "incident", // Actionable guest report
         affectedGuests: 1,
         estimatedResolution: "15 minutes",
         source: "guest_portal",
@@ -351,6 +373,7 @@ const PRESET_SCENARIOS = [
       priority: "critical",
       status: "new",
       category: EVENT_CATEGORIES.SECURITY,
+      itemType: "incident", // Security breach requiring immediate investigation
       affectedGuests: 1,
       estimatedResolution: "Immediate",
       source: "api_monitoring",
@@ -366,6 +389,7 @@ const PRESET_SCENARIOS = [
       priority: "low",
       status: "new",
       category: EVENT_CATEGORIES.PLANNED_MAINTENANCE,
+      itemType: "alert", // Informational scheduled event
       affectedGuests: 0,
       estimatedResolution: "2 hours",
       source: "scheduled_check",
@@ -387,6 +411,7 @@ export default function EventSimulator() {
     status: "new",
     location: "",
     category: "",
+    itemType: "incident" as "alert" | "incident", // Alert vs Incident
     affectedGuests: 1,
     estimatedResolution: "",
     source: "manual_report",
@@ -466,6 +491,7 @@ export default function EventSimulator() {
       status: "new",
       location: "",
       category: "",
+      itemType: "incident",
       affectedGuests: 1,
       estimatedResolution: "",
       source: "manual_report",
@@ -639,6 +665,22 @@ export default function EventSimulator() {
                           <SelectItem value="assigned">Assigned</SelectItem>
                           <SelectItem value="in_progress">In Progress</SelectItem>
                           <SelectItem value="resolved">Resolved</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="itemType">Type *</Label>
+                      <Select
+                        value={formData.itemType}
+                        onValueChange={(value: "alert" | "incident") => setFormData({ ...formData, itemType: value })}
+                      >
+                        <SelectTrigger id="itemType" data-testid="select-item-type">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="incident">Incident (Actionable work)</SelectItem>
+                          <SelectItem value="alert">Alert (Informational)</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

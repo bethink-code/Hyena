@@ -46,9 +46,12 @@ export default function HotelManagerDashboard() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for this property only
+  // Filter incidents for this property only (exclude informational alerts)
   const incidents = useMemo(() => {
-    return allIncidents.filter(i => i.propertyId === propertyId);
+    return allIncidents.filter(i => 
+      i.propertyId === propertyId && 
+      i.itemType === 'incident' // Only count actionable incidents, not alerts
+    );
   }, [allIncidents, propertyId]);
 
   // Fetch timeline for selected incident

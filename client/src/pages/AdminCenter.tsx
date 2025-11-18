@@ -32,11 +32,12 @@ export default function AdminCenter() {
     { id: "6", name: "Kruger Park Lodge", location: "Mpumalanga" },
   ];
 
-  // Determine property status based on incident count and priority
+  // Determine property status based on incident count and priority (incidents only, not alerts)
   const getPropertyStatus = (propertyId: string): "healthy" | "degraded" | "critical" | "offline" => {
-    // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
+    // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate) and exclude alerts
     const propertyIncidents = incidents.filter(i => 
       i.propertyId === propertyId && 
+      i.itemType === 'incident' && // Only count actionable incidents
       i.status !== 'resolved' && 
       i.status !== 'cancelled' && 
       i.status !== 'duplicate'
@@ -50,9 +51,12 @@ export default function AdminCenter() {
     return "healthy";
   };
 
-  // Build properties array with real-time data including critical and new counts
+  // Build properties array with real-time data including critical and new counts (incidents only)
   const properties = propertyDefinitions.map(prop => {
-    const propertyIncidents = incidents.filter(i => i.propertyId === prop.id);
+    const propertyIncidents = incidents.filter(i => 
+      i.propertyId === prop.id &&
+      i.itemType === 'incident' // Only count actionable incidents
+    );
     // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
     const activeIncidents = propertyIncidents.filter(i => 
       i.status !== 'resolved' && 
@@ -74,8 +78,9 @@ export default function AdminCenter() {
     };
   });
 
-  // Calculate total active incidents (exclude terminal statuses: resolved, cancelled, duplicate)
+  // Calculate total active incidents (exclude terminal statuses and alerts)
   const totalActiveIncidents = incidents.filter(i => 
+    i.itemType === 'incident' && // Only count actionable incidents, not alerts
     i.status !== 'resolved' && 
     i.status !== 'cancelled' && 
     i.status !== 'duplicate'

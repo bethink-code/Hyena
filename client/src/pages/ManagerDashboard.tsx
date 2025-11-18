@@ -47,9 +47,13 @@ export default function ManagerDashboard() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter incidents for manager's properties and selected property
+  // Filter incidents for manager's properties and selected property (exclude alerts)
   const incidents = useMemo(() => {
-    const managerIncidents = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    // Only include actionable incidents, not informational alerts
+    const managerIncidents = allIncidents.filter(i => 
+      managerPropertyIds.includes(i.propertyId || '') &&
+      i.itemType === 'incident'
+    );
     
     if (selectedPropertyId === "all") {
       return managerIncidents;
@@ -64,9 +68,12 @@ export default function ManagerDashboard() {
     enabled: !!selectedIncidentId,
   });
 
-  // Calculate summary metrics
+  // Calculate summary metrics (incidents only, not alerts)
   const metrics: MetricTile[] = useMemo(() => {
-    const managerIncidents = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    const managerIncidents = allIncidents.filter(i => 
+      managerPropertyIds.includes(i.propertyId || '') &&
+      i.itemType === 'incident' // Only count actionable incidents
+    );
     
     // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
     const activeIncidents = managerIncidents.filter(i => 
@@ -120,10 +127,13 @@ export default function ManagerDashboard() {
     ];
   }, [allIncidents, managerPropertyIds, setLocation]);
 
-  // Calculate property stats with critical and new counts
+  // Calculate property stats with critical and new counts (incidents only)
   const propertiesWithStats = useMemo(() => {
     return managerProperties.map(property => {
-      const propertyIncidents = allIncidents.filter(i => i.propertyId === property.id);
+      const propertyIncidents = allIncidents.filter(i => 
+        i.propertyId === property.id &&
+        i.itemType === 'incident' // Only count actionable incidents
+      );
       // Active incidents = exclude terminal statuses (resolved, cancelled, duplicate)
       const activeIncidents = propertyIncidents.filter(i => 
         i.status !== 'resolved' && 
