@@ -15,9 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { MessageCircle, Lightbulb, Flag, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { PROPERTIES } from "@/lib/properties";
-import type { Incident, InsertIncident } from "@shared/schema";
+import type { Incident, InsertIncident, Property } from "@shared/schema";
 import heroImage from "@assets/stock_images/Hotel_lobby.jpg";
 import step1 from "@assets/stock_images/Phone_use_1.jpg";
 import step2 from "@assets/stock_images/Phone_use_2.jpg";
@@ -28,9 +28,19 @@ export default function GuestPortal() {
   const [showFeedback, setShowFeedback] = useState(false);
   const [viewingEventId, setViewingEventId] = useState<string | null>(null);
 
+  // Fetch active organization and its properties
+  const { data: activeOrganization, isLoading: isLoadingOrg } = useActiveOrganization();
+  const { data: properties = [], isLoading: isLoadingProperties } = useQuery<Property[]>({
+    queryKey: ["/api/organizations", activeOrganization?.id, "properties"],
+    enabled: !!activeOrganization?.id,
+  });
+
+  // Use first property from active organization (in real app, would come from guest session)
+  const currentProperty = properties[0];
+
   // Get property alerts for announcements banner (guest-friendly sources only)
   const { alert } = usePropertyAlerts({ 
-    propertyId: PROPERTIES[0].id,
+    propertyId: currentProperty?.id,
     sources: ["manager_announcement", "eskom_api", "weather_api", "scheduled_check"]
   });
 
@@ -61,7 +71,7 @@ export default function GuestPortal() {
         location: formData.location,
         category: "Network Connectivity", // Map all guest issues to network category
         source: "guest_portal", // Critical: must be guest_portal to appear in "My Issues"
-        propertyId: PROPERTIES[0].id, // Default to first property (in real app, would get from user session)
+        propertyId: currentProperty?.id, // Default to first property (in real app, would get from user session)
       };
 
       const response = await apiRequest("POST", "/api/incidents", incidentData);
@@ -124,6 +134,25 @@ export default function GuestPortal() {
     },
   ];
 
+  // Show loading state while fetching organization and properties
+  if (isLoadingOrg || isLoadingProperties) {
+    return (
+      <AppLayout
+        title="Guest Portal"
+        homeRoute="/guest"
+        showSidebar={false}
+        showNotifications={false}
+        showProfileMenu={false}
+      >
+        <div className="container mx-auto px-4 py-8 max-w-6xl">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-muted-foreground">Loading...</div>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout
       title="Guest Portal"
@@ -137,9 +166,9 @@ export default function GuestPortal() {
           title="Connected Throughout Your Stay"
           subtitle="Issues with wifi, streaming, or devices? We've got you."
           imageSrc={heroImage}
-          logoUrl={PROPERTIES[0].logoUrl}
-          hotelName={PROPERTIES[0].name}
-          location={PROPERTIES[0].location}
+          logoUrl={activeOrganization?.logoUrl || undefined}
+          hotelName={currentProperty?.name}
+          location={currentProperty?.location}
           badges={["24/7 Network Support", "Fast Response Times", "Expert Assistance"]}
         />
 
