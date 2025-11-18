@@ -256,80 +256,6 @@ function CommentsTab({ route }: { route: string }) {
 
 export function HelpPanel({ open, onClose }: HelpPanelProps) {
   const [location] = useLocation();
-  const [specContent, setSpecContent] = useState<string>("");
-  const [aiContent, setAiContent] = useState<string>("");
-  const [loading, setLoading] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [aiError, setAiError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const loadSpec = async () => {
-      setLoading(true);
-      setError(null);
-
-      const specPath = routeToSpecMap[location];
-      
-      if (!specPath) {
-        setSpecContent("");
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(specPath);
-        if (!response.ok) {
-          throw new Error("Failed to load specification");
-        }
-        const html = await response.text();
-        setSpecContent(html);
-      } catch (err) {
-        console.error("Error loading spec:", err);
-        setError("Unable to load documentation for this page.");
-        setSpecContent("");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadSpec();
-  }, [location, open]);
-
-  useEffect(() => {
-    if (!open) return;
-
-    const loadAIInsights = async () => {
-      setAiLoading(true);
-      setAiError(null);
-
-      const aiPath = routeToAIInsightsMap[location];
-      
-      if (!aiPath) {
-        setAiContent("");
-        setAiLoading(false);
-        return;
-      }
-
-      try {
-        const response = await fetch(aiPath);
-        if (!response.ok) {
-          throw new Error("Failed to load AI insights");
-        }
-        const html = await response.text();
-        setAiContent(html);
-      } catch (err) {
-        console.error("Error loading AI insights:", err);
-        setAiError("Unable to load AI opportunities for this page.");
-        setAiContent("");
-      } finally {
-        setAiLoading(false);
-      }
-    };
-
-    loadAIInsights();
-  }, [location, open]);
 
   const getPageTitle = () => {
     const titles: Record<string, string> = {
@@ -440,71 +366,45 @@ export function HelpPanel({ open, onClose }: HelpPanelProps) {
           </TabsList>
 
           <TabsContent value="specification" className="h-[calc(100%-3rem)] mt-4">
-            <ScrollArea className="h-full pr-4">
-              {loading && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-sm text-muted-foreground">Loading documentation...</div>
-                </div>
-              )}
+            {!routeToSpecMap[location] && (
+              <Alert>
+                <Info className="h-4 w-4" />
+                <AlertDescription>
+                  Documentation is not available for this page yet. Specifications are available for:
+                  Guest Portal, Manager Dashboard, Regional Manager, Admin Center, Technician App, and Event Simulator.
+                </AlertDescription>
+              </Alert>
+            )}
 
-              {error && (
-                <Alert variant="destructive">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
-
-              {!loading && !error && !specContent && (
-                <Alert>
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>
-                    Documentation is not available for this page yet. Specifications are available for:
-                    Manager Dashboard, Incident Queue, Admin Center, and Technician Work Queue.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {!loading && !error && specContent && (
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: specContent }}
-                />
-              )}
-            </ScrollArea>
+            {routeToSpecMap[location] && (
+              <iframe
+                src={routeToSpecMap[location]}
+                className="w-full h-full border-0"
+                title="Functional Specification"
+                data-testid="iframe-spec"
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="ai" className="h-[calc(100%-3rem)] mt-4">
-            <ScrollArea className="h-full pr-4">
-              {aiLoading && (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-sm text-muted-foreground">Loading AI opportunities...</div>
-                </div>
-              )}
+            {!routeToAIInsightsMap[location] && (
+              <Alert>
+                <Sparkles className="h-4 w-4" />
+                <AlertDescription>
+                  AI Opportunities content is not available for this page yet. Content is available for:
+                  Manager Dashboard, Incident Queue, Admin Center, and Technician Work Queue.
+                </AlertDescription>
+              </Alert>
+            )}
 
-              {aiError && (
-                <Alert variant="destructive">
-                  <Info className="h-4 w-4" />
-                  <AlertDescription>{aiError}</AlertDescription>
-                </Alert>
-              )}
-
-              {!aiLoading && !aiError && !aiContent && (
-                <Alert>
-                  <Sparkles className="h-4 w-4" />
-                  <AlertDescription>
-                    AI Opportunities content is not available for this page yet. Content is available for:
-                    Manager Dashboard, Incident Queue, Admin Center, and Technician Work Queue.
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {!aiLoading && !aiError && aiContent && (
-                <div
-                  className="prose prose-sm dark:prose-invert max-w-none"
-                  dangerouslySetInnerHTML={{ __html: aiContent }}
-                />
-              )}
-            </ScrollArea>
+            {routeToAIInsightsMap[location] && (
+              <iframe
+                src={routeToAIInsightsMap[location]}
+                className="w-full h-full border-0"
+                title="AI Opportunities"
+                data-testid="iframe-ai"
+              />
+            )}
           </TabsContent>
 
           <TabsContent value="comments" className="h-[calc(100%-3rem)] mt-4">
