@@ -1,35 +1,24 @@
 import { useQuery } from "@tanstack/react-query";
 import type { Incident } from "@shared/schema";
 
-// Sources that should be displayed as announcements/alerts
-const ANNOUNCEMENT_SOURCES = [
-  "manager_announcement",
-  "eskom_api",
-  "weather_api",
-  "api_monitoring",
-  "automated_alert",
-  "scheduled_check",
-];
-
 interface UsePropertyAlertsOptions {
   propertyId?: string;
-  sources?: string[];
 }
 
-export function usePropertyAlerts({ propertyId, sources = ANNOUNCEMENT_SOURCES }: UsePropertyAlertsOptions = {}) {
+export function usePropertyAlerts({ propertyId }: UsePropertyAlertsOptions = {}) {
   const { data: allIncidents = [], isLoading } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
 
-  // Filter to active announcements/alerts
+  // Filter to active alerts (informational status updates)
   const alerts = allIncidents.filter((incident) => {
     // Must be an active status (not resolved or cancelled)
     if (incident.status === "resolved" || incident.status === "cancelled" || incident.status === "duplicate") {
       return false;
     }
 
-    // Must be from an announcement source
-    if (!sources.includes(incident.source || "")) {
+    // Must be an alert (not an incident work item)
+    if (incident.itemType !== "alert") {
       return false;
     }
 

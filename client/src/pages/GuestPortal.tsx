@@ -38,20 +38,20 @@ export default function GuestPortal() {
   // Use first property from active organization (in real app, would come from guest session)
   const currentProperty = properties[0];
 
-  // Get property alerts for announcements banner (guest-friendly sources only)
+  // Get property alerts for announcements banner
   const { alert } = usePropertyAlerts({ 
     propertyId: currentProperty?.id,
-    sources: ["manager_announcement", "eskom_api", "weather_api", "scheduled_check"]
   });
 
-  // Fetch all events (in a real app, would filter by guest ID)
-  const { data: allEvents = [] } = useQuery<Incident[]>({
-    queryKey: ["/api/events"],
+  // Fetch all incidents (in a real app, would filter by guest ID)
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
   });
 
-  // Filter to show guest-related events (source=guest_portal or reported by guest)
-  const guestEvents = allEvents.filter(event => 
-    event.source === "guest_portal" || event.source === "front_desk"
+  // Filter to show guest-reported incidents only (not alerts)
+  const guestEvents = allIncidents.filter(event => 
+    event.itemType === "incident" && // Only show actionable incidents, not alerts
+    (event.source === "guest_portal" || event.source === "front_desk")
   );
 
   // Count active issues (not resolved or closed)
@@ -70,7 +70,8 @@ export default function GuestPortal() {
         status: "new",
         location: formData.location,
         category: "Network Connectivity", // Map all guest issues to network category
-        source: "guest_portal", // Critical: must be guest_portal to appear in "My Issues"
+        source: "guest_portal", // Source for tracking
+        itemType: "incident", // Guest reports are actionable incidents, not informational alerts
         propertyId: currentProperty?.id, // Default to first property (in real app, would get from user session)
       };
 
@@ -86,7 +87,7 @@ export default function GuestPortal() {
       return incident;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/events"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
       toast({
         title: "Issue Reported Successfully",
         description: "Your issue has been submitted. Our team will address it shortly.",
@@ -269,7 +270,7 @@ export default function GuestPortal() {
 
       <GuestIssueDetailPanel
         issue={viewingEventId ? (() => {
-          const event = allEvents.find(e => e.id === viewingEventId);
+          const event = guestEvents.find((e: Incident) => e.id === viewingEventId);
           if (!event) return null;
           
           return {

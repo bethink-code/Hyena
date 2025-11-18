@@ -51,7 +51,11 @@ export default function IncidentQueuePage() {
   });
 
   const incidents = useMemo(() => {
-    let filtered = allIncidents.filter(i => i.propertyId === propertyId);
+    // Filter to incidents only (not alerts) for this property
+    let filtered = allIncidents.filter(i => 
+      i.propertyId === propertyId &&
+      i.itemType === 'incident' // Only show actionable incidents, not informational alerts
+    );
     
     if (!statusFilter) {
       filtered = filtered.filter(i => 

@@ -27,9 +27,10 @@ export default function NetworkStatus() {
     queryKey: ["/api/incidents"],
   });
 
-  // Filter to active incidents for this property
+  // Filter to active alerts (informational status updates) for this property
   const activeIncidents = allIncidents.filter(i => 
     i.propertyId === propertyId &&
+    i.itemType === 'alert' && // Only show alerts on Network Status
     i.status !== 'resolved' && 
     i.status !== 'cancelled' && 
     i.status !== 'duplicate'

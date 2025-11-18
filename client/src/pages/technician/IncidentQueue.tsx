@@ -59,7 +59,8 @@ export default function TechnicianIncidentQueue() {
   const incidents = useMemo(() => {
     // TODO: Once authentication is implemented, filter by logged-in technician's property assignments
     // For now, show all incidents across all properties so assigned tasks appear regardless of property
-    let filtered = allIncidents;
+    // Filter to incidents only (not alerts) - technicians work on actionable items
+    let filtered = allIncidents.filter(i => i.itemType === 'incident');
     
     // If NO status filter provided, show only active work items (exclude terminal statuses)
     // This ensures "My Queue" shows active work, not cancelled/duplicate/resolved incidents

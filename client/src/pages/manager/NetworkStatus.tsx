@@ -24,9 +24,10 @@ export default function NetworkStatus() {
   // Calculate network health status for each property based on real incidents
   const propertiesWithNetworkHealth = useMemo(() => {
     return managerProperties.map(property => {
-      // Filter active incidents for this property
+      // Filter active alerts (informational status updates) for this property
       const propertyIncidents = allIncidents.filter(i => 
         i.propertyId === property.id &&
+        i.itemType === 'alert' && // Only show alerts on Network Status
         i.status !== 'resolved' && 
         i.status !== 'cancelled' && 
         i.status !== 'duplicate'

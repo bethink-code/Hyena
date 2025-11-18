@@ -63,7 +63,11 @@ export default function IncidentQueuePage() {
 
   // Filter incidents for manager's properties and apply URL filters
   const incidents = useMemo(() => {
-    let filtered = allIncidents.filter(i => managerPropertyIds.includes(i.propertyId || ''));
+    // Filter to incidents only (not alerts) for manager's properties
+    let filtered = allIncidents.filter(i => 
+      managerPropertyIds.includes(i.propertyId || '') &&
+      i.itemType === 'incident' // Only show actionable incidents, not informational alerts
+    );
     
     // If NO status filter provided, show only active work items (exclude terminal statuses)
     // This ensures "Active Incidents" shows active work, not cancelled/duplicate/resolved incidents

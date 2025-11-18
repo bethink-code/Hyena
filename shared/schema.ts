@@ -125,6 +125,7 @@ export const incidents = pgTable("incidents", {
   assignedTo: text("assigned_to"),
   propertyId: text("property_id").notNull(),
   source: text("source"), // 'guest_portal' | 'api_monitoring' | 'manual_report' | etc.
+  itemType: text("item_type").notNull().default("incident"), // 'alert' (informational status) | 'incident' (actionable work item)
   rootCause: text("root_cause"),
   resolution: text("resolution"),
   incidentType: text("incident_type"), // 'reactive' | 'proactive' | 'environmental'
@@ -152,6 +153,7 @@ export const insertIncidentSchema = createInsertSchema(incidents).omit({
   createdAt: true,
   updatedAt: true,
 }).extend({
+  itemType: z.enum(["alert", "incident"]).default("incident"),
   scheduledFor: z.union([z.date(), z.string().datetime()]).optional(),
 });
 
