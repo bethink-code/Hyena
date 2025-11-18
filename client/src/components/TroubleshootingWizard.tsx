@@ -40,9 +40,9 @@ export function TroubleshootingWizard({
 
   return (
     <Card className={className}>
-      <CardHeader className="space-y-0">
-        <CardTitle>Troubleshooting Guide</CardTitle>
-        <div className="flex items-center gap-2 mt-8">
+      <CardHeader>
+        <CardTitle className="mb-8">Troubleshooting Guide</CardTitle>
+        <div className="flex items-center gap-2">
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-center gap-2 flex-1">
               <div
