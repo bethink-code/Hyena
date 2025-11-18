@@ -8,8 +8,10 @@ import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
+import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
 import type { Incident, IncidentTimeline } from "@shared/schema";
@@ -34,6 +36,11 @@ export default function ManagerDashboard() {
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
   const managerPropertyIds = managerProperties.map(p => p.id);
+
+  // Get property alerts - show for selected property or all properties
+  const { alert } = usePropertyAlerts({ 
+    propertyId: selectedPropertyId === "all" ? undefined : selectedPropertyId 
+  });
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -300,6 +307,8 @@ export default function ManagerDashboard() {
           </div>
           <ReportIncidentDialog />
         </div>
+
+        <NetworkStatusIndicator incident={alert || undefined} />
 
         <SummaryMetrics metrics={metrics} />
 

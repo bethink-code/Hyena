@@ -8,8 +8,10 @@ import { IncidentQueue } from "@/components/IncidentQueue";
 import { IncidentDetailPanel, type IncidentDetailProps } from "@/components/IncidentDetailPanel";
 import { ReportIncidentDialog } from "@/components/ReportIncidentDialog";
 import { PoweredByFooter } from "@/components/PoweredByFooter";
+import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { useToast } from "@/hooks/use-toast";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
+import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { getPropertyById } from "@/lib/properties";
 import { HOTEL_MANAGER_NAV } from "@/config/navigation";
@@ -37,6 +39,9 @@ export default function HotelManagerDashboard() {
   // Additional hotel managers can be created in admin (e.g., Sarah Thompson for property "2")
   const propertyId = "1";
   const property = getPropertyById(propertyId);
+
+  // Get property alerts for this specific property
+  const { alert } = usePropertyAlerts({ propertyId });
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -283,6 +288,9 @@ export default function HotelManagerDashboard() {
           </div>
           <ReportIncidentDialog />
         </div>
+
+        {/* Property Alerts */}
+        <NetworkStatusIndicator incident={alert || undefined} />
 
         {/* Summary Metrics */}
         <SummaryMetrics metrics={metrics} />
