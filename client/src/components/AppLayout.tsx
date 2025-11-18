@@ -33,6 +33,8 @@ interface AppLayoutProps {
   title: string;
   homeRoute: string;
   notificationCount?: number;
+  showNotifications?: boolean;
+  showProfileMenu?: boolean;
   navSections?: NavSection[];
   sidebarHeader?: ReactNode;
   showSidebar?: boolean;
@@ -43,6 +45,8 @@ export function AppLayout({
   title,
   homeRoute,
   notificationCount = 0,
+  showNotifications = true,
+  showProfileMenu = true,
   navSections = [],
   sidebarHeader,
   showSidebar = true,
@@ -67,6 +71,8 @@ export function AppLayout({
           title={title}
           homeRoute={homeRoute}
           notificationCount={notificationCount}
+          showNotifications={showNotifications}
+          showProfileMenu={showProfileMenu}
           onHelpClick={() => setHelpPanelOpen(true)}
         />
         <main className="p-6">{children}</main>
@@ -112,6 +118,8 @@ export function AppLayout({
               title={title}
               homeRoute={homeRoute}
               notificationCount={notificationCount}
+              showNotifications={showNotifications}
+              showProfileMenu={showProfileMenu}
               onHelpClick={() => setHelpPanelOpen(true)}
             />
             <main className="flex-1 p-6">{children}</main>

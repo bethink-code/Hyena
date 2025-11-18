@@ -5,6 +5,7 @@ interface HeroSectionProps {
   title: string;
   subtitle: string;
   imageSrc: string;
+  logoUrl?: string;
   ctaText?: string;
   onCtaClick?: () => void;
   className?: string;
@@ -14,6 +15,7 @@ export function HeroSection({
   title,
   subtitle,
   imageSrc,
+  logoUrl,
   ctaText,
   onCtaClick,
   className,
@@ -28,6 +30,16 @@ export function HeroSection({
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/40" />
       </div>
+      {logoUrl && (
+        <div className="absolute top-4 left-4">
+          <img
+            src={logoUrl}
+            alt="Property logo"
+            className="h-10 object-contain"
+            data-testid="img-property-logo"
+          />
+        </div>
+      )}
       <div className="relative h-full flex flex-col items-center justify-center text-center px-4">
         <h1 className="text-4xl font-bold text-white mb-3" data-testid="text-hero-title">
           {title}

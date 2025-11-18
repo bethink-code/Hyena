@@ -7,10 +7,12 @@ import { IssueReportForm, type IssueFormData } from "@/components/IssueReportFor
 import { TroubleshootingWizard } from "@/components/TroubleshootingWizard";
 import { FeedbackModal } from "@/components/FeedbackModal";
 import { EventQueue } from "@/components/EventQueue";
-import { EventDetailPanel } from "@/components/EventDetailPanel";
+import { GuestIssueDetailPanel } from "@/components/GuestIssueDetailPanel";
 import { AIChatInterface } from "@/components/AIChatInterface";
 import { PoweredByFooter } from "@/components/PoweredByFooter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { MessageCircle, Lightbulb, Flag, List } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PROPERTIES } from "@/lib/properties";
@@ -34,6 +36,11 @@ export default function GuestPortal() {
   const guestEvents = allEvents.filter(event => 
     event.source === "guest_portal" || event.source === "front_desk"
   );
+
+  // Count active issues (not resolved or closed)
+  const activeIssuesCount = guestEvents.filter(event => 
+    event.status !== "resolved" && event.status !== "closed"
+  ).length;
 
   // Mutation to create incident from guest report
   const createIncidentMutation = useMutation({
@@ -114,39 +121,48 @@ export default function GuestPortal() {
     <AppLayout
       title="Guest Portal"
       homeRoute="/guest"
-      notificationCount={1}
       showSidebar={false}
+      showNotifications={false}
+      showProfileMenu={false}
     >
       <div className="container mx-auto px-4 py-8 max-w-6xl space-y-8">
         <HeroSection
           title="Welcome to Network Support"
           subtitle="Get help with connectivity issues in seconds"
           imageSrc={heroImage}
-          ctaText="Test My Connection"
-          onCtaClick={() => console.log("Test connection")}
+          logoUrl={PROPERTIES[0].logoUrl}
         />
 
         <NetworkStatusIndicator status="healthy" incidentCount={0} />
 
-        <Tabs defaultValue="ai-chat" className="w-full">
+        <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="ai-chat" data-testid="tab-ai-chat">
-              AI Assistant
+            <TabsTrigger value="chat" data-testid="tab-chat" className="gap-2">
+              <MessageCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Chat</span>
             </TabsTrigger>
-            <TabsTrigger value="troubleshoot" data-testid="tab-troubleshoot">
-              Troubleshooting
+            <TabsTrigger value="help" data-testid="tab-help" className="gap-2">
+              <Lightbulb className="h-4 w-4" />
+              <span className="hidden sm:inline">Help</span>
             </TabsTrigger>
-            <TabsTrigger value="report" data-testid="tab-report">
-              Report Issue
+            <TabsTrigger value="report" data-testid="tab-report" className="gap-2">
+              <Flag className="h-4 w-4" />
+              <span className="hidden sm:inline">Report</span>
             </TabsTrigger>
-            <TabsTrigger value="my-issues" data-testid="tab-my-issues">
-              My Issues
+            <TabsTrigger value="my-issues" data-testid="tab-my-issues" className="gap-2">
+              <List className="h-4 w-4" />
+              <span className="hidden sm:inline">My Issues</span>
+              {activeIssuesCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 min-w-5 px-1 text-xs" data-testid="badge-active-issues">
+                  {activeIssuesCount}
+                </Badge>
+              )}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="ai-chat" className="mt-6">
+          <TabsContent value="chat" className="mt-6">
             <div className="space-y-4">
               <div>
-                <h3 className="text-lg font-semibold">Chat with AI Assistant</h3>
+                <h3 className="text-lg font-semibold">Chat with us</h3>
                 <p className="text-sm text-muted-foreground">
                   Get instant help with network issues through our AI-powered assistant
                 </p>
@@ -154,7 +170,7 @@ export default function GuestPortal() {
               <AIChatInterface />
             </div>
           </TabsContent>
-          <TabsContent value="troubleshoot" className="mt-6">
+          <TabsContent value="help" className="mt-6">
             <TroubleshootingWizard
               steps={troubleshootingSteps}
               onComplete={() => setShowFeedback(true)}
@@ -211,8 +227,8 @@ export default function GuestPortal() {
         }
       />
 
-      <EventDetailPanel
-        event={viewingEventId ? (() => {
+      <GuestIssueDetailPanel
+        issue={viewingEventId ? (() => {
           const event = allEvents.find(e => e.id === viewingEventId);
           if (!event) return null;
           
@@ -220,21 +236,19 @@ export default function GuestPortal() {
             id: event.id,
             title: event.title,
             description: event.description,
-            priority: event.priority as any,
-            status: event.status as any,
-            location: event.location || undefined,
-            assignedTo: event.assignedTo || undefined,
+            status: event.status,
             timestamp: formatTimestamp(event.createdAt),
-            category: event.category || undefined,
-            affectedGuests: event.affectedGuests || undefined,
             estimatedResolution: event.estimatedResolution || undefined,
-            rootCause: event.rootCause || undefined,
-            resolution: event.resolution || undefined,
-            timeline: [],
           };
         })() : null}
         open={viewingEventId !== null}
         onClose={() => setViewingEventId(null)}
+        onChatWithSupport={() => {
+          setViewingEventId(null);
+          // Switch to chat tab
+          const chatTab = document.querySelector('[data-testid="tab-chat"]') as HTMLButtonElement;
+          chatTab?.click();
+        }}
       />
     </AppLayout>
   );

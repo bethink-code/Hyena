@@ -17,6 +17,7 @@ interface AppHeaderProps {
   homeRoute: string;
   showNotifications?: boolean;
   notificationCount?: number;
+  showProfileMenu?: boolean;
   onHelpClick?: () => void;
 }
 
@@ -25,6 +26,7 @@ export function AppHeader({
   homeRoute,
   showNotifications = true,
   notificationCount = 0,
+  showProfileMenu = true,
   onHelpClick,
 }: AppHeaderProps) {
   const [, setLocation] = useLocation();
@@ -76,37 +78,39 @@ export function AppHeader({
 
           <ThemeToggle />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" data-testid="button-user-menu">
-                <User className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem data-testid="menu-profile">
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem data-testid="menu-preferences">
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Preferences</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => {
-                  console.log("Logout clicked");
-                  setLocation("/");
-                }}
-                data-testid="menu-logout"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Logout</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {showProfileMenu && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" data-testid="button-user-menu">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem data-testid="menu-profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem data-testid="menu-preferences">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Preferences</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={() => {
+                    console.log("Logout clicked");
+                    setLocation("/");
+                  }}
+                  data-testid="menu-logout"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
     </div>
