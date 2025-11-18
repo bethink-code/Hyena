@@ -343,6 +343,7 @@ export default function TechnicianPropertyDetail() {
         })() : null}
         open={viewingIncidentId !== null}
         onClose={() => setViewingIncidentId(null)}
+        hideAssignButton={true}
       />
     </AppLayout>
   );

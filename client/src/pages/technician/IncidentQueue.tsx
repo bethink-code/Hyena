@@ -321,6 +321,7 @@ export default function TechnicianIncidentQueue() {
         onEscalate={(id) => {
           escalateIncidentMutation.mutate(id);
         }}
+        hideAssignButton={true}
       />
     </AppLayout>
   );

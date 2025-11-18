@@ -66,6 +66,7 @@ interface IncidentDetailPanelProps {
   onClose: () => void;
   onResolve?: (incidentId: string) => void;
   onEscalate?: (incidentId: string) => void;
+  hideAssignButton?: boolean;
 }
 
 export function IncidentDetailPanel({
@@ -74,6 +75,7 @@ export function IncidentDetailPanel({
   onClose,
   onResolve,
   onEscalate,
+  hideAssignButton = false,
 }: IncidentDetailPanelProps) {
   const { toast } = useToast();
   const [comment, setComment] = useState("");
@@ -383,7 +385,7 @@ export function IncidentDetailPanel({
           </Tabs>
 
           <div className="border-t px-6 py-4 flex flex-wrap gap-2 bg-muted/10">
-            {incident.status === "new" && (
+            {incident.status === "new" && !hideAssignButton && (
               <AssignTechnicianDialog
                 incidentId={incident.id}
                 onSuccess={onClose}
