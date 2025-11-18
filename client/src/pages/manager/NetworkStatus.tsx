@@ -1,11 +1,13 @@
 import { useMemo } from "react";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { AppLayout } from "@/components/AppLayout";
 import { OrganizationLogo } from "@/components/OrganizationLogo";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { PropertyList } from "@/components/PropertyList";
 import { PROPERTIES } from "@/lib/properties";
 import { MANAGER_NAV } from "@/config/navigation";
+import type { Incident } from "@shared/schema";
 
 export default function NetworkStatus() {
   const { data: activeOrg } = useActiveOrganization();
@@ -14,65 +16,48 @@ export default function NetworkStatus() {
   // Use the first 3 properties for the manager's scope
   const managerProperties = PROPERTIES.slice(0, 3);
 
-  // Mock network device data for each property
-  const networkDevicesByProperty: Record<string, Array<{ name: string; status: "healthy" | "degraded" | "critical" | "offline"; uptime: string }>> = {
-    "1": [
-      { name: "Main Router", status: "healthy", uptime: "99.8%" },
-      { name: "Access Point - Lobby", status: "healthy", uptime: "99.5%" },
-      { name: "Access Point - Floor 2", status: "healthy", uptime: "99.2%" },
-      { name: "Access Point - Floor 3", status: "healthy", uptime: "99.9%" },
-      { name: "Switch - Main", status: "healthy", uptime: "100%" },
-    ],
-    "2": [
-      { name: "Main Router", status: "healthy", uptime: "98.5%" },
-      { name: "Access Point - Lobby", status: "degraded", uptime: "92.1%" },
-      { name: "Access Point - Floor 2", status: "degraded", uptime: "95.2%" },
-      { name: "Access Point - Floor 3", status: "healthy", uptime: "99.3%" },
-      { name: "Switch - Main", status: "healthy", uptime: "99.7%" },
-    ],
-    "3": [
-      { name: "Main Router", status: "critical", uptime: "85.2%" },
-      { name: "Access Point - Lobby", status: "degraded", uptime: "91.8%" },
-      { name: "Access Point - Floor 2", status: "critical", uptime: "82.5%" },
-      { name: "Access Point - Floor 3", status: "degraded", uptime: "93.1%" },
-      { name: "Switch - Main", status: "degraded", uptime: "94.3%" },
-    ],
-  };
+  // Fetch real incidents data
+  const { data: allIncidents = [] } = useQuery<Incident[]>({
+    queryKey: ["/api/incidents"],
+  });
 
-  // Calculate network health status for each property
+  // Calculate network health status for each property based on real incidents
   const propertiesWithNetworkHealth = useMemo(() => {
     return managerProperties.map(property => {
-      const devices = networkDevicesByProperty[property.id] || [];
+      // Filter active incidents for this property
+      const propertyIncidents = allIncidents.filter(i => 
+        i.propertyId === property.id &&
+        i.status !== 'resolved' && 
+        i.status !== 'cancelled' && 
+        i.status !== 'duplicate'
+      );
       
-      // Calculate health based on device statuses
-      const criticalCount = devices.filter(d => d.status === "critical").length;
-      const degradedCount = devices.filter(d => d.status === "degraded").length;
-      const healthyCount = devices.filter(d => d.status === "healthy").length;
-      const offlineCount = devices.filter(d => d.status === "offline").length;
+      // Count by priority
+      const criticalCount = propertyIncidents.filter(i => i.priority === "critical").length;
+      const highCount = propertyIncidents.filter(i => i.priority === "high").length;
       
-      // Determine overall network health status
+      // Determine overall network health status based on incidents
       let networkStatus: "healthy" | "degraded" | "critical" | "offline" = "healthy";
-      if (offlineCount > 0 || criticalCount >= 2) {
+      if (criticalCount >= 2) {
         networkStatus = "critical";
-      } else if (criticalCount >= 1 || degradedCount >= 2) {
+      } else if (criticalCount >= 1 || highCount >= 2) {
         networkStatus = "degraded";
-      } else if (degradedCount >= 1) {
+      } else if (highCount >= 1) {
         networkStatus = "degraded";
       }
 
-      // Count network issues as incident count for the card
-      const incidentCount = criticalCount + degradedCount + offlineCount;
-      const criticalIncidentCount = criticalCount + offlineCount;
+      // Total active incidents
+      const incidentCount = propertyIncidents.length;
 
       return {
         ...property,
         status: networkStatus,
         incidentCount,
-        criticalCount: criticalIncidentCount,
+        criticalCount,
         newCount: 0,
       };
     });
-  }, [managerProperties]);
+  }, [managerProperties, allIncidents]);
 
   return (
     <AppLayout
