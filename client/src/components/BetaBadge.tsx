@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import {
   Dialog,
   DialogContent,
@@ -14,15 +13,15 @@ export function BetaBadge() {
 
   return (
     <>
-      <Badge
-        variant="outline"
-        className="cursor-pointer bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover-elevate gap-1.5 px-2.5 py-1"
+      <button
+        type="button"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md border cursor-pointer bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20 text-xs font-semibold whitespace-nowrap transition-colors"
         onClick={() => setIsOpen(true)}
         data-testid="badge-beta"
       >
         <FlaskConical className="h-3.5 w-3.5" />
         <span className="font-medium">Proof of Concept</span>
-      </Badge>
+      </button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-lg">
