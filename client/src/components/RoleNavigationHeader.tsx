@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { User, Building2, Settings, Wrench, Home } from "lucide-react";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
+import { BetaBadge } from "./BetaBadge";
 
 export function RoleNavigationHeader() {
   const [location, setLocation] = useLocation();
@@ -17,7 +18,7 @@ export function RoleNavigationHeader() {
   return (
     <div className="border-b bg-sidebar sticky top-0 z-50">
       <div className="container mx-auto px-4 py-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             onClick={() => setLocation("/")}
@@ -27,6 +28,7 @@ export function RoleNavigationHeader() {
             <Home className="h-4 w-4" />
             <span>Project Hyena</span>
           </Button>
+          <BetaBadge />
         </div>
 
         <div className="flex items-center gap-1">
