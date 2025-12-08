@@ -1,5 +1,6 @@
 import { RoleSelector } from "@/components/RoleSelector";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { BetaBadge } from "@/components/BetaBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { UserRole } from "@/components/RoleSelector";
@@ -18,7 +19,10 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background">
       <header className="border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold">Project Hyena</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold">Project Hyena</h1>
+            <BetaBadge />
+          </div>
           <ThemeToggle />
         </div>
       </header>
