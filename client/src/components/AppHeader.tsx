@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Home, User, Settings, LogOut, Bell, HelpCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { BetaBadge } from "@/components/BetaBadge";
 import { useLocation } from "wouter";
 
 interface AppHeaderProps {
@@ -34,7 +35,10 @@ export function AppHeader({
   return (
     <div className="border-b bg-card">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        <h1 className="text-xl font-bold">{title}</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold">{title}</h1>
+          <BetaBadge />
+        </div>
 
         <div className="flex items-center gap-2">
           <Button
