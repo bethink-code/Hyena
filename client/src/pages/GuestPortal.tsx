@@ -62,6 +62,11 @@ export default function GuestPortal() {
   // Mutation to create incident from guest report
   const createIncidentMutation = useMutation({
     mutationFn: async (formData: IssueFormData) => {
+      // Validate that a property is selected
+      if (!currentProperty?.id) {
+        throw new Error("No property selected. Please wait for the page to load completely.");
+      }
+      
       // Map form data to incident format
       const incidentData: InsertIncident = {
         title: `${formData.category.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} - ${formData.location}`,
@@ -72,7 +77,7 @@ export default function GuestPortal() {
         category: "Network Connectivity", // Map all guest issues to network category
         source: "guest_portal", // Source for tracking
         itemType: "incident", // Guest reports are actionable incidents, not informational alerts
-        propertyId: currentProperty?.id, // Default to first property (in real app, would get from user session)
+        propertyId: currentProperty.id, // Property from guest session
       };
 
       const response = await apiRequest("POST", "/api/incidents", incidentData);
