@@ -10,9 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { PROPERTIES } from "@/lib/properties";
 import { MANAGER_NAV } from "@/config/navigation";
-import type { Incident, IncidentTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline, Property } from "@shared/schema";
 import {
   ArrowLeft,
   Filter,
@@ -52,9 +51,29 @@ export default function IncidentQueuePage() {
     setLocation('/manager/incidents');
   };
 
-  // Use the first 3 properties for the manager's scope
-  const managerProperties = PROPERTIES.slice(0, 3);
-  const managerPropertyIds = managerProperties.map(p => p.id);
+  // Fetch properties from the active organization (dynamic, not hardcoded)
+  const { data: orgProperties = [], isLoading: isLoadingProperties } = useQuery<Property[]>({
+    queryKey: ["/api/organizations", activeOrg?.id, "properties"],
+    enabled: !!activeOrg?.id,
+  });
+  
+  // Wait for properties to load before enabling incident filtering
+  // Allow orgs with zero properties to still work (will show empty state)
+  const isPropertiesReady = !isLoadingProperties;
+  
+  // Reset filters when organization changes
+  useEffect(() => {
+    setSearchParams('');
+    setSelectedIncidentId(null);
+    // Navigate to base incidents page to clear URL params
+    if (window.location.search) {
+      setLocation('/manager/incidents');
+    }
+  }, [activeOrg?.id, setLocation]);
+  
+  // Use all properties from the active organization for the manager's scope
+  const managerProperties = orgProperties;
+  const managerPropertyIds = useMemo(() => managerProperties.map(p => p.id), [managerProperties]);
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
@@ -63,6 +82,9 @@ export default function IncidentQueuePage() {
 
   // Filter incidents for manager's properties and apply URL filters
   const incidents = useMemo(() => {
+    // Wait for properties to load before filtering
+    if (!isPropertiesReady) return [];
+    
     // Filter to incidents only (not alerts) for manager's properties
     let filtered = allIncidents.filter(i => 
       managerPropertyIds.includes(i.propertyId || '') &&
@@ -93,7 +115,7 @@ export default function IncidentQueuePage() {
     }
     
     return filtered;
-  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, managerPropertyIds]);
+  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, managerPropertyIds, isPropertiesReady]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
@@ -226,7 +248,7 @@ export default function IncidentQueuePage() {
     const parts: JSX.Element[] = [];
     
     if (propertyIdFilter) {
-      const property = PROPERTIES.find(p => p.id === propertyIdFilter);
+      const property = managerProperties.find(p => p.id === propertyIdFilter);
       if (property) {
         parts.push(
           <Badge key="property" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal border-transparent">

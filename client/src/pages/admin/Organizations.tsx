@@ -26,7 +26,13 @@ export default function Organizations() {
       return { response, theme };
     },
     onSuccess: (data) => {
+      // Invalidate all organization-related queries to refresh data across all dashboards
       queryClient.invalidateQueries({ queryKey: ["/api/organizations"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents"] });
+      // Properties queries are scoped by org ID, so invalidate all of them
+      queryClient.invalidateQueries({ predicate: (query) => 
+        query.queryKey[0] === "/api/organizations" && query.queryKey[2] === "properties"
+      });
       // Apply theme if organization was activated
       if (data.theme) {
         applyTheme(data.theme);

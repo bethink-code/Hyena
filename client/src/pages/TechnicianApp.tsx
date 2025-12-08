@@ -7,9 +7,9 @@ import { SummaryMetrics, type MetricTile } from "@/components/SummaryMetrics";
 import { LogIssueDialog } from "@/components/LogIssueDialog";
 import { NetworkStatusIndicator } from "@/components/NetworkStatusIndicator";
 import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
-import { PROPERTIES } from "@/lib/properties";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { TECHNICIAN_NAV } from "@/config/navigation";
-import type { Incident } from "@shared/schema";
+import type { Incident, Property } from "@shared/schema";
 import { 
   CheckCircle2, 
   ClipboardList, 
@@ -20,21 +20,35 @@ import {
 export default function TechnicianApp() {
   const [, navigate] = useLocation();
 
-  // Get infrastructure alerts for technicians (api_monitoring, automated_alert, scheduled_check)
-  const { alert } = usePropertyAlerts({ 
-    sources: ["api_monitoring", "automated_alert", "scheduled_check", "eskom_api", "weather_api"] 
+  // Fetch active organization
+  const { data: activeOrg } = useActiveOrganization();
+
+  // Fetch properties from the active organization (dynamic, not hardcoded)
+  const { data: orgProperties = [], isLoading: isLoadingProperties } = useQuery<Property[]>({
+    queryKey: ["/api/organizations", activeOrg?.id, "properties"],
+    enabled: !!activeOrg?.id,
   });
+  
+  // Wait for properties to load before enabling incident filtering
+  // Allow orgs with zero properties to still work (will show empty state)
+  const isPropertiesReady = !isLoadingProperties;
+  
+  // Get property IDs for filtering
+  const orgPropertyIds = useMemo(() => orgProperties.map(p => p.id), [orgProperties]);
+
+  // Get infrastructure alerts for technicians
+  const { alert } = usePropertyAlerts({});
 
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
   });
 
-  // TODO: Once authentication is implemented, filter by logged-in technician's property assignments
-  // For now, show all incidents across all properties so metrics are accurate
+  // Filter incidents to only show those from the active organization's properties
   const technicianIncidents = useMemo(() => {
-    return allIncidents;
-  }, [allIncidents]);
+    if (!isPropertiesReady) return [];
+    return allIncidents.filter(i => orgPropertyIds.includes(i.propertyId || ''));
+  }, [allIncidents, orgPropertyIds, isPropertiesReady]);
 
   // Calculate summary metrics
   // Note: Currently showing all incidents from technician's properties

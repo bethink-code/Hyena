@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { PROPERTIES } from "@/lib/properties";
+import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { TECHNICIAN_NAV } from "@/config/navigation";
-import type { Incident, IncidentTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline, Property } from "@shared/schema";
 import {
   ArrowLeft,
   Filter,
@@ -50,6 +50,32 @@ export default function TechnicianIncidentQueue() {
     setLocation('/technician/incidents');
   };
 
+  // Fetch active organization
+  const { data: activeOrg } = useActiveOrganization();
+
+  // Fetch properties from the active organization (dynamic, not hardcoded)
+  const { data: orgProperties = [], isLoading: isLoadingProperties } = useQuery<Property[]>({
+    queryKey: ["/api/organizations", activeOrg?.id, "properties"],
+    enabled: !!activeOrg?.id,
+  });
+  
+  // Wait for properties to load before enabling incident filtering
+  // Allow orgs with zero properties to still work (will show empty state)
+  const isPropertiesReady = !isLoadingProperties;
+  
+  // Reset filters when organization changes
+  useEffect(() => {
+    setSearchParams('');
+    setSelectedIncidentId(null);
+    // Navigate to base incidents page to clear URL params
+    if (window.location.search) {
+      setLocation('/technician/incidents');
+    }
+  }, [activeOrg?.id, setLocation]);
+  
+  // Get property IDs for filtering
+  const orgPropertyIds = useMemo(() => orgProperties.map(p => p.id), [orgProperties]);
+
   // Fetch all incidents
   const { data: allIncidents = [] } = useQuery<Incident[]>({
     queryKey: ["/api/incidents"],
@@ -57,10 +83,15 @@ export default function TechnicianIncidentQueue() {
 
   // Filter incidents and apply URL filters
   const incidents = useMemo(() => {
-    // TODO: Once authentication is implemented, filter by logged-in technician's property assignments
-    // For now, show all incidents across all properties so assigned tasks appear regardless of property
+    // Wait for properties to load before filtering
+    if (!isPropertiesReady) return [];
+    
+    // Filter to incidents from active organization's properties only
     // Filter to incidents only (not alerts) - technicians work on actionable items
-    let filtered = allIncidents.filter(i => i.itemType === 'incident');
+    let filtered = allIncidents.filter(i => 
+      i.itemType === 'incident' && 
+      orgPropertyIds.includes(i.propertyId || '')
+    );
     
     // If NO status filter provided, show only active work items (exclude terminal statuses)
     // This ensures "My Queue" shows active work, not cancelled/duplicate/resolved incidents
@@ -86,7 +117,7 @@ export default function TechnicianIncidentQueue() {
     }
     
     return filtered;
-  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter]);
+  }, [allIncidents, statusFilter, priorityFilter, propertyIdFilter, orgPropertyIds, isPropertiesReady]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
@@ -219,7 +250,7 @@ export default function TechnicianIncidentQueue() {
     const parts: JSX.Element[] = [];
     
     if (propertyIdFilter) {
-      const property = PROPERTIES.find(p => p.id === propertyIdFilter);
+      const property = orgProperties.find(p => p.id === propertyIdFilter);
       if (property) {
         parts.push(
           <Badge key="property" className="bg-[#f29d00f5] text-[#fafafa] text-[16px] font-normal border-transparent">

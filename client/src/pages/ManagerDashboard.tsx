@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { AppLayout } from "@/components/AppLayout";
@@ -13,8 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useActiveOrganization } from "@/hooks/use-active-organization";
 import { usePropertyAlerts } from "@/hooks/usePropertyAlerts";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { PROPERTIES } from "@/lib/properties";
-import type { Incident, IncidentTimeline } from "@shared/schema";
+import type { Incident, IncidentTimeline, Property } from "@shared/schema";
 import { MANAGER_NAV } from "@/config/navigation";
 import {
   LayoutDashboard,
@@ -31,11 +30,27 @@ export default function ManagerDashboard() {
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("all");
   
   // Fetch active organization
-  const { data: activeOrg } = useActiveOrganization();
+  const { data: activeOrg, isLoading: isLoadingOrg } = useActiveOrganization();
   
-  // Use the first 3 properties for the manager's scope
-  const managerProperties = PROPERTIES.slice(0, 3);
-  const managerPropertyIds = managerProperties.map(p => p.id);
+  // Fetch properties from the active organization (dynamic, not hardcoded)
+  const { data: orgProperties = [], isLoading: isLoadingProperties } = useQuery<Property[]>({
+    queryKey: ["/api/organizations", activeOrg?.id, "properties"],
+    enabled: !!activeOrg?.id,
+  });
+  
+  // Wait for properties to load before enabling incident filtering
+  // Allow orgs with zero properties to still work (will show empty state)
+  const isPropertiesReady = !isLoadingOrg && !isLoadingProperties;
+  
+  // Reset property selection when organization changes
+  useEffect(() => {
+    setSelectedPropertyId("all");
+    setSelectedIncidentId(null);
+  }, [activeOrg?.id]);
+  
+  // Use all properties from the active organization for the manager's scope
+  const managerProperties = orgProperties;
+  const managerPropertyIds = useMemo(() => managerProperties.map(p => p.id), [managerProperties]);
 
   // Get property alerts - show for selected property or all properties
   const { alert } = usePropertyAlerts({ 
@@ -49,6 +64,9 @@ export default function ManagerDashboard() {
 
   // Filter incidents for manager's properties and selected property (exclude alerts)
   const incidents = useMemo(() => {
+    // Wait for properties to load before filtering
+    if (!isPropertiesReady) return [];
+    
     // Only include actionable incidents, not informational alerts
     const managerIncidents = allIncidents.filter(i => 
       managerPropertyIds.includes(i.propertyId || '') &&
@@ -60,7 +78,7 @@ export default function ManagerDashboard() {
     }
     
     return managerIncidents.filter(i => i.propertyId === selectedPropertyId);
-  }, [allIncidents, selectedPropertyId, managerPropertyIds]);
+  }, [allIncidents, selectedPropertyId, managerPropertyIds, isPropertiesReady]);
 
   // Fetch timeline for selected incident
   const { data: timeline = [] } = useQuery<IncidentTimeline[]>({
