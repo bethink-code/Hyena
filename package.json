@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build",
+    "build": "vite build && esbuild server/vercelEntry.ts --bundle --platform=node --format=esm --packages=external --outfile=api/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "db:seed": "tsx server/seed.ts"
