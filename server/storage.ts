@@ -19,7 +19,7 @@ import {
   helpComments
 } from "@shared/schema";
 import { randomUUID } from "crypto";
-import { db } from "./db";
+import { db } from "./db.js";
 import { eq, sql, asc } from "drizzle-orm";
 
 export interface IStorage {

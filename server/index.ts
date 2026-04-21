@@ -1,6 +1,6 @@
-import { createApp } from "./app";
-import { setupVite, serveStatic, log } from "./vite";
-import { seedDatabase } from "./seed";
+import { createApp } from "./app.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { seedDatabase } from "./seed.js";
 
 (async () => {
   const { app, server } = await createApp();

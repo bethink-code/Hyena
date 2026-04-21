@@ -1,4 +1,4 @@
-import { db } from "./db";
+import { db } from "./db.js";
 import { organizations, users } from "@shared/schema";
 import bcrypt from "bcryptjs";
 
