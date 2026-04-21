@@ -492,12 +492,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Normalize timestamp fields: convert ISO strings to Date objects
       const normalizedUpdate = {
         ...validatedUpdate,
-        ...(validatedUpdate.holdResumeDate && typeof validatedUpdate.holdResumeDate === 'string' 
-          ? { holdResumeDate: new Date(validatedUpdate.holdResumeDate) }
-          : {}),
-        ...(validatedUpdate.scheduledFor && typeof validatedUpdate.scheduledFor === 'string'
-          ? { scheduledFor: new Date(validatedUpdate.scheduledFor) }
-          : {}),
+        holdResumeDate:
+          typeof validatedUpdate.holdResumeDate === "string"
+            ? new Date(validatedUpdate.holdResumeDate)
+            : validatedUpdate.holdResumeDate,
+        scheduledFor:
+          typeof validatedUpdate.scheduledFor === "string"
+            ? new Date(validatedUpdate.scheduledFor)
+            : validatedUpdate.scheduledFor,
       };
       
       const incident = await storage.updateIncident(req.params.id, normalizedUpdate);
