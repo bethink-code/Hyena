@@ -1,3 +1,4 @@
+import { pathToFileURL } from "url";
 import { db } from "./db.js";
 import { organizations, users } from "../shared/schema.js";
 import bcrypt from "bcryptjs";
@@ -184,4 +185,15 @@ export async function seedDatabase() {
     console.error("Error seeding database:", error);
     // Don't throw - allow app to start even if seeding fails
   }
+}
+
+// Run seed when this file is invoked directly (e.g., `tsx server/seed.ts`),
+// but NOT when imported by server/index.ts on dev startup.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  seedDatabase()
+    .then(() => process.exit(0))
+    .catch((err) => {
+      console.error(err);
+      process.exit(1);
+    });
 }

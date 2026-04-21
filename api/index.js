@@ -224,20 +224,18 @@ var insertHelpCommentSchema = createInsertSchema(helpComments).omit({
 import { randomUUID } from "crypto";
 
 // server/db.ts
-import { Pool, neonConfig } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
-import ws from "ws";
-neonConfig.webSocketConstructor = ws;
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
 if (!process.env.DATABASE_URL) {
   throw new Error(
     "DATABASE_URL must be set. Did you forget to provision a database?"
   );
 }
-var pool = new Pool({ connectionString: process.env.DATABASE_URL });
-var db = drizzle({ client: pool, schema: schema_exports });
+var sql2 = neon(process.env.DATABASE_URL);
+var db = drizzle(sql2, { schema: schema_exports });
 
 // server/storage.ts
-import { eq, sql as sql2, asc } from "drizzle-orm";
+import { eq, sql as sql3, asc } from "drizzle-orm";
 var DbStorage = class {
   // User operations
   async getUser(id) {
@@ -355,10 +353,10 @@ var DbStorage = class {
     return result[0];
   }
   async getHelpCommentsByRoute(route) {
-    return await db.select().from(helpComments).where(eq(helpComments.route, route)).orderBy(sql2`${helpComments.createdAt} DESC`);
+    return await db.select().from(helpComments).where(eq(helpComments.route, route)).orderBy(sql3`${helpComments.createdAt} DESC`);
   }
   async getAllHelpComments() {
-    return await db.select().from(helpComments).orderBy(sql2`${helpComments.createdAt} DESC`);
+    return await db.select().from(helpComments).orderBy(sql3`${helpComments.createdAt} DESC`);
   }
   async deleteHelpComment(id) {
     const result = await db.delete(helpComments).where(eq(helpComments.id, id)).returning();
@@ -1088,10 +1086,34 @@ async function createApp() {
 }
 
 // server/vercelEntry.ts
-var ready = createApp();
+var ready;
+var bootError;
+try {
+  ready = createApp();
+} catch (err) {
+  bootError = err;
+  console.error("createApp threw synchronously:", err);
+}
 async function handler(req, res) {
-  const { app } = await ready;
-  return app(req, res);
+  try {
+    if (bootError) throw bootError;
+    if (!ready) throw new Error("handler not ready");
+    const { app } = await ready;
+    return app(req, res);
+  } catch (err) {
+    console.error("Vercel handler error:", err);
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify({
+        error: "handler crashed",
+        message: err?.message ?? String(err),
+        name: err?.name,
+        code: err?.code,
+        stack: (err?.stack ?? "").split("\n").slice(0, 10)
+      }));
+    }
+  }
 }
 export {
   handler as default
