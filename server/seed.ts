@@ -1,5 +1,5 @@
 import { db } from "./db.js";
-import { organizations, users } from "@shared/schema";
+import { organizations, users } from "../shared/schema.js";
 import bcrypt from "bcryptjs";
 
 export async function seedDatabase() {

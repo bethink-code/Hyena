@@ -17,7 +17,7 @@ import {
   organizations,
   properties,
   helpComments
-} from "@shared/schema";
+} from "../shared/schema.js";
 import { randomUUID } from "crypto";
 import { db } from "./db.js";
 import { eq, sql, asc } from "drizzle-orm";
