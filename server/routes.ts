@@ -1,14 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import express from "express";
 import { storage } from "./storage";
 import { insertIncidentSchema, updateIncidentSchema, insertIncidentTimelineSchema, insertUserSchema, baseUserInsertSchema, insertOrganizationSchema, insertPropertySchema, insertHelpCommentSchema } from "@shared/schema";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import multer from "multer";
 import path from "path";
-import fs from "fs/promises";
-import { ObjectStorageService } from "./objectStorage";
+import { put, list, del } from "@vercel/blob";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Helper function to strip password from user objects
@@ -218,20 +216,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Configure multer for file uploads
-  const uploadDir = path.join(process.cwd(), "uploads", "logos");
-  await fs.mkdir(uploadDir, { recursive: true });
-  
-  const logoStorage = multer.diskStorage({
-    destination: uploadDir,
-    filename: (req, file, cb) => {
-      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-      cb(null, `logo-${uniqueSuffix}${path.extname(file.originalname)}`);
-    },
-  });
-
+  // Logo upload handling — stores to Vercel Blob
   const upload = multer({
-    storage: logoStorage,
+    storage: multer.memoryStorage(),
     limits: { fileSize: 5242880 }, // 5MB
     fileFilter: (req, file, cb) => {
       const allowedTypes = /jpeg|jpg|png|gif|svg|webp/;
@@ -254,26 +241,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const orgId = req.body.orgId;
       if (!orgId) {
-        await fs.unlink(req.file.path);
         return res.status(400).json({ error: "Organization ID is required" });
       }
 
-      const logoUrl = `/uploads/logos/${req.file.filename}`;
-      
+      const ext = path.extname(req.file.originalname);
+      const blob = await put(`logos/org-${orgId}-${Date.now()}${ext}`, req.file.buffer, {
+        access: "public",
+        contentType: req.file.mimetype,
+      });
+
       const organization = await storage.updateOrganization(orgId, {
-        logoUrl,
+        logoUrl: blob.url,
       });
 
       if (!organization) {
-        await fs.unlink(req.file.path);
+        await del(blob.url).catch(() => {});
         return res.status(404).json({ error: "Organization not found" });
       }
 
-      res.json({ logoUrl, organization });
+      res.json({ logoUrl: blob.url, organization });
     } catch (error: any) {
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       console.error("Error uploading logo:", error);
       res.status(500).json({ error: error.message });
     }
@@ -308,17 +295,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "No file uploaded" });
       }
 
-      const logoUrl = `/uploads/logos/${req.file.filename}`;
-      
-      // Store the platform logo path in a simple JSON file
-      const platformConfigPath = path.join(process.cwd(), "uploads", "platform-config.json");
-      await fs.writeFile(platformConfigPath, JSON.stringify({ logoUrl }));
+      // Remove any existing platform logo(s) so only the latest remains
+      const existing = await list({ prefix: "platform/" });
+      await Promise.all(existing.blobs.map((b) => del(b.url)));
 
-      res.json({ logoUrl });
+      const ext = path.extname(req.file.originalname);
+      const blob = await put(`platform/logo-${Date.now()}${ext}`, req.file.buffer, {
+        access: "public",
+        contentType: req.file.mimetype,
+      });
+
+      res.json({ logoUrl: blob.url });
     } catch (error: any) {
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(() => {});
-      }
       console.error("Error uploading platform logo:", error);
       res.status(500).json({ error: error.message });
     }
@@ -327,37 +315,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get platform logo
   app.get("/api/platform/logo", async (req, res) => {
     try {
-      const platformConfigPath = path.join(process.cwd(), "uploads", "platform-config.json");
-      try {
-        const data = await fs.readFile(platformConfigPath, "utf-8");
-        const config = JSON.parse(data);
-        res.json(config);
-      } catch {
-        // No logo uploaded yet
-        res.json({ logoUrl: null });
-      }
+      const result = await list({ prefix: "platform/" });
+      const blob = result.blobs[0];
+      res.json({ logoUrl: blob?.url ?? null });
     } catch (error: any) {
       console.error("Error getting platform logo:", error);
       res.status(500).json({ error: error.message });
-    }
-  });
-
-  // Serve uploaded logo files
-  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-
-  // Serve public objects (logos) from object storage
-  app.get("/public-objects/:filePath(*)", async (req, res) => {
-    const filePath = req.params.filePath;
-    const objectStorageService = new ObjectStorageService();
-    try {
-      const file = await objectStorageService.searchPublicObject(filePath);
-      if (!file) {
-        return res.status(404).json({ error: "File not found" });
-      }
-      objectStorageService.downloadObject(file, res);
-    } catch (error: any) {
-      console.error("Error searching for public object:", error);
-      return res.status(500).json({ error: "Internal server error" });
     }
   });
 
