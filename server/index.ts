@@ -1,5 +1,6 @@
 import { createApp } from "./app.js";
-import { setupVite, serveStatic, log } from "./vite.js";
+import { setupVite, serveStatic } from "./vite.js";
+import { log } from "./log.js";
 import { seedDatabase } from "./seed.js";
 
 (async () => {

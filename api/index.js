@@ -5,8 +5,8 @@ var __export = (target, all) => {
 };
 
 // server/app.ts
-import express2 from "express";
-import path3 from "path";
+import express from "express";
+import path2 from "path";
 
 // server/routes.ts
 import { createServer } from "http";
@@ -1001,39 +1001,7 @@ async function registerRoutes(app) {
   return httpServer;
 }
 
-// server/vite.ts
-import express from "express";
-import { createServer as createViteServer, createLogger } from "vite";
-
-// vite.config.ts
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import path2 from "path";
-var vite_config_default = defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      "@": path2.resolve(import.meta.dirname, "client", "src"),
-      "@shared": path2.resolve(import.meta.dirname, "shared"),
-      "@assets": path2.resolve(import.meta.dirname, "attached_assets")
-    }
-  },
-  root: path2.resolve(import.meta.dirname, "client"),
-  build: {
-    outDir: path2.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true
-  },
-  server: {
-    fs: {
-      strict: true,
-      deny: ["**/.*"]
-    }
-  }
-});
-
-// server/vite.ts
-import { nanoid } from "nanoid";
-var viteLogger = createLogger();
+// server/log.ts
 function log(message, source = "express") {
   const formattedTime = (/* @__PURE__ */ new Date()).toLocaleTimeString("en-US", {
     hour: "numeric",
@@ -1046,11 +1014,11 @@ function log(message, source = "express") {
 
 // server/app.ts
 async function createApp() {
-  const app = express2();
-  const docsPath = path3.join(process.cwd(), "public", "docs");
-  app.use("/docs", express2.static(docsPath));
-  app.use(express2.json());
-  app.use(express2.urlencoded({ extended: false }));
+  const app = express();
+  const docsPath = path2.join(process.cwd(), "public", "docs");
+  app.use("/docs", express.static(docsPath));
+  app.use(express.json());
+  app.use(express.urlencoded({ extended: false }));
   app.use((req, res, next) => {
     const start = Date.now();
     const reqPath = req.path;

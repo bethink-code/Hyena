@@ -2,7 +2,7 @@ import express, { type Request, Response, NextFunction } from "express";
 import path from "path";
 import type { Server } from "http";
 import { registerRoutes } from "./routes.js";
-import { log } from "./vite.js";
+import { log } from "./log.js";
 
 export async function createApp(): Promise<{ app: express.Express; server: Server }> {
   const app = express();
